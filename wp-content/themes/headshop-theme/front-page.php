@@ -71,17 +71,41 @@
                             'order' => 'DESC',
                         ]);
                         foreach ($products as $product) {
-                            $img = wp_get_attachment_image_url($product->get_image_id(), 'medium');
+                            $gallery = headshop_get_product_gallery($product->get_id(), 5);
                             $link = get_permalink($product->get_id());
                             ?>
                             <div class="swiper-slide">
-                                <a href="<?php echo esc_url($link); ?>" class="block border rounded-lg overflow-hidden bg-white">
-                                    <div class="aspect-[3/4] bg-gray-100 bg-center bg-cover" style="background-image:url('<?php echo esc_url($img ?: 'https://via.placeholder.com/400x533?text=Produto'); ?>')"></div>
+                                <div class="border rounded-lg overflow-hidden bg-white">
+                                    <div class="aspect-[3/4] bg-gray-100 relative group">
+                                        <!-- Main image -->
+                                        <a href="<?php echo esc_url($link); ?>" class="block h-full">
+                                            <?php echo headshop_responsive_image($gallery[0], 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-300', true); ?>
+                                        </a>
+                                        
+                                        <!-- Gallery thumbnails (4 additional images) -->
+                                        <div class="absolute bottom-2 left-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <?php for ($i = 1; $i < 5; $i++) : ?>
+                                                <?php if (isset($gallery[$i])) : ?>
+                                                    <a href="<?php echo esc_url($gallery[$i]['url']); ?>" 
+                                                       data-lightbox="product-<?php echo $product->get_id(); ?>" 
+                                                       data-title="<?php echo esc_attr($gallery[$i]['title']); ?>"
+                                                       class="flex-1 h-8 rounded overflow-hidden">
+                                                        <?php echo headshop_responsive_image($gallery[$i], 'w-full h-full object-cover', false); ?>
+                                                    </a>
+                                                <?php endif; ?>
+                                            <?php endfor; ?>
+                                        </div>
+                                        
+                                        <!-- Gallery indicator -->
+                                        <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                                            <?php echo count(array_filter($gallery, function($img) { return $img['id'] > 0; })); ?>/5
+                                        </div>
+                                    </div>
                                     <div class="p-3">
                                         <h3 class="font-semibold text-sm line-clamp-2"><?php echo esc_html($product->get_name()); ?></h3>
                                         <div class="mt-2 font-bold text-green-700"><?php echo wp_kses_post($product->get_price_html()); ?></div>
                                     </div>
-                                </a>
+                                </div>
                             </div>
                             <?php
                         }
@@ -109,15 +133,37 @@
                             'orderby' => 'date',
                             'order' => 'DESC',
                         ]);
-                        foreach ($new as $product) { $img = wp_get_attachment_image_url($product->get_image_id(), 'medium'); ?>
+                        foreach ($new as $product) { 
+                            $gallery = headshop_get_product_gallery($product->get_id(), 5);
+                            $link = get_permalink($product->get_id());
+                            ?>
                             <div class="swiper-slide">
-                                <a href="<?php echo esc_url(get_permalink($product->get_id())); ?>" class="block border rounded-lg overflow-hidden bg-white">
-                                    <div class="aspect-[3/4] bg-gray-100 bg-center bg-cover" style="background-image:url('<?php echo esc_url($img ?: 'https://via.placeholder.com/400x533?text=Produto'); ?>')"></div>
+                                <div class="border rounded-lg overflow-hidden bg-white">
+                                    <div class="aspect-[3/4] bg-gray-100 relative group">
+                                        <a href="<?php echo esc_url($link); ?>" class="block h-full">
+                                            <?php echo headshop_responsive_image($gallery[0], 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-300', true); ?>
+                                        </a>
+                                        <div class="absolute bottom-2 left-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <?php for ($i = 1; $i < 5; $i++) : ?>
+                                                <?php if (isset($gallery[$i])) : ?>
+                                                    <a href="<?php echo esc_url($gallery[$i]['url']); ?>" 
+                                                       data-lightbox="product-<?php echo $product->get_id(); ?>" 
+                                                       data-title="<?php echo esc_attr($gallery[$i]['title']); ?>"
+                                                       class="flex-1 h-8 rounded overflow-hidden">
+                                                        <?php echo headshop_responsive_image($gallery[$i], 'w-full h-full object-cover', false); ?>
+                                                    </a>
+                                                <?php endif; ?>
+                                            <?php endfor; ?>
+                                        </div>
+                                        <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                                            <?php echo count(array_filter($gallery, function($img) { return $img['id'] > 0; })); ?>/5
+                                        </div>
+                                    </div>
                                     <div class="p-3">
                                         <h3 class="font-semibold text-sm line-clamp-2"><?php echo esc_html($product->get_name()); ?></h3>
                                         <div class="mt-2 font-bold text-green-700"><?php echo wp_kses_post($product->get_price_html()); ?></div>
                                     </div>
-                                </a>
+                                </div>
                             </div>
                         <?php } } ?>
                 </div>
@@ -140,15 +186,40 @@
                             'limit' => 12,
                             'include' => $on_sale_ids,
                         ]);
-                        foreach ($sale as $product) { $img = wp_get_attachment_image_url($product->get_image_id(), 'medium'); ?>
+                        foreach ($sale as $product) { 
+                            $gallery = headshop_get_product_gallery($product->get_id(), 5);
+                            $link = get_permalink($product->get_id());
+                            ?>
                             <div class="swiper-slide">
-                                <a href="<?php echo esc_url(get_permalink($product->get_id())); ?>" class="block border rounded-lg overflow-hidden bg-white">
-                                    <div class="aspect-[3/4] bg-gray-100 bg-center bg-cover" style="background-image:url('<?php echo esc_url($img ?: 'https://via.placeholder.com/400x533?text=Produto'); ?>')"></div>
+                                <div class="border rounded-lg overflow-hidden bg-white">
+                                    <div class="aspect-[3/4] bg-gray-100 relative group">
+                                        <a href="<?php echo esc_url($link); ?>" class="block h-full">
+                                            <?php echo headshop_responsive_image($gallery[0], 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-300', true); ?>
+                                        </a>
+                                        <div class="absolute bottom-2 left-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <?php for ($i = 1; $i < 5; $i++) : ?>
+                                                <?php if (isset($gallery[$i])) : ?>
+                                                    <a href="<?php echo esc_url($gallery[$i]['url']); ?>" 
+                                                       data-lightbox="product-<?php echo $product->get_id(); ?>" 
+                                                       data-title="<?php echo esc_attr($gallery[$i]['title']); ?>"
+                                                       class="flex-1 h-8 rounded overflow-hidden">
+                                                        <?php echo headshop_responsive_image($gallery[$i], 'w-full h-full object-cover', false); ?>
+                                                    </a>
+                                                <?php endif; ?>
+                                            <?php endfor; ?>
+                                        </div>
+                                        <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                                            PROMOÇÃO
+                                        </div>
+                                        <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                                            <?php echo count(array_filter($gallery, function($img) { return $img['id'] > 0; })); ?>/5
+                                        </div>
+                                    </div>
                                     <div class="p-3">
                                         <h3 class="font-semibold text-sm line-clamp-2"><?php echo esc_html($product->get_name()); ?></h3>
                                         <div class="mt-2 font-bold text-green-700"><?php echo wp_kses_post($product->get_price_html()); ?></div>
                                     </div>
-                                </a>
+                                </div>
                             </div>
                         <?php } } ?>
                 </div>
@@ -175,15 +246,40 @@
                             'order' => 'DESC',
                         ];
                         $bests = wc_get_products($args);
-                        foreach ($bests as $product) { $img = wp_get_attachment_image_url($product->get_image_id(), 'medium'); ?>
+                        foreach ($bests as $product) { 
+                            $gallery = headshop_get_product_gallery($product->get_id(), 5);
+                            $link = get_permalink($product->get_id());
+                            ?>
                             <div class="swiper-slide">
-                                <a href="<?php echo esc_url(get_permalink($product->get_id())); ?>" class="block border rounded-lg overflow-hidden bg-white">
-                                    <div class="aspect-[3/4] bg-gray-100 bg-center bg-cover" style="background-image:url('<?php echo esc_url($img ?: 'https://via.placeholder.com/400x533?text=Produto'); ?>')"></div>
+                                <div class="border rounded-lg overflow-hidden bg-white">
+                                    <div class="aspect-[3/4] bg-gray-100 relative group">
+                                        <a href="<?php echo esc_url($link); ?>" class="block h-full">
+                                            <?php echo headshop_responsive_image($gallery[0], 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-300', true); ?>
+                                        </a>
+                                        <div class="absolute bottom-2 left-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <?php for ($i = 1; $i < 5; $i++) : ?>
+                                                <?php if (isset($gallery[$i])) : ?>
+                                                    <a href="<?php echo esc_url($gallery[$i]['url']); ?>" 
+                                                       data-lightbox="product-<?php echo $product->get_id(); ?>" 
+                                                       data-title="<?php echo esc_attr($gallery[$i]['title']); ?>"
+                                                       class="flex-1 h-8 rounded overflow-hidden">
+                                                        <?php echo headshop_responsive_image($gallery[$i], 'w-full h-full object-cover', false); ?>
+                                                    </a>
+                                                <?php endif; ?>
+                                            <?php endfor; ?>
+                                        </div>
+                                        <div class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded">
+                                            BEST
+                                        </div>
+                                        <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                                            <?php echo count(array_filter($gallery, function($img) { return $img['id'] > 0; })); ?>/5
+                                        </div>
+                                    </div>
                                     <div class="p-3">
                                         <h3 class="font-semibold text-sm line-clamp-2"><?php echo esc_html($product->get_name()); ?></h3>
                                         <div class="mt-2 font-bold text-green-700"><?php echo wp_kses_post($product->get_price_html()); ?></div>
                                     </div>
-                                </a>
+                                </div>
                             </div>
                         <?php } } ?>
                 </div>
