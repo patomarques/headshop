@@ -1,0 +1,46 @@
+# WordPress Core (não versionar)
+/wp-admin/
+/wp-includes/
+/wp-*.php
+/index.php
+/license.txt
+/readme.html
+xmlrpc.php
+.htaccess
+
+# Uploads
+/wp-content/uploads/
+/wp-content/blogs.dir/
+
+# Plugins e temas (exceto os custom)
+/wp-content/plugins/*
+!/wp-content/plugins/seu-plugin-custom
+/wp-content/themes/*
+/wp-content/languages/*
+!/wp-content/themes/languages/your-theme-language.po
+!/wp-content/themes/seu-tema
+!/wp-content/themes/seu-child-theme
+
+# Ambiente
+/.htaccess
+/.env
+/.env.local
+/.env.production
+
+# Dependências
+/node_modules/
+/vendor/
+
+# Logs e backups
+*.log
+*.sql
+*.zip
+*.tar.gz
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Jetpack (arquivos/runtime gerados, não versionar)
+/wp-content/jetpack-*/
+/wp-content/jetpack-waf/
