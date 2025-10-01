@@ -16,6 +16,7 @@ xmlrpc.php
 /wp-content/plugins/*
 !/wp-content/plugins/seu-plugin-custom
 /wp-content/themes/*
+!/wp-content/themes/headshop-theme
 /wp-content/languages/*
 !/wp-content/themes/languages/your-theme-language.po
 !/wp-content/themes/seu-tema
