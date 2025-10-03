@@ -45,6 +45,269 @@ function headshop_theme_assets() {
     // Theme JS
     wp_enqueue_script('headshop-main', get_template_directory_uri() . '/assets/js/main.js', ['swiper'], '1.1.0', true);
     wp_add_inline_script('headshop-main', 'window.headshopSettings = ' . wp_json_encode($carousel_settings) . ';', 'before');
+    
+    // Add custom CSS for better styling
+    $custom_css = '
+        /* Line clamp utility */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* Prose styling for content */
+        .prose {
+            color: #374151;
+            line-height: 1.75;
+        }
+        
+        .prose h1, .prose h2, .prose h3, .prose h4 {
+            color: #111827;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .prose p {
+            margin-bottom: 1.25rem;
+        }
+        
+        .prose ul, .prose ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+        
+        .prose li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* WooCommerce specific styles */
+        .woocommerce-result-count {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .woocommerce-ordering select {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            background-color: white;
+            font-size: 0.875rem;
+        }
+        
+        .woocommerce-pagination {
+            margin-top: 2rem;
+        }
+        
+        .woocommerce-pagination .page-numbers {
+            display: inline-block;
+            padding: 0.5rem 0.75rem;
+            margin: 0 0.25rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            color: #374151;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .woocommerce-pagination .page-numbers:hover,
+        .woocommerce-pagination .page-numbers.current {
+            background-color: #059669;
+            color: white;
+            border-color: #059669;
+        }
+        
+        /* Breadcrumb styling */
+        .woocommerce-breadcrumb {
+            margin-bottom: 1.5rem;
+        }
+        
+        .woocommerce-breadcrumb a {
+            color: #059669;
+            text-decoration: none;
+        }
+        
+        .woocommerce-breadcrumb a:hover {
+            color: #047857;
+            text-decoration: underline;
+        }
+        
+        /* Form styling */
+        .woocommerce form .form-row {
+            margin-bottom: 1rem;
+        }
+        
+        .woocommerce form .form-row label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .woocommerce form input[type="text"],
+        .woocommerce form input[type="email"],
+        .woocommerce form input[type="password"],
+        .woocommerce form input[type="number"],
+        .woocommerce form select,
+        .woocommerce form textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+        
+        .woocommerce form input:focus,
+        .woocommerce form select:focus,
+        .woocommerce form textarea:focus {
+            outline: none;
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+        
+        /* Button styling */
+        .woocommerce .button,
+        .woocommerce button.button,
+        .woocommerce input.button {
+            background-color: #059669;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .woocommerce .button:hover,
+        .woocommerce button.button:hover,
+        .woocommerce input.button:hover {
+            background-color: #047857;
+        }
+        
+        /* Price styling */
+        .woocommerce .price {
+            color: #059669;
+            font-weight: 700;
+        }
+        
+        .woocommerce .price del {
+            color: #9ca3af;
+            font-weight: 400;
+        }
+        
+        /* Star rating */
+        .woocommerce .star-rating {
+            color: #fbbf24;
+        }
+        
+        /* Notice styling */
+        .woocommerce-message,
+        .woocommerce-info,
+        .woocommerce-error {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.375rem;
+            border-left: 4px solid;
+        }
+        
+        .woocommerce-message {
+            background-color: #ecfdf5;
+            border-left-color: #059669;
+            color: #065f46;
+        }
+        
+        .woocommerce-info {
+            background-color: #eff6ff;
+            border-left-color: #2563eb;
+            color: #1e40af;
+        }
+        
+        .woocommerce-error {
+            background-color: #fef2f2;
+            border-left-color: #dc2626;
+            color: #991b1b;
+        }
+        
+        /* Mobile menu animation */
+        #mobile-menu {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Focus styles for accessibility */
+        button:focus,
+        a:focus,
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: 2px solid #059669;
+            outline-offset: 2px;
+        }
+        
+        /* WooCommerce Product Grid */
+        .woocommerce ul.products {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        @media (min-width: 768px) {
+            .woocommerce ul.products {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .woocommerce ul.products {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .woocommerce ul.products li.product {
+            margin: 0;
+            padding: 0;
+            width: auto;
+            float: none;
+        }
+        
+        /* Custom add to cart button styling */
+        .woocommerce ul.products li.product .button {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 0;
+        }
+        
+        /* Hide default WooCommerce styling that might interfere */
+        .woocommerce ul.products li.product .woocommerce-loop-product__link {
+            display: block;
+        }
+        
+        .woocommerce ul.products li.product .woocommerce-loop-product__title {
+            font-size: inherit;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .woocommerce ul.products li.product .price {
+            margin: 0;
+        }
+    ';
+    
+    wp_add_inline_style('tailwindcss-cdn', $custom_css);
 }
 add_action('wp_enqueue_scripts', 'headshop_theme_assets');
 
@@ -215,23 +478,280 @@ function headshop_get_product_gallery($product_id, $limit = 5) {
         }
     }
     
-    // Fill remaining slots with placeholder if needed
+    // If no images at all, add a category-specific placeholder as the first image
+    if (empty($gallery)) {
+        $gallery[] = [
+            'id' => 0,
+            'url' => headshop_get_category_placeholder($product_id, 600, 600),
+            'thumb' => headshop_get_category_placeholder($product_id, 300, 300),
+            'alt' => 'Imagem do produto',
+            'title' => 'Imagem do produto',
+        ];
+    }
+    
+    // Fill remaining slots with empty placeholder if needed
     while (count($gallery) < $limit) {
         $gallery[] = [
             'id' => 0,
-            'url' => 'https://via.placeholder.com/1200x1600/efefef/999999?text=' . urlencode($product->get_name()),
-            'thumb' => 'https://via.placeholder.com/300x400/efefef/999999?text=' . urlencode($product->get_name()),
-            'alt' => $product->get_name(),
-            'title' => $product->get_name(),
+            'url' => '',
+            'thumb' => '',
+            'alt' => 'Sem imagem',
+            'title' => 'Sem imagem',
         ];
     }
     
     return $gallery;
 }
 
+// Generate category-specific placeholder images
+function headshop_get_category_placeholder($product_id, $width = 400, $height = 400) {
+    $product = wc_get_product($product_id);
+    if (!$product) return headshop_get_placeholder_image($width, $height);
+    
+    $categories = wp_get_post_terms($product_id, 'product_cat');
+    $product_name = strtolower($product->get_name());
+    
+    // Determine product type based on categories and name
+    $icon_path = '';
+    $bg_color = '#f3f4f6';
+    $text = 'Produto';
+    
+    // Check categories first
+    if (!empty($categories)) {
+        foreach ($categories as $category) {
+            $cat_name = strtolower($category->name);
+            if (strpos($cat_name, 'bong') !== false || strpos($cat_name, 'water') !== false) {
+                return headshop_generate_realistic_product_image($product->get_name(), $category->name, $width, $height);
+            }
+            if (strpos($cat_name, 'vapor') !== false || strpos($cat_name, 'vape') !== false) {
+                return headshop_generate_realistic_product_image($product->get_name(), $category->name, $width, $height);
+            }
+            if (strpos($cat_name, 'seda') !== false || strpos($cat_name, 'paper') !== false) {
+                return headshop_generate_realistic_product_image($product->get_name(), $category->name, $width, $height);
+            }
+            if (strpos($cat_name, 'pipe') !== false) {
+                return headshop_generate_realistic_product_image($product->get_name(), $category->name, $width, $height);
+            }
+            if (strpos($cat_name, 'grind') !== false || strpos($cat_name, 'moedor') !== false) {
+                return headshop_generate_realistic_product_image($product->get_name(), $category->name, $width, $height);
+            }
+        }
+    }
+    
+    // Check product name if no category match
+    if (strpos($product_name, 'bong') !== false) {
+        return headshop_generate_realistic_product_image($product->get_name(), '', $width, $height);
+    }
+    if (strpos($product_name, 'vapor') !== false || strpos($product_name, 'vape') !== false) {
+        return headshop_generate_realistic_product_image($product->get_name(), '', $width, $height);
+    }
+    if (strpos($product_name, 'seda') !== false || strpos($product_name, 'paper') !== false) {
+        return headshop_generate_realistic_product_image($product->get_name(), '', $width, $height);
+    }
+    if (strpos($product_name, 'pipe') !== false) {
+        return headshop_generate_realistic_product_image($product->get_name(), '', $width, $height);
+    }
+    if (strpos($product_name, 'grind') !== false || strpos($product_name, 'moedor') !== false) {
+        return headshop_generate_realistic_product_image($product->get_name(), '', $width, $height);
+    }
+    
+    // Default generic placeholder
+    return headshop_get_placeholder_image($width, $height, 'Produto');
+}
+
+// Generate realistic product images using external services
+function headshop_generate_realistic_product_image($product_name, $category, $width = 400, $height = 400) {
+    // This function would integrate with AI image generation services
+    // For now, we'll create more detailed placeholders
+    
+    $search_terms = [
+        'bong' => 'glass water pipe smoking',
+        'vaporizer' => 'electronic vaporizer device',
+        'vape' => 'vape pen electronic cigarette',
+        'seda' => 'rolling papers cigarette',
+        'paper' => 'rolling papers tobacco',
+        'pipe' => 'smoking pipe tobacco',
+        'grinder' => 'herb grinder metal',
+        'moedor' => 'grinder smoking accessories'
+    ];
+    
+    $search_term = 'smoking accessories';
+    foreach ($search_terms as $key => $term) {
+        if (strpos(strtolower($product_name), $key) !== false || strpos(strtolower($category), $key) !== false) {
+            $search_term = $term;
+            break;
+        }
+    }
+    
+    // Determine product type and colors based on search terms
+    $type = 'bong';
+    $bg_color = '#f3f4f6';
+    $text = 'Produto';
+    
+    if (strpos($search_term, 'vaporizer') !== false || strpos($search_term, 'vape') !== false) {
+        $type = 'vaporizer';
+        $bg_color = '#f3e8ff';
+        $text = 'Vaporizador';
+    } elseif (strpos($search_term, 'rolling papers') !== false || strpos($search_term, 'cigarette') !== false) {
+        $type = 'papers';
+        $bg_color = '#fef3c7';
+        $text = 'Sedas';
+    } elseif (strpos($search_term, 'pipe') !== false) {
+        $type = 'pipe';
+        $bg_color = '#fde68a';
+        $text = 'Pipe';
+    } elseif (strpos($search_term, 'grinder') !== false) {
+        $type = 'grinder';
+        $bg_color = '#d1fae5';
+        $text = 'Grinder';
+    } elseif (strpos($search_term, 'water pipe') !== false) {
+        $type = 'bong';
+        $bg_color = '#e0f2fe';
+        $text = 'Bong';
+    }
+    
+    // For now, return a more detailed placeholder
+    // In a real implementation, this would call an AI service
+    return headshop_create_detailed_placeholder($width, $height, $type, $bg_color, $text, $search_term);
+}
+
+// Create more detailed placeholder with product-specific elements
+function headshop_create_detailed_placeholder($width, $height, $type, $bg_color, $text, $search_term = '') {
+    $icon_size = min(80, $width * 0.2);
+    $font_size = min(18, $width * 0.045);
+    
+    $icons = [
+        'bong' => '<path d="M8 2C8 1.45 8.45 1 9 1h6c.55 0 1 .45 1 1v2h2c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h2V2zm2 2h4V3h-4v1zm-4 3v9h12V7H6zm2 2h8v5H8V9z"/>',
+        'vaporizer' => '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v-.07zM17.9 17.39c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>',
+        'papers' => '<path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/><path d="M8 12h8v2H8zm0 4h8v2H8zm0-8h5v2H8z"/>',
+        'pipe' => '<path d="M18.5 2c-.83 0-1.5.67-1.5 1.5 0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5c0-.83-.67-1.5-1.5-1.5zM16 6c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38L6.5 18.5c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l6.12-6.12C14.71 13.29 15.11 13 16 13c2.21 0 4-1.79 4-4s-1.79-4-4-4z"/>',
+        'grinder' => '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/><circle cx="12" cy="12" r="2"/>'
+    ];
+    
+    $icon = isset($icons[$type]) ? $icons[$type] : $icons['bong'];
+    
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' . $width . '" height="' . $height . '" viewBox="0 0 ' . $width . ' ' . $height . '">
+        <defs>
+            <linearGradient id="bg-' . $type . '" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:' . $bg_color . ';stop-opacity:1" />
+                <stop offset="100%" style="stop-color:' . $bg_color . ';stop-opacity:0.8" />
+            </linearGradient>
+            <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.3"/>
+            </filter>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bg-' . $type . ')" stroke="#e5e7eb" stroke-width="2" rx="12"/>
+        
+        <!-- Product shadow -->
+        <ellipse cx="' . ($width/2) . '" cy="' . ($height - 20) . '" rx="' . ($width * 0.3) . '" ry="8" fill="#000000" opacity="0.1"/>
+        
+        <!-- Main product icon -->
+        <g transform="translate(' . ($width/2) . ',' . ($height/2 - 30) . ')" filter="url(#shadow)">
+            <g transform="translate(' . (-$icon_size/2) . ',' . (-$icon_size/2) . ')">
+                <svg width="' . $icon_size . '" height="' . $icon_size . '" fill="#374151" viewBox="0 0 24 24">
+                    ' . $icon . '
+                </svg>
+            </g>
+        </g>
+        
+        <!-- Product name -->
+        <text x="50%" y="' . ($height/2 + $font_size + 20) . '" text-anchor="middle" fill="#374151" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="' . $font_size . '" font-weight="600">' . htmlspecialchars($text) . '</text>
+        
+        <!-- Search term hint -->
+        <text x="50%" y="' . ($height/2 + $font_size + 45) . '" text-anchor="middle" fill="#6b7280" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="' . ($font_size * 0.7) . '" font-weight="400">Buscar: ' . htmlspecialchars($search_term) . '</text>
+        
+        <!-- Quality indicator -->
+        <circle cx="' . ($width - 20) . '" cy="20" r="8" fill="#10b981" opacity="0.8"/>
+        <text x="' . ($width - 20) . '" y="25" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="10" font-weight="bold">HD</text>
+    </svg>';
+    
+    return 'data:image/svg+xml;base64,' . base64_encode($svg);
+}
+
+// Create specific placeholder for product types
+function headshop_create_specific_placeholder($width, $height, $type, $bg_color, $text) {
+    $icon_size = min(64, $width * 0.16);
+    $font_size = min(16, $width * 0.04);
+    
+    $icons = [
+        'bong' => '<path d="M8 2C8 1.45 8.45 1 9 1h6c.55 0 1 .45 1 1v2h2c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h2V2zm2 2h4V3h-4v1zm-4 3v9h12V7H6zm2 2h8v5H8V9z"/>',
+        'vaporizer' => '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v-.07zM17.9 17.39c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>',
+        'papers' => '<path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/><path d="M8 12h8v2H8zm0 4h8v2H8zm0-8h5v2H8z"/>',
+        'pipe' => '<path d="M18.5 2c-.83 0-1.5.67-1.5 1.5 0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5c0-.83-.67-1.5-1.5-1.5zM16 6c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38L6.5 18.5c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l6.12-6.12C14.71 13.29 15.11 13 16 13c2.21 0 4-1.79 4-4s-1.79-4-4-4z"/>',
+        'grinder' => '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/><circle cx="12" cy="12" r="2"/>'
+    ];
+    
+    $icon = isset($icons[$type]) ? $icons[$type] : $icons['bong'];
+    
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' . $width . '" height="' . $height . '" viewBox="0 0 ' . $width . ' ' . $height . '">
+        <defs>
+            <linearGradient id="bg-' . $type . '" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:' . $bg_color . ';stop-opacity:1" />
+                <stop offset="100%" style="stop-color:' . $bg_color . ';stop-opacity:0.8" />
+            </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bg-' . $type . ')" stroke="#e5e7eb" stroke-width="2" rx="8"/>
+        <g transform="translate(' . ($width/2) . ',' . ($height/2 - $font_size) . ')">
+            <g transform="translate(' . (-$icon_size/2) . ',' . (-$icon_size/2) . ')">
+                <svg width="' . $icon_size . '" height="' . $icon_size . '" fill="#374151" viewBox="0 0 24 24">
+                    ' . $icon . '
+                </svg>
+            </g>
+        </g>
+        <text x="50%" y="' . ($height/2 + $font_size + 15) . '" text-anchor="middle" fill="#374151" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="' . $font_size . '" font-weight="600">' . htmlspecialchars($text) . '</text>
+    </svg>';
+    
+    return 'data:image/svg+xml;base64,' . base64_encode($svg);
+}
+
+// Generate placeholder image URL
+function headshop_get_placeholder_image($width = 400, $height = 400, $text = 'Sem imagem') {
+    // Calculate responsive icon and text sizes
+    $icon_size = min(48, $width * 0.12);
+    $font_size = min(14, $width * 0.035);
+    
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' . $width . '" height="' . $height . '" viewBox="0 0 ' . $width . ' ' . $height . '">
+        <defs>
+            <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#f9fafb;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#f3f4f6;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bg)" stroke="#e5e7eb" stroke-width="1"/>
+        <g transform="translate(' . ($width/2) . ',' . ($height/2 - $font_size) . ')">
+            <g transform="translate(' . (-$icon_size/2) . ',' . (-$icon_size/2) . ')">
+                <svg width="' . $icon_size . '" height="' . $icon_size . '" fill="#9ca3af" viewBox="0 0 24 24">
+                    <path d="M4 4h16v12l-4-4-4 4-4-4-4 4V4zm16-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                </svg>
+            </g>
+        </g>
+        <text x="50%" y="' . ($height/2 + $font_size + 10) . '" text-anchor="middle" fill="#6b7280" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="' . $font_size . '" font-weight="500">' . htmlspecialchars($text) . '</text>
+    </svg>';
+    
+    return 'data:image/svg+xml;base64,' . base64_encode($svg);
+}
+
 // Responsive image with lazy loading
-function headshop_responsive_image($image, $class = '', $lazy = true) {
-    if (empty($image['url'])) return '';
+function headshop_responsive_image($image, $class = '', $lazy = true, $product_id = null) {
+    // If no image or invalid image, return placeholder
+    if (empty($image['url']) || $image['id'] <= 0) {
+        // Try to get category-specific placeholder if product_id is available
+        if ($product_id) {
+            $placeholder_url = headshop_get_category_placeholder($product_id, 400, 400);
+        } else {
+            $placeholder_url = headshop_get_placeholder_image(400, 400);
+        }
+        
+        $loading = $lazy ? 'loading="lazy"' : '';
+        
+        return sprintf(
+            '<img src="%s" alt="Imagem do produto" class="%s" %s decoding="async">',
+            esc_url($placeholder_url),
+            esc_attr($class),
+            $loading
+        );
+    }
     
     $loading = $lazy ? 'loading="lazy"' : '';
     $srcset = '';
@@ -286,19 +806,23 @@ function headshop_assign_stock_images($product_id, $count = 4) {
     for ($i = 1; $i <= $count && $attempts < $max_attempts; $i++) {
         $attempts++;
         $search_term = $search_terms[($i - 1) % count($search_terms)];
+        
+        error_log('Headshop: Searching for image ' . $i . ' with term: "' . $search_term . '" for product: ' . $product_name);
+        
         $image_url = headshop_get_stock_image($search_term, 1200, 1600);
         
         if ($image_url) {
+            error_log('Headshop: Found image URL: ' . $image_url);
             $attachment_id = headshop_download_and_attach_image($image_url, $product_name . ' - ' . $search_term . ' ' . $i);
             if ($attachment_id) {
                 $assigned_images[] = $attachment_id;
-                error_log('Headshop: Successfully assigned image ' . $i . ' for product: ' . $product_name);
+                error_log('Headshop: Successfully assigned image ' . $i . ' for product: ' . $product_name . ' (ID: ' . $attachment_id . ')');
             } else {
                 error_log('Headshop: Failed to download/attach image for product: ' . $product_name);
                 $i--; // Retry this image
             }
         } else {
-            error_log('Headshop: Failed to get stock image for product: ' . $product_name . ' (attempt ' . $attempts . ')');
+            error_log('Headshop: Failed to get stock image for product: ' . $product_name . ' with term: "' . $search_term . '" (attempt ' . $attempts . ')');
             $i--; // Retry this image
         }
         
@@ -321,31 +845,186 @@ function headshop_assign_stock_images($product_id, $count = 4) {
     return false;
 }
 
-// Get search terms based on product name and category
+// Get search terms based on product name and category (improved)
 function headshop_get_image_search_terms($product) {
-    $terms = ['smoking', 'tobacco', 'cigarette', 'pipe'];
-    
+    $terms = [];
     $product_name = strtolower($product->get_name());
     $categories = wp_get_post_terms($product->get_id(), 'product_cat');
+    
+    // Extract keywords from product name
+    $name_keywords = headshop_extract_keywords($product_name);
+    $terms = array_merge($terms, $name_keywords);
     
     // Add category-based terms
     if (!is_wp_error($categories) && !empty($categories)) {
         foreach ($categories as $category) {
             $cat_name = strtolower($category->name);
-            if (strpos($cat_name, 'bong') !== false) $terms[] = 'bong water pipe';
-            if (strpos($cat_name, 'vapor') !== false) $terms[] = 'vaporizer electronic cigarette';
-            if (strpos($cat_name, 'sed') !== false) $terms[] = 'rolling papers cigarette';
-            if (strpos($cat_name, 'acess') !== false) $terms[] = 'smoking accessories';
+            $cat_keywords = headshop_extract_keywords($cat_name);
+            $terms = array_merge($terms, $cat_keywords);
         }
     }
     
-    // Add product name-based terms
-    if (strpos($product_name, 'bong') !== false) $terms[] = 'bong water pipe glass';
-    if (strpos($product_name, 'vapor') !== false) $terms[] = 'vaporizer electronic';
-    if (strpos($product_name, 'sed') !== false) $terms[] = 'rolling papers tobacco';
-    if (strpos($product_name, 'pipe') !== false) $terms[] = 'smoking pipe tobacco';
+    // Add specific product type terms based on keywords found
+    $terms = headshop_add_specific_terms($terms, $product_name);
     
-    return array_unique($terms);
+    // Remove duplicates and empty values
+    $terms = array_filter(array_unique($terms));
+    
+    // If no specific terms found, use generic smoking-related terms
+    if (empty($terms)) {
+        $terms = ['smoking', 'tobacco', 'cigarette', 'pipe'];
+    }
+    
+    return $terms;
+}
+
+// Extract meaningful keywords from product name
+function headshop_extract_keywords($text) {
+    $keywords = [];
+    
+    // Common smoking/headshop related words to look for
+    $smoking_terms = [
+        'bong', 'water pipe', 'pipe', 'vaporizer', 'vape', 'vapor',
+        'rolling papers', 'papers', 'sedas', 'cigarette', 'cigar',
+        'tobacco', 'smoking', 'smoke', 'ash', 'ashtray', 'lighter',
+        'grinder', 'grind', 'grinding', 'filter', 'tip', 'tips',
+        'cone', 'cones', 'blunt', 'blunts', 'joint', 'joints',
+        'hookah', 'shisha', 'hookah', 'bubbler', 'dab', 'dabbing',
+        'wax', 'concentrate', 'concentrates', 'oil', 'oils',
+        'glass', 'ceramic', 'wood', 'metal', 'silicon', 'silicone',
+        'portable', 'desktop', 'electric', 'electronic', 'battery',
+        'rechargeable', 'usb', 'wireless', 'bluetooth'
+    ];
+    
+    // Check for each term in the product name
+    foreach ($smoking_terms as $term) {
+        if (strpos($text, $term) !== false) {
+            $keywords[] = $term;
+        }
+    }
+    
+    // Extract individual words (2+ characters) that might be relevant
+    $words = preg_split('/[\s\-\_]+/', $text);
+    foreach ($words as $word) {
+        $word = trim($word);
+        if (strlen($word) >= 3 && !is_numeric($word)) {
+            // Skip common words
+            $common_words = ['the', 'and', 'or', 'for', 'with', 'from', 'this', 'that', 'are', 'was', 'were', 'been', 'have', 'has', 'had', 'will', 'would', 'could', 'should', 'may', 'might', 'can', 'must', 'shall', 'do', 'does', 'did', 'done', 'get', 'got', 'give', 'gave', 'take', 'took', 'make', 'made', 'come', 'came', 'go', 'went', 'see', 'saw', 'know', 'knew', 'think', 'thought', 'look', 'looked', 'want', 'wanted', 'need', 'needed', 'use', 'used', 'find', 'found', 'work', 'worked', 'call', 'called', 'try', 'tried', 'ask', 'asked', 'feel', 'felt', 'leave', 'left', 'put', 'put', 'mean', 'meant', 'keep', 'kept', 'let', 'let', 'begin', 'began', 'seem', 'seemed', 'help', 'helped', 'talk', 'talked', 'turn', 'turned', 'start', 'started', 'show', 'showed', 'hear', 'heard', 'play', 'played', 'run', 'ran', 'move', 'moved', 'live', 'lived', 'believe', 'believed', 'hold', 'held', 'bring', 'brought', 'happen', 'happened', 'write', 'wrote', 'provide', 'provided', 'sit', 'sat', 'stand', 'stood', 'lose', 'lost', 'pay', 'paid', 'meet', 'met', 'include', 'included', 'continue', 'continued', 'set', 'set', 'learn', 'learned', 'change', 'changed', 'lead', 'led', 'understand', 'understood', 'watch', 'watched', 'follow', 'followed', 'stop', 'stopped', 'create', 'created', 'speak', 'spoke', 'read', 'read', 'allow', 'allowed', 'add', 'added', 'spend', 'spent', 'grow', 'grew', 'open', 'opened', 'walk', 'walked', 'win', 'won', 'offer', 'offered', 'remember', 'remembered', 'love', 'loved', 'consider', 'considered', 'appear', 'appeared', 'buy', 'bought', 'wait', 'waited', 'serve', 'served', 'die', 'died', 'send', 'sent', 'expect', 'expected', 'build', 'built', 'stay', 'stayed', 'fall', 'fell', 'cut', 'cut', 'reach', 'reached', 'kill', 'killed', 'remain', 'remained', 'suggest', 'suggested', 'raise', 'raised', 'pass', 'passed', 'sell', 'sold', 'require', 'required', 'report', 'reported', 'decide', 'decided', 'pull', 'pulled'];
+            
+            if (!in_array($word, $common_words)) {
+                $keywords[] = $word;
+            }
+        }
+    }
+    
+    return $keywords;
+}
+
+// Add specific search terms based on keywords found
+function headshop_add_specific_terms($terms, $product_name) {
+    $specific_terms = [];
+    
+    // Bong/Water pipe related
+    if (headshop_contains_any($product_name, ['bong', 'water pipe', 'bubbler'])) {
+        $specific_terms = array_merge($specific_terms, [
+            'bong water pipe glass smoking',
+            'water pipe smoking device',
+            'glass bong smoking',
+            'bong smoking accessories'
+        ]);
+    }
+    
+    // Vaporizer related
+    if (headshop_contains_any($product_name, ['vaporizer', 'vape', 'vapor', 'electronic'])) {
+        $specific_terms = array_merge($specific_terms, [
+            'vaporizer electronic cigarette',
+            'vape pen electronic smoking',
+            'portable vaporizer device',
+            'electronic smoking device'
+        ]);
+    }
+    
+    // Rolling papers related
+    if (headshop_contains_any($product_name, ['papers', 'sedas', 'rolling', 'cigarette'])) {
+        $specific_terms = array_merge($specific_terms, [
+            'rolling papers cigarette tobacco',
+            'cigarette papers smoking',
+            'tobacco rolling papers',
+            'smoking papers cigarette'
+        ]);
+    }
+    
+    // Pipe related
+    if (headshop_contains_any($product_name, ['pipe', 'smoking pipe'])) {
+        $specific_terms = array_merge($specific_terms, [
+            'smoking pipe tobacco',
+            'wooden pipe smoking',
+            'glass pipe smoking',
+            'tobacco pipe smoking'
+        ]);
+    }
+    
+    // Grinder related
+    if (headshop_contains_any($product_name, ['grinder', 'grind', 'grinding'])) {
+        $specific_terms = array_merge($specific_terms, [
+            'herb grinder smoking',
+            'grinder smoking accessories',
+            'metal grinder smoking',
+            'grinding device smoking'
+        ]);
+    }
+    
+    // Hookah related
+    if (headshop_contains_any($product_name, ['hookah', 'shisha'])) {
+        $specific_terms = array_merge($specific_terms, [
+            'hookah shisha smoking',
+            'hookah pipe smoking',
+            'shisha smoking device',
+            'hookah smoking accessories'
+        ]);
+    }
+    
+    // Lighter related
+    if (headshop_contains_any($product_name, ['lighter', 'lighter', 'fire', 'flame'])) {
+        $specific_terms = array_merge($specific_terms, [
+            'lighter smoking accessories',
+            'cigarette lighter smoking',
+            'flame lighter smoking',
+            'smoking lighter device'
+        ]);
+    }
+    
+    // Ashtray related
+    if (headshop_contains_any($product_name, ['ashtray', 'ash', 'tray'])) {
+        $specific_terms = array_merge($specific_terms, [
+            'ashtray smoking accessories',
+            'smoking ashtray device',
+            'ash tray smoking',
+            'cigarette ashtray smoking'
+        ]);
+    }
+    
+    // If no specific terms found, add generic smoking terms
+    if (empty($specific_terms)) {
+        $specific_terms = [
+            'smoking accessories tobacco',
+            'tobacco smoking products',
+            'smoking device tobacco',
+            'cigarette smoking accessories'
+        ];
+    }
+    
+    return array_merge($terms, $specific_terms);
+}
+
+// Helper function to check if string contains any of the given terms
+function headshop_contains_any($text, $terms) {
+    foreach ($terms as $term) {
+        if (strpos($text, $term) !== false) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // Get random image from stock photo services
@@ -571,15 +1250,56 @@ function headshop_ajax_get_progress() {
 }
 
 // Admin interface for image assignment
+// Remove all product images function
+function headshop_remove_all_product_images() {
+    if (!class_exists('WooCommerce')) return false;
+    
+    $products = wc_get_products(['limit' => -1]);
+    $removed_count = 0;
+    
+    foreach ($products as $product) {
+        $product_id = $product->get_id();
+        
+        // Remove featured image
+        if (has_post_thumbnail($product_id)) {
+            delete_post_thumbnail($product_id);
+            $removed_count++;
+        }
+        
+        // Remove gallery images
+        $gallery_ids = $product->get_gallery_image_ids();
+        if (!empty($gallery_ids)) {
+            update_post_meta($product_id, '_product_image_gallery', '');
+            $removed_count += count($gallery_ids);
+        }
+        
+        // Clear WooCommerce cache
+        wc_delete_product_transients($product_id);
+    }
+    
+    return $removed_count;
+}
+
 add_action('admin_menu', function() {
     add_management_page(
-        'Atribuir Imagens de Estoque',
-        'Atribuir Imagens',
+        'Gerenciar Imagens dos Produtos',
+        'Imagens dos Produtos',
         'manage_options',
-        'headshop-assign-images',
-        'headshop_admin_image_assignment_page'
+        'headshop-manage-images',
+        'headshop_admin_image_management_page'
     );
 });
+
+function headshop_admin_image_management_page() {
+    // Handle remove all images
+    if (isset($_POST['remove_all_images']) && wp_verify_nonce($_POST['_wpnonce'], 'headshop_remove_images')) {
+        $removed_count = headshop_remove_all_product_images();
+        if ($removed_count > 0) {
+            echo '<div class="notice notice-success"><p>Removidas ' . $removed_count . ' imagens de todos os produtos!</p></div>';
+        } else {
+            echo '<div class="notice notice-info"><p>Nenhuma imagem encontrada para remover.</p></div>';
+        }
+    }
 
 function headshop_admin_image_assignment_page() {
     if (isset($_POST['assign_images']) && wp_verify_nonce($_POST['_wpnonce'], 'headshop_assign_images')) {
@@ -605,6 +1325,9 @@ function headshop_admin_image_assignment_page() {
         $products = wc_get_products(['limit' => 1]);
         if (!empty($products)) {
             $product = $products[0];
+            $search_terms = headshop_get_image_search_terms($product);
+            echo '<div class="notice notice-info"><p><strong>Termos de busca para "' . $product->get_name() . '":</strong> ' . implode(', ', $search_terms) . '</p></div>';
+            
             $result = headshop_assign_stock_images($product->get_id(), 2);
             if ($result) {
                 echo '<div class="notice notice-success"><p>Teste bem-sucedido! Atribuídas ' . $result . ' imagens para o produto "' . $product->get_name() . '"</p></div>';
@@ -620,13 +1343,99 @@ function headshop_admin_image_assignment_page() {
     
     ?>
     <div class="wrap">
-        <h1>Atribuir Imagens de Estoque</h1>
+        <h1>Gerenciar Imagens dos Produtos</h1>
         
         <?php if (!$wc_active): ?>
             <div class="notice notice-error"><p><strong>WooCommerce não está ativo!</strong> Esta ferramenta requer o WooCommerce.</p></div>
         <?php else: ?>
-            <p>Esta ferramenta atribui automaticamente 4 imagens de estoque gratuitas do Unsplash para cada produto.</p>
             <p><strong>Produtos encontrados:</strong> <?php echo $product_count; ?></p>
+            
+            <!-- Remove All Images Section -->
+            <div class="card" style="max-width: none; margin: 20px 0; padding: 20px; background: #fff; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
+                <h2 style="color: #d63638; margin-top: 0;">🗑️ Remover Todas as Imagens</h2>
+                <p>Remove todas as imagens (principais e galeria) de todos os produtos. <strong>Esta ação não pode ser desfeita!</strong></p>
+                
+                <form method="post" style="margin: 15px 0;" onsubmit="return confirm('Tem certeza que deseja remover TODAS as imagens de TODOS os produtos? Esta ação não pode ser desfeita!');">
+                    <?php wp_nonce_field('headshop_remove_images'); ?>
+                    <button type="submit" name="remove_all_images" class="button button-secondary" style="background: #d63638; color: white; border-color: #d63638;">
+                        Remover Todas as Imagens
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Real Solutions Section -->
+            <div class="card" style="max-width: none; margin: 20px 0; padding: 20px; background: #f0f6fc; border: 1px solid #0073aa; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
+                <h2 style="color: #0073aa; margin-top: 0;">🎯 Soluções REAIS para Imagens de Produtos</h2>
+                
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <strong>⚠️ Problema atual:</strong> Os placeholders não têm relação visual real com os produtos. Precisamos de imagens reais!
+                </div>
+                
+                <h3>🏆 SOLUÇÃO RECOMENDADA: Upload Manual de Imagens Reais</h3>
+                <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <p><strong>Como fazer:</strong></p>
+                    <ol>
+                        <li>Acesse <strong>Produtos → Todos os Produtos</strong></li>
+                        <li>Clique em <strong>"Editar"</strong> no produto desejado</li>
+                        <li>Na seção <strong>"Imagem do produto"</strong>, clique em <strong>"Definir imagem do produto"</strong></li>
+                        <li>Faça upload de uma foto real do produto</li>
+                        <li>Adicione imagens na <strong>"Galeria do produto"</strong> se quiser múltiplas fotos</li>
+                        <li>Clique em <strong>"Atualizar"</strong></li>
+                    </ol>
+                </div>
+                
+                <h3>🛠️ FERRAMENTAS RECOMENDADAS para obter imagens:</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+                        <h4 style="color: #28a745; margin-top: 0;">📸 Fotos Próprias</h4>
+                        <p><strong>Melhor opção!</strong></p>
+                        <ul>
+                            <li>Fotografe os produtos reais</li>
+                            <li>Use boa iluminação (luz natural)</li>
+                            <li>Fundo neutro (branco/cinza)</li>
+                            <li>Múltiplos ângulos</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+                        <h4 style="color: #007bff; margin-top: 0;">🌐 Bancos de Imagens</h4>
+                        <p><strong>Gratuitos:</strong></p>
+                        <ul>
+                            <li><strong>Unsplash.com</strong> - Busque "bong", "vaporizer", etc.</li>
+                            <li><strong>Pexels.com</strong> - Imagens de alta qualidade</li>
+                            <li><strong>Pixabay.com</strong> - Sem copyright</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>🤖 SOLUÇÃO AUTOMÁTICA: Gerador de Imagens com IA</h3>
+                <div style="background: #e7f3ff; border: 1px solid #b3d9ff; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <p><strong>Ferramentas de IA para gerar imagens:</strong></p>
+                    <ul>
+                        <li><strong>DALL-E 3</strong> (OpenAI) - Via ChatGPT Plus</li>
+                        <li><strong>Midjourney</strong> - Discord bot</li>
+                        <li><strong>Stable Diffusion</strong> - Gratuito, local</li>
+                        <li><strong>Leonardo.ai</strong> - Interface web</li>
+                    </ul>
+                    <p><strong>Prompt exemplo:</strong> "Professional product photo of a glass bong on white background, studio lighting, high quality, e-commerce style"</p>
+                </div>
+                
+                <h3>⚡ SOLUÇÃO RÁPIDA: Placeholders Melhorados</h3>
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <p>Se quiser manter placeholders temporariamente, posso criar versões mais realistas:</p>
+                    <ul>
+                        <li>Imagens 3D renderizadas de produtos</li>
+                        <li>Silhuetas mais detalhadas</li>
+                        <li>Cores e formas mais específicas</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #d1ecf1; border: 1px solid #bee5eb; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                    <h4 style="color: #0c5460; margin-top: 0;">💡 DICA PROFISSIONAL</h4>
+                    <p>Para um headshop profissional, <strong>imagens reais são essenciais</strong>. Os clientes precisam ver exatamente o que estão comprando. Placeholders são apenas temporários!</p>
+                </div>
+            </div>
             
             <form method="post" style="margin: 20px 0;">
                 <?php wp_nonce_field('headshop_test_single'); ?>
@@ -694,11 +1503,26 @@ function headshop_admin_image_assignment_page() {
         <h2>Como Funciona</h2>
         <ul>
             <li>Usa imagens gratuitas do Picsum (Lorem Picsum)</li>
-            <li>Busca termos relacionados ao produto/categoria</li>
+            <li><strong>Busca inteligente:</strong> Extrai palavras-chave do título do produto</li>
+            <li><strong>Termos específicos:</strong> Reconhece bongs, vaporizadores, sedas, etc.</li>
             <li>Atribui 4 imagens por produto</li>
             <li>Pula produtos que já têm galeria completa</li>
             <li>Imagens são baixadas e salvas localmente</li>
             <li>Sistema de retry para garantir que todos os produtos sejam processados</li>
+        </ul>
+    </div>
+    
+    <div class="card">
+        <h2>Tipos de Produtos Reconhecidos</h2>
+        <ul>
+            <li><strong>Bongs/Water Pipes:</strong> "bong water pipe glass smoking"</li>
+            <li><strong>Vaporizadores:</strong> "vaporizer electronic cigarette"</li>
+            <li><strong>Sedas/Papéis:</strong> "rolling papers cigarette tobacco"</li>
+            <li><strong>Pipes:</strong> "smoking pipe tobacco"</li>
+            <li><strong>Moedores:</strong> "herb grinder smoking"</li>
+            <li><strong>Hookah:</strong> "hookah shisha smoking"</li>
+            <li><strong>Isqueiros:</strong> "lighter smoking accessories"</li>
+            <li><strong>Cinzeiros:</strong> "ashtray smoking accessories"</li>
         </ul>
     </div>
     
@@ -830,6 +1654,7 @@ function headshop_admin_image_assignment_page() {
     });
     </script>
     <?php
+}
 }
 
 
