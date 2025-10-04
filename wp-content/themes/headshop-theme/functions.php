@@ -17,11 +17,32 @@ function headshop_theme_assets() {
     // Prefer built Tailwind if present; fallback to CDN
     $built_css_path = get_template_directory() . '/assets/build/tailwind.css';
     $built_css_uri  = get_template_directory_uri() . '/assets/build/tailwind.css';
+    // Force Tailwind CSS to load with high priority
     if ( file_exists( $built_css_path ) ) {
-        wp_enqueue_style('tailwindcss-built', $built_css_uri, [], filemtime($built_css_path));
+        wp_enqueue_style('tailwindcss-built', $built_css_uri, [], filemtime($built_css_path), 'all');
     } else {
-        wp_enqueue_style('tailwindcss-cdn', 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css', [], '2.2.19');
+        // Use unpkg CDN which has better MIME type handling
+        wp_enqueue_style('tailwindcss-cdn', 'https://unpkg.com/tailwindcss@3.4.0/dist/tailwind.min.css', [], '3.4.0-v5', 'all');
     }
+    
+    // Add !important to critical Tailwind classes to override plugin conflicts
+    $critical_css = '
+        .container { max-width: 1280px !important; margin-left: auto !important; margin-right: auto !important; padding-left: 1rem !important; padding-right: 1rem !important; }
+        .mx-auto { margin-left: auto !important; margin-right: auto !important; }
+        .px-4 { padding-left: 1rem !important; padding-right: 1rem !important; }
+        .py-8 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+        .bg-white { background-color: #ffffff !important; }
+        .text-gray-900 { color: #111827 !important; }
+        .rounded-2xl { border-radius: 1rem !important; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; }
+        .hover\\:shadow-xl:hover { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important; }
+        .transition-all { transition-property: all !important; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important; transition-duration: 150ms !important; }
+        .duration-300 { transition-duration: 300ms !important; }
+        .hover\\:scale-105:hover { transform: scale(1.05) !important; }
+    ';
+    
+    wp_add_inline_style('tailwindcss-cdn', $critical_css);
+    wp_add_inline_style('tailwindcss-built', $critical_css);
 
     // Swiper for product carousel
     wp_enqueue_style('swiper', 'https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css', [], '10');
@@ -307,9 +328,19 @@ function headshop_theme_assets() {
         }
     ';
     
+    // Add custom CSS to both possible handles
     wp_add_inline_style('tailwindcss-cdn', $custom_css);
+    wp_add_inline_style('tailwindcss-built', $custom_css);
 }
-add_action('wp_enqueue_scripts', 'headshop_theme_assets');
+add_action('wp_enqueue_scripts', 'headshop_theme_assets', 20);
+
+// Remove only problematic styles, keep WooCommerce functionality
+function headshop_remove_conflicting_styles() {
+    // Remove only WordPress block styles that might conflict
+    wp_dequeue_style('wp-block-library');
+    wp_dequeue_style('wp-block-library-theme');
+}
+add_action('wp_enqueue_scripts', 'headshop_remove_conflicting_styles', 100);
 
 // WooCommerce: adjust thumbnail sizes (optional)
 add_filter('woocommerce_gallery_thumbnail_size', function () { return 'medium'; });
@@ -489,14 +520,14 @@ function headshop_get_product_gallery($product_id, $limit = 5) {
         ];
     }
     
-    // Fill remaining slots with empty placeholder if needed
+    // Fill remaining slots with category-specific placeholders to ensure visuals
     while (count($gallery) < $limit) {
         $gallery[] = [
             'id' => 0,
-            'url' => '',
-            'thumb' => '',
-            'alt' => 'Sem imagem',
-            'title' => 'Sem imagem',
+            'url' => headshop_get_category_placeholder($product_id, 600, 600),
+            'thumb' => headshop_get_category_placeholder($product_id, 300, 300),
+            'alt' => 'Imagem do produto',
+            'title' => $product->get_name(),
         ];
     }
     
@@ -1656,5 +1687,6 @@ function headshop_admin_image_assignment_page() {
     <?php
 }
 }
+
 
 
