@@ -45,3 +45,5 @@ Thumbs.db
 # Jetpack (arquivos/runtime gerados, não versionar)
 /wp-content/jetpack-*/
 /wp-content/jetpack-waf/
+
+/.vite

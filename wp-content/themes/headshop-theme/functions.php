@@ -1687,6 +1687,250 @@ function headshop_admin_image_assignment_page() {
     <?php
 }
 }
+	
+add_filter( 'show_admin_bar', '__return_false' );
 
+// REST: Expor banners para o front em Vue
+add_action('rest_api_init', function () {
+	register_rest_route('headshop/v1', '/banners', [
+		'methods' => 'GET',
+		'callback' => 'headshop_rest_get_banners',
+		'permission_callback' => '__return_true',
+	]);
+});
 
+function headshop_rest_get_banners( WP_REST_Request $request ) {
+	$slides = [];
+
+	// 1) Opcional: usar opção de múltiplos banners se existir (compatível com eventual página admin)
+	$option_banners = get_option('headshop_banner_slider');
+	if (is_array($option_banners) && !empty($option_banners)) {
+		foreach ($option_banners as $b) {
+			if (!empty($b['active']) && !empty($b['image_id'])) {
+				$image_url = wp_get_attachment_image_url((int)$b['image_id'], 'full');
+				if ($image_url) {
+					$slides[] = [
+						'image' => $image_url,
+						'title' => isset($b['title']) ? (string)$b['title'] : '',
+						'subtitle' => isset($b['subtitle']) ? (string)$b['subtitle'] : '',
+						'ctaText' => isset($b['cta_text']) ? (string)$b['cta_text'] : '',
+						'ctaUrl' => isset($b['cta_url']) ? (string)$b['cta_url'] : '',
+					];
+				}
+			}
+		}
+	}
+
+	// 2) Fallback: usar Customizer (um banner)
+	if (empty($slides)) {
+		$img = (string) get_theme_mod('headshop_banner_image', '');
+		$title = (string) get_theme_mod('headshop_banner_title', 'Headshop');
+		$subtitle = (string) get_theme_mod('headshop_banner_subtitle', 'Tudo para sua experiência: sedas, bongs, vaporizadores e acessórios.');
+		$cta_text = (string) get_theme_mod('headshop_banner_cta_text', 'Ver loja');
+		$cta_url = (string) get_theme_mod('headshop_banner_cta_url', '');
+		if ($cta_text !== '' && $cta_url === '' && function_exists('wc_get_page_permalink')) {
+			$cta_url = wc_get_page_permalink('shop');
+		}
+		if ($img !== '') {
+			$slides[] = [
+				'image' => esc_url_raw($img),
+				'title' => $title,
+				'subtitle' => $subtitle,
+				'ctaText' => $cta_text,
+				'ctaUrl' => $cta_url,
+			];
+		}
+	}
+
+	// 3) Último fallback: imagem pública para não quebrar o layout
+	if (empty($slides)) {
+		$slides[] = [
+			'image' => 'https://images.unsplash.com/photo-1600948836101-f9ffda59d250?q=80&w=2000&auto=format&fit=crop',
+			'title' => 'Headshop',
+			'subtitle' => 'Tudo para sua experiência: sedas, bongs, vaporizadores e acessórios.',
+			'ctaText' => 'Ver loja',
+			'ctaUrl' => function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : '#',
+		];
+	}
+
+	return rest_ensure_response($slides);
+}
+
+// Admin: Gerenciador de Banners (Headshop → Banners)
+add_action('admin_menu', function () {
+	add_menu_page(
+		'Banners',
+		'Banners',
+		'manage_options',
+		'headshop-banners',
+		'headshop_admin_banners_page',
+		'dashicons-images-alt2',
+		60
+	);
+});
+
+function headshop_admin_banners_page() {
+	if (!current_user_can('manage_options')) {
+		return;
+	}
+	// Processar ações
+	if (!empty($_POST) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'headshop_banners_nonce')) {
+		$banners = get_option('headshop_banner_slider', []);
+		if (!is_array($banners)) $banners = [];
+
+		// Adicionar/Atualizar
+		if (isset($_POST['action_type']) && $_POST['action_type'] === 'save') {
+			$id = isset($_POST['id']) ? sanitize_text_field($_POST['id']) : '';
+			$item = [
+				'id' => $id !== '' ? $id : uniqid('banner_'),
+				'image_id' => isset($_POST['image_id']) ? absint($_POST['image_id']) : 0,
+				'title' => isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '',
+				'subtitle' => isset($_POST['subtitle']) ? sanitize_text_field($_POST['subtitle']) : '',
+				'cta_text' => isset($_POST['cta_text']) ? sanitize_text_field($_POST['cta_text']) : '',
+				'cta_url' => isset($_POST['cta_url']) ? esc_url_raw($_POST['cta_url']) : '',
+				'order' => isset($_POST['order']) ? absint($_POST['order']) : (count($banners) + 1),
+				'active' => !empty($_POST['active']) ? 1 : 0,
+			];
+			$found = false;
+			foreach ($banners as &$b) {
+				if (isset($b['id']) && $b['id'] === $item['id']) { $b = $item; $found = true; break; }
+			}
+			if (!$found) { $banners[] = $item; }
+		}
+
+		// Excluir
+		if (isset($_POST['action_type']) && $_POST['action_type'] === 'delete' && !empty($_POST['id'])) {
+			$target = sanitize_text_field($_POST['id']);
+			$banners = array_values(array_filter($banners, function($b) use ($target){ return isset($b['id']) && $b['id'] !== $target; }));
+		}
+
+		// Ordenar por "order"
+		usort($banners, function($a, $b){ return (int)($a['order'] ?? 0) <=> (int)($b['order'] ?? 0); });
+		update_option('headshop_banner_slider', $banners);
+		echo '<div class="notice notice-success"><p>Banners atualizados com sucesso.</p></div>';
+	}
+
+	// Dados atuais
+	$banners = get_option('headshop_banner_slider', []);
+	if (!is_array($banners)) $banners = [];
+	wp_enqueue_media();
+	?>
+	<div class="wrap">
+		<h1 class="wp-heading-inline">Banners</h1>
+		<p class="description">Gerencie os slides exibidos no banner da Home (consumidos pelo app Vue).</p>
+
+		<h2>Adicionar / Editar</h2>
+		<form method="post" style="max-width:880px;background:#fff;border:1px solid #ccd0d4;padding:16px;border-radius:6px;">
+			<?php wp_nonce_field('headshop_banners_nonce'); ?>
+			<input type="hidden" name="action_type" value="save">
+			<input type="hidden" name="id" id="hs-id" value="">
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><label for="hs-image-id">Imagem</label></th>
+					<td>
+						<div id="hs-image-preview" style="margin-bottom:8px"></div>
+						<input type="hidden" name="image_id" id="hs-image-id" value="">
+						<button type="button" class="button" id="hs-pick-image">Selecionar imagem</button>
+						<p class="description">Recomendado: 1920x800px ou proporção similar.</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="hs-title">Título</label></th>
+					<td><input type="text" class="regular-text" id="hs-title" name="title" value=""></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="hs-subtitle">Subtítulo</label></th>
+					<td><input type="text" class="regular-text" id="hs-subtitle" name="subtitle" value=""></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="hs-cta-text">Texto do CTA</label></th>
+					<td><input type="text" class="regular-text" id="hs-cta-text" name="cta_text" value=""></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="hs-cta-url">URL do CTA</label></th>
+					<td><input type="url" class="regular-text" id="hs-cta-url" name="cta_url" value=""></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="hs-order">Ordem</label></th>
+					<td><input type="number" class="small-text" id="hs-order" name="order" min="1" value="1"></td>
+				</tr>
+				<tr>
+					<th scope="row">Ativo</th>
+					<td><label><input type="checkbox" id="hs-active" name="active" checked> Exibir no slider</label></td>
+				</tr>
+			</table>
+			<p class="submit"><button type="submit" class="button button-primary">Salvar Banner</button></p>
+		</form>
+
+		<h2 style="margin-top:24px;">Lista de Banners</h2>
+		<table class="wp-list-table widefat fixed striped" style="max-width:1000px;">
+			<thead>
+				<tr>
+					<th>Preview</th>
+					<th>Título</th>
+					<th>CTA</th>
+					<th>Ordem</th>
+					<th>Status</th>
+					<th>Ações</th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php if (empty($banners)) : ?>
+				<tr><td colspan="6">Nenhum banner cadastrado.</td></tr>
+			<?php else: foreach ($banners as $b): ?>
+				<tr>
+					<td style="width:160px;">
+						<?php if (!empty($b['image_id'])) echo wp_get_attachment_image((int)$b['image_id'], [160, 90]); ?>
+					</td>
+					<td><?php echo esc_html($b['title'] ?? ''); ?></td>
+					<td><?php echo esc_html($b['cta_text'] ?? ''); ?></td>
+					<td><?php echo isset($b['order']) ? (int)$b['order'] : 0; ?></td>
+					<td><?php echo !empty($b['active']) ? '<span style="color:#46b450;font-weight:600">Ativo</span>' : '<span style="color:#dc3232;font-weight:600">Inativo</span>'; ?></td>
+					<td>
+						<button class="button button-small" onclick='hsEditBanner(<?php echo wp_json_encode($b); ?>)'>Editar</button>
+						<form method="post" style="display:inline-block;margin-left:8px;" onsubmit="return confirm('Excluir este banner?');">
+							<?php wp_nonce_field('headshop_banners_nonce'); ?>
+							<input type="hidden" name="action_type" value="delete">
+							<input type="hidden" name="id" value="<?php echo esc_attr($b['id'] ?? ''); ?>">
+							<button type="submit" class="button button-small button-link-delete">Excluir</button>
+						</form>
+					</td>
+				</tr>
+			<?php endforeach; endif; ?>
+			</tbody>
+		</table>
+	</div>
+
+	<script>
+	(function($){
+		let frame;
+		$('#hs-pick-image').on('click', function(e){
+			e.preventDefault();
+			if (frame) { frame.open(); return; }
+			frame = wp.media({ title: 'Selecionar Imagem', button: { text: 'Usar imagem' }, multiple: false });
+			frame.on('select', function(){
+				const att = frame.state().get('selection').first().toJSON();
+				$('#hs-image-id').val(att.id);
+				$('#hs-image-preview').html('<img src="'+(att.sizes?.medium?.url || att.url)+'" style="max-width:320px;height:auto;border:1px solid #ddd"/>');
+			});
+			frame.open();
+		});
+
+		window.hsEditBanner = function(data){
+			$('#hs-id').val(data.id||'');
+			$('#hs-image-id').val(data.image_id||'');
+			$('#hs-title').val(data.title||'');
+			$('#hs-subtitle').val(data.subtitle||'');
+			$('#hs-cta-text').val(data.cta_text||'');
+			$('#hs-cta-url').val(data.cta_url||'');
+			$('#hs-order').val(data.order||1);
+			$('#hs-active').prop('checked', !!parseInt(data.active||1));
+			if (data.image_id) {
+				$.get(ajaxurl, { action: 'query-attachments', query: { include: data.image_id } });
+			}
+		}
+	})(jQuery);
+	</script>
+	<?php
+}
 
