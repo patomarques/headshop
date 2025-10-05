@@ -10,15 +10,20 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    port: 3009,
     proxy: {
       '/wp-json': {
-        target: 'http://localhost',
+        target: 'http://localhost/headshop',
         changeOrigin: true,
         secure: false,
       },
       '/wp-admin': {
-        target: 'http://localhost',
+        target: 'http://localhost/headshop',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/index.php': {
+        target: 'http://localhost/headshop',
         changeOrigin: true,
         secure: false,
       }
