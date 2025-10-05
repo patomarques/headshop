@@ -1,33 +1,11 @@
 <?php get_header(); ?>
 
-<?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
-    <article <?php post_class('prose prose-lg max-w-none'); ?>>
-        <header class="mb-8">
-            <h1 class="text-4xl font-bold text-gray-900 mb-4"><?php the_title(); ?></h1>
-            <div class="text-gray-600 text-sm">
-                <?php echo get_the_date(); ?>
-                <?php if (get_the_author()): ?>
-                    por <?php the_author(); ?>
-                <?php endif; ?>
-            </div>
-        </header>
-        
-        <div class="entry-content">
-            <?php the_content(); ?>
-        </div>
-        
-        <?php if (comments_open() || get_comments_number()): ?>
-            <div class="mt-12">
-                <?php comments_template(); ?>
-            </div>
-        <?php endif; ?>
-    </article>
-<?php endwhile; else: ?>
-    <div class="text-center py-12">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4"><?php _e('Nada encontrado', 'headshop-theme'); ?></h2>
-        <p class="text-gray-600"><?php _e('Desculpe, não foi possível encontrar o que você está procurando.', 'headshop-theme'); ?></p>
-    </div>
-<?php endif; ?>
+<div id="app"></div>
+<noscript>
+	<div class="container" style="margin: 40px auto;">
+		<p><strong>Atenção:</strong> Habilite o JavaScript para visualizar o conteúdo corretamente.</p>
+	</div>
+</noscript>
 
 <?php get_footer(); ?>
 

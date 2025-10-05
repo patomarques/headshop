@@ -33,8 +33,8 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import Swiper, { Navigation, Pagination, EffectFade, Autoplay } from 'swiper'
-Swiper.use([Navigation, Pagination, EffectFade, Autoplay])
+import Swiper from 'swiper'
+import { Navigation, Pagination, EffectFade, Autoplay } from 'swiper/modules'
 
 const props = defineProps({
   slides: { type: Array, default: () => [] },

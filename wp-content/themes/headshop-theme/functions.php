@@ -1756,6 +1756,26 @@ function headshop_rest_get_banners( WP_REST_Request $request ) {
 	return rest_ensure_response($slides);
 }
 
+// Enfileirar build do Vite (produção)
+add_action('wp_enqueue_scripts', function(){
+	$theme_dir = get_template_directory();
+	$theme_uri = get_template_directory_uri();
+	$manifest_path = $theme_dir . '/dist/.vite/manifest.json';
+	if (!file_exists($manifest_path)) return; // se não houver build, não faz nada
+	$manifest = json_decode(file_get_contents($manifest_path), true);
+	if (!is_array($manifest)) return;
+
+	// Arquivo de entrada padrão gerado pelo Vite
+	$entry = 'index.html';
+	if (isset($manifest['index.html']) && isset($manifest['index.html']['file'])) {
+		$css_files = isset($manifest['index.html']['css']) ? (array)$manifest['index.html']['css'] : [];
+		foreach ($css_files as $i => $css) {
+			wp_enqueue_style('headshop-vite-css-' . $i, $theme_uri . '/dist/' . ltrim($css, '/'), [], null);
+		}
+		wp_enqueue_script('headshop-vite-js', $theme_uri . '/dist/' . ltrim($manifest['index.html']['file'], '/'), [], null, true);
+	}
+}, 99);
+
 // Admin: Gerenciador de Banners (Headshop → Banners)
 add_action('admin_menu', function () {
 	add_menu_page(
