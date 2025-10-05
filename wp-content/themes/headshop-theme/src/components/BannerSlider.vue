@@ -2,7 +2,7 @@
   <div class="relative full-bleed">
     <div class="swiper" ref="swiperEl">
       <div class="swiper-wrapper">
-        <div v-for="(slide, idx) in slides" :key="idx" class="swiper-slide">
+        <div v-for="(slide, idx) in processedSlides" :key="idx" class="swiper-slide">
           <div class="banner-slide relative" :style="{ backgroundImage: `url(${slide.image})` }">
             <div class="absolute inset-0 bg-gradient-to-r from-black/50 to-black/30"></div>
             <div class="absolute inset-0 flex items-center">
@@ -24,15 +24,15 @@
           </div>
         </div>
       </div>
-      <div v-if="showDots && slides.length > 1" class="swiper-pagination"></div>
-      <div v-if="showArrows && slides.length > 1" class="swiper-button-prev"></div>
-      <div v-if="showArrows && slides.length > 1" class="swiper-button-next"></div>
+      <div v-if="showDots && processedSlides.length > 1" class="swiper-pagination"></div>
+      <div v-if="showArrows && processedSlides.length > 1" class="swiper-button-prev"></div>
+      <div v-if="showArrows && processedSlides.length > 1" class="swiper-button-next"></div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import Swiper from 'swiper'
 import { Navigation, Pagination, EffectFade, Autoplay } from 'swiper/modules'
 
@@ -47,11 +47,32 @@ const props = defineProps({
 
 const swiperEl = ref(null)
 
+// Process slides to handle multiple images per banner
+const processedSlides = computed(() => {
+  const result = []
+  
+  props.slides.forEach(banner => {
+    // Handle both old format (image) and new format (images array)
+    const images = banner.images || (banner.image ? [banner.image] : [])
+    
+    images.forEach((image, index) => {
+      result.push({
+        ...banner,
+        image: image,
+        // Add unique key for multiple images from same banner
+        key: `${banner.id || 'banner'}-${index}`
+      })
+    })
+  })
+  
+  return result
+})
+
 onMounted(() => {
   if (!swiperEl.value) return
   const instance = new Swiper(swiperEl.value, {
     effect: props.effect,
-    loop: true,
+    loop: processedSlides.value.length > 1,
     speed: 1000,
     autoplay: props.autoplay ? { delay: props.speed, disableOnInteraction: false } : false,
     fadeEffect: { crossFade: true },

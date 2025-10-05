@@ -1060,30 +1060,41 @@ function headshop_contains_any($text, $terms) {
 
 // Get random image from stock photo services
 function headshop_get_stock_image($query, $width = 1200, $height = 1600) {
-    // Try multiple services in order of preference
-    
-    // 1. Picsum (Lorem Picsum) - reliable, no API key needed
-    $picsum_url = 'https://picsum.photos/' . $width . '/' . $height . '?random=' . rand(1, 1000);
-    $response = wp_remote_get($picsum_url, ['timeout' => 15]);
+    // Prefer Unsplash Source with enriched query terms relevant to product/catalog
+    // Unsplash Source Docs: https://source.unsplash.com/
+    $enriched = trim($query . ' product studio isolated e-commerce background');
+    $sig = wp_rand(1, 1000000);
+    $unsplash_url = 'https://source.unsplash.com/' . intval($width) . 'x' . intval($height) . '/?' . rawurlencode($enriched) . '&sig=' . $sig;
+    $response = wp_remote_get($unsplash_url, ['timeout' => 20]);
     if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
         $body = wp_remote_retrieve_body($response);
-        if (!empty($body) && strlen($body) > 1000) { // Ensure it's a real image
-            return $picsum_url;
-        }
-    }
-    
-    // 2. Unsplash Source API (backup)
-    $unsplash_url = 'https://source.unsplash.com/' . $width . 'x' . $height . '/?' . urlencode($query);
-    $response = wp_remote_get($unsplash_url, ['timeout' => 15]);
-    if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
-        $body = wp_remote_retrieve_body($response);
+        // Basic sanity check to avoid tiny error pages
         if (!empty($body) && strlen($body) > 1000) {
             return $unsplash_url;
         }
     }
-    
-    // 3. Picsum with different random seed
-    $picsum_url2 = 'https://picsum.photos/' . $width . '/' . $height . '?random=' . rand(1001, 2000);
+
+    // Fallback: alternate Unsplash query with fewer constraints
+    $unsplash_alt = 'https://source.unsplash.com/' . intval($width) . 'x' . intval($height) . '/?' . rawurlencode($query) . '&sig=' . wp_rand(1, 1000000);
+    $response = wp_remote_get($unsplash_alt, ['timeout' => 20]);
+    if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+        $body = wp_remote_retrieve_body($response);
+        if (!empty($body) && strlen($body) > 1000) {
+            return $unsplash_alt;
+        }
+    }
+
+    // Final fallbacks: Picsum randoms
+    $picsum_url = 'https://picsum.photos/' . intval($width) . '/' . intval($height) . '?random=' . wp_rand(1, 5000);
+    $response = wp_remote_get($picsum_url, ['timeout' => 15]);
+    if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+        $body = wp_remote_retrieve_body($response);
+        if (!empty($body) && strlen($body) > 1000) {
+            return $picsum_url;
+        }
+    }
+
+    $picsum_url2 = 'https://picsum.photos/' . intval($width) . '/' . intval($height);
     $response = wp_remote_get($picsum_url2, ['timeout' => 15]);
     if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
         $body = wp_remote_retrieve_body($response);
@@ -1091,17 +1102,7 @@ function headshop_get_stock_image($query, $width = 1200, $height = 1600) {
             return $picsum_url2;
         }
     }
-    
-    // 4. Another Picsum attempt
-    $picsum_url3 = 'https://picsum.photos/' . $width . '/' . $height;
-    $response = wp_remote_get($picsum_url3, ['timeout' => 15]);
-    if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
-        $body = wp_remote_retrieve_body($response);
-        if (!empty($body) && strlen($body) > 1000) {
-            return $picsum_url3;
-        }
-    }
-    
+
     return false;
 }
 
@@ -1331,8 +1332,8 @@ function headshop_admin_image_management_page() {
             echo '<div class="notice notice-info"><p>Nenhuma imagem encontrada para remover.</p></div>';
         }
     }
-
-function headshop_admin_image_assignment_page() {
+    
+    // Handle assign images
     if (isset($_POST['assign_images']) && wp_verify_nonce($_POST['_wpnonce'], 'headshop_assign_images')) {
         $batch_size = isset($_POST['batch_size']) ? (int)$_POST['batch_size'] : 5;
         $result = headshop_bulk_assign_images($batch_size);
@@ -1352,6 +1353,7 @@ function headshop_admin_image_assignment_page() {
         }
     }
     
+    // Handle test single product
     if (isset($_POST['test_single']) && wp_verify_nonce($_POST['_wpnonce'], 'headshop_test_single')) {
         $products = wc_get_products(['limit' => 1]);
         if (!empty($products)) {
@@ -1394,563 +1396,484 @@ function headshop_admin_image_assignment_page() {
                 </form>
             </div>
             
-            <!-- Real Solutions Section -->
+            <!-- Assign Images Section -->
             <div class="card" style="max-width: none; margin: 20px 0; padding: 20px; background: #f0f6fc; border: 1px solid #0073aa; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
-                <h2 style="color: #0073aa; margin-top: 0;">🎯 Soluções REAIS para Imagens de Produtos</h2>
+                <h2 style="color: #0073aa; margin-top: 0;">🎯 Atribuir Imagens Automáticas</h2>
+                <p>Atribui imagens do Unsplash baseadas no título e categoria de cada produto.</p>
                 
-                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-                    <strong>⚠️ Problema atual:</strong> Os placeholders não têm relação visual real com os produtos. Precisamos de imagens reais!
+                <form method="post" style="margin: 15px 0;">
+                    <?php wp_nonce_field('headshop_assign_images'); ?>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">Tamanho do Lote</th>
+                            <td>
+                                <select name="batch_size">
+                                    <option value="3">3 produtos por vez (mais rápido)</option>
+                                    <option value="5" selected>5 produtos por vez (recomendado)</option>
+                                    <option value="10">10 produtos por vez (mais lento)</option>
+                                </select>
+                                <p class="description">Processa produtos em lotes para evitar timeout.</p>
+                            </td>
+                        </tr>
+                    </table>
+                    <button type="submit" name="assign_images" class="button button-primary">
+                        Atribuir Imagens (Método Tradicional)
+                    </button>
+                </form>
+                
+                <!-- Progressive Processing -->
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                    <h3>⚡ Processamento Progressivo (Recomendado)</h3>
+                    <p>Processa produtos um por vez via AJAX, evitando timeouts.</p>
+                    <button id="start-progressive" class="button button-primary">Iniciar Processamento Progressivo</button>
+                    <button id="stop-progressive" class="button button-secondary" style="display: none;">Parar Processamento</button>
+                    <div id="progressive-status" style="margin-top: 10px;"></div>
                 </div>
                 
-                <h3>🏆 SOLUÇÃO RECOMENDADA: Upload Manual de Imagens Reais</h3>
-                <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 5px; margin: 15px 0;">
-                    <p><strong>Como fazer:</strong></p>
-                    <ol>
-                        <li>Acesse <strong>Produtos → Todos os Produtos</strong></li>
-                        <li>Clique em <strong>"Editar"</strong> no produto desejado</li>
-                        <li>Na seção <strong>"Imagem do produto"</strong>, clique em <strong>"Definir imagem do produto"</strong></li>
-                        <li>Faça upload de uma foto real do produto</li>
-                        <li>Adicione imagens na <strong>"Galeria do produto"</strong> se quiser múltiplas fotos</li>
-                        <li>Clique em <strong>"Atualizar"</strong></li>
-                    </ol>
-                </div>
-                
-                <h3>🛠️ FERRAMENTAS RECOMENDADAS para obter imagens:</h3>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
-                    <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
-                        <h4 style="color: #28a745; margin-top: 0;">📸 Fotos Próprias</h4>
-                        <p><strong>Melhor opção!</strong></p>
-                        <ul>
-                            <li>Fotografe os produtos reais</li>
-                            <li>Use boa iluminação (luz natural)</li>
-                            <li>Fundo neutro (branco/cinza)</li>
-                            <li>Múltiplos ângulos</li>
-                        </ul>
-                    </div>
-                    
-                    <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
-                        <h4 style="color: #007bff; margin-top: 0;">🌐 Bancos de Imagens</h4>
-                        <p><strong>Gratuitos:</strong></p>
-                        <ul>
-                            <li><strong>Unsplash.com</strong> - Busque "bong", "vaporizer", etc.</li>
-                            <li><strong>Pexels.com</strong> - Imagens de alta qualidade</li>
-                            <li><strong>Pixabay.com</strong> - Sem copyright</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <h3>🤖 SOLUÇÃO AUTOMÁTICA: Gerador de Imagens com IA</h3>
-                <div style="background: #e7f3ff; border: 1px solid #b3d9ff; padding: 15px; border-radius: 5px; margin: 15px 0;">
-                    <p><strong>Ferramentas de IA para gerar imagens:</strong></p>
-                    <ul>
-                        <li><strong>DALL-E 3</strong> (OpenAI) - Via ChatGPT Plus</li>
-                        <li><strong>Midjourney</strong> - Discord bot</li>
-                        <li><strong>Stable Diffusion</strong> - Gratuito, local</li>
-                        <li><strong>Leonardo.ai</strong> - Interface web</li>
-                    </ul>
-                    <p><strong>Prompt exemplo:</strong> "Professional product photo of a glass bong on white background, studio lighting, high quality, e-commerce style"</p>
-                </div>
-                
-                <h3>⚡ SOLUÇÃO RÁPIDA: Placeholders Melhorados</h3>
-                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 15px 0;">
-                    <p>Se quiser manter placeholders temporariamente, posso criar versões mais realistas:</p>
-                    <ul>
-                        <li>Imagens 3D renderizadas de produtos</li>
-                        <li>Silhuetas mais detalhadas</li>
-                        <li>Cores e formas mais específicas</li>
-                    </ul>
-                </div>
-                
-                <div style="background: #d1ecf1; border: 1px solid #bee5eb; padding: 15px; border-radius: 5px; margin-top: 20px;">
-                    <h4 style="color: #0c5460; margin-top: 0;">💡 DICA PROFISSIONAL</h4>
-                    <p>Para um headshop profissional, <strong>imagens reais são essenciais</strong>. Os clientes precisam ver exatamente o que estão comprando. Placeholders são apenas temporários!</p>
-                </div>
-            </div>
-            
-            <form method="post" style="margin: 20px 0;">
-                <?php wp_nonce_field('headshop_test_single'); ?>
-                <p class="submit">
-                    <input type="submit" name="test_single" class="button" value="Testar com 1 Produto">
-                </p>
-            </form>
-            
-            <form method="post" id="legacy-form">
-                <?php wp_nonce_field('headshop_assign_images'); ?>
-                <table class="form-table">
-                    <tr>
-                        <th scope="row">Tamanho do Lote</th>
-                        <td>
-                            <select name="batch_size" id="legacy-batch-size">
-                                <option value="2">2 produtos por lote (mais seguro)</option>
-                                <option value="3" selected>3 produtos por lote (recomendado)</option>
-                                <option value="5">5 produtos por lote (mais rápido)</option>
-                            </select>
-                            <p class="description">Lotes menores evitam timeout, mas processam mais devagar.</p>
-                        </td>
-                    </tr>
-                </table>
-                <p class="submit">
-                    <input type="submit" name="assign_images" class="button button-primary" value="Atribuir Imagens (Método Tradicional)" onclick="return confirm('Isso pode demorar alguns minutos. Continuar?');">
-                </p>
-            </form>
-            
-            <hr>
-            
-            <div id="progressive-processing">
-                <h3>Processamento Progressivo (Recomendado)</h3>
-                <p>Este método processa os produtos em lotes pequenos via AJAX, evitando timeouts.</p>
-                
-                <table class="form-table">
-                    <tr>
-                        <th scope="row">Tamanho do Lote</th>
-                        <td>
-                            <select id="progressive-batch-size">
-                                <option value="2">2 produtos por lote</option>
-                                <option value="3" selected>3 produtos por lote</option>
-                                <option value="5">5 produtos por lote</option>
-                            </select>
-                        </td>
-                    </tr>
-                </table>
-                
-                <p class="submit">
-                    <button type="button" id="start-progressive" class="button button-primary">Iniciar Processamento Progressivo</button>
-                    <button type="button" id="stop-progressive" class="button button-secondary" style="display:none;">Parar Processamento</button>
-                </p>
-                
-                <div id="progress-container" style="display:none;">
-                    <h4>Progresso</h4>
-                    <div id="progress-bar" style="width: 100%; background-color: #f0f0f0; border-radius: 5px; overflow: hidden;">
-                        <div id="progress-fill" style="height: 20px; background-color: #0073aa; width: 0%; transition: width 0.3s ease;"></div>
-                    </div>
-                    <p id="progress-text">Preparando...</p>
-                    <div id="progress-details"></div>
+                <!-- Test Single Product -->
+                <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                    <h3>🧪 Teste com Um Produto</h3>
+                    <p>Testa a atribuição de imagens com apenas um produto para verificar se está funcionando.</p>
+                    <form method="post" style="display: inline;">
+                        <?php wp_nonce_field('headshop_test_single'); ?>
+                        <button type="submit" name="test_single" class="button button-secondary">Testar com Primeiro Produto</button>
+                    </form>
                 </div>
             </div>
         <?php endif; ?>
-        
-    <div class="card">
-        <h2>Como Funciona</h2>
-        <ul>
-            <li>Usa imagens gratuitas do Picsum (Lorem Picsum)</li>
-            <li><strong>Busca inteligente:</strong> Extrai palavras-chave do título do produto</li>
-            <li><strong>Termos específicos:</strong> Reconhece bongs, vaporizadores, sedas, etc.</li>
-            <li>Atribui 4 imagens por produto</li>
-            <li>Pula produtos que já têm galeria completa</li>
-            <li>Imagens são baixadas e salvas localmente</li>
-            <li>Sistema de retry para garantir que todos os produtos sejam processados</li>
-        </ul>
-    </div>
-    
-    <div class="card">
-        <h2>Tipos de Produtos Reconhecidos</h2>
-        <ul>
-            <li><strong>Bongs/Water Pipes:</strong> "bong water pipe glass smoking"</li>
-            <li><strong>Vaporizadores:</strong> "vaporizer electronic cigarette"</li>
-            <li><strong>Sedas/Papéis:</strong> "rolling papers cigarette tobacco"</li>
-            <li><strong>Pipes:</strong> "smoking pipe tobacco"</li>
-            <li><strong>Moedores:</strong> "herb grinder smoking"</li>
-            <li><strong>Hookah:</strong> "hookah shisha smoking"</li>
-            <li><strong>Isqueiros:</strong> "lighter smoking accessories"</li>
-            <li><strong>Cinzeiros:</strong> "ashtray smoking accessories"</li>
-        </ul>
-    </div>
-    
-    <div class="card">
-        <h2>Melhorias Implementadas</h2>
-        <ul>
-            <li>✅ Processamento em lotes para evitar timeout</li>
-            <li>✅ Aumento do limite de execução (5 minutos)</li>
-            <li>✅ Múltiplas tentativas por imagem (até 2x)</li>
-            <li>✅ Verificação de qualidade da imagem (tamanho mínimo)</li>
-            <li>✅ Delays otimizados entre requisições</li>
-            <li>✅ Logs detalhados para debug</li>
-            <li>✅ Relatório de produtos que falharam</li>
-            <li>✅ Sistema de fallback com múltiplos serviços</li>
-        </ul>
-    </div>
-    
-    <div class="card">
-        <h2>Dicas para Evitar Timeout</h2>
-        <ul>
-            <li>Use lotes menores (3-5 produtos) para servidores com limitações</li>
-            <li>Execute em horários de menor tráfego</li>
-            <li>Monitore os logs para acompanhar o progresso</li>
-            <li>Se houver timeout, execute novamente - produtos já processados serão pulados</li>
-        </ul>
-    </div>
     </div>
     
     <script>
     jQuery(document).ready(function($) {
-        let isProcessing = false;
+        let processing = false;
         let currentBatch = 1;
-        let totalBatches = 0;
-        let totalProcessed = 0;
-        let totalAssigned = 0;
-        let totalFailed = 0;
         
         $('#start-progressive').click(function() {
-            if (isProcessing) return;
+            if (processing) return;
             
-            const batchSize = $('#progressive-batch-size').val();
-            isProcessing = true;
-            currentBatch = 1;
-            totalProcessed = 0;
-            totalAssigned = 0;
-            totalFailed = 0;
-            
-            $('#start-progressive').hide();
+            processing = true;
+            $(this).hide();
             $('#stop-progressive').show();
-            $('#progress-container').show();
-            $('#progress-fill').css('width', '0%');
-            $('#progress-text').text('Iniciando...');
-            $('#progress-details').html('');
+            $('#progressive-status').html('<p>Iniciando processamento...</p>');
             
-            // Get total products and start processing
-            $.post(ajaxurl, {
-                action: 'headshop_get_progress',
-                batch_size: batchSize,
-                nonce: '<?php echo wp_create_nonce('headshop_nonce'); ?>'
-            }, function(response) {
-                if (response.success) {
-                    totalBatches = response.data.total_batches;
-                    $('#progress-text').text('Processando lote 1 de ' + totalBatches + '...');
-                    processNextBatch(batchSize);
-                } else {
-                    alert('Erro ao obter informações dos produtos');
-                    resetUI();
-                }
-            });
+            processBatch();
         });
         
         $('#stop-progressive').click(function() {
-            isProcessing = false;
-            resetUI();
+            processing = false;
+            $(this).hide();
+            $('#start-progressive').show();
+            $('#progressive-status').html('<p>Processamento interrompido pelo usuário.</p>');
         });
         
-        function processNextBatch(batchSize) {
-            if (!isProcessing) return;
+        function processBatch() {
+            if (!processing) return;
             
             $.post(ajaxurl, {
                 action: 'headshop_process_batch',
                 batch_number: currentBatch,
-                batch_size: batchSize,
-                nonce: '<?php echo wp_create_nonce('headshop_nonce'); ?>'
+                batch_size: 3,
+                nonce: '<?php echo wp_create_nonce('headshop_process_batch'); ?>'
             }, function(response) {
                 if (response.success) {
-                    const data = response.data;
-                    totalProcessed += data.processed;
-                    totalAssigned += data.assigned;
-                    totalFailed += data.failed;
-                    
-                    const progress = Math.round((currentBatch / totalBatches) * 100);
-                    $('#progress-fill').css('width', progress + '%');
-                    $('#progress-text').text('Processando lote ' + currentBatch + ' de ' + totalBatches + '...');
-                    
-                    let details = 'Processados: ' + totalProcessed + ' | Atribuídas: ' + totalAssigned + ' | Falharam: ' + totalFailed;
-                    if (data.processed > 0) {
-                        details += '<br>Último lote: ' + data.processed + ' produtos, ' + data.assigned + ' imagens atribuídas';
-                    }
-                    $('#progress-details').html(details);
+                    let data = response.data;
+                    let status = '<p>Lote ' + currentBatch + ' processado: ' + data.processed + ' produtos, ' + data.assigned + ' imagens atribuídas, ' + data.failed + ' falharam.</p>';
                     
                     if (data.completed) {
-                        // All done
-                        $('#progress-text').text('Concluído! Processados: ' + totalProcessed + ' produtos, ' + totalAssigned + ' imagens atribuídas');
-                        $('#progress-fill').css('width', '100%');
-                        resetUI();
+                        status += '<p><strong>Processamento concluído!</strong></p>';
+                        processing = false;
+                        $('#stop-progressive').hide();
+                        $('#start-progressive').show();
                     } else {
-                        // Continue with next batch
+                        status += '<p>Continuando para próximo lote...</p>';
                         currentBatch++;
-                        setTimeout(function() {
-                            processNextBatch(batchSize);
-                        }, 1000); // 1 second delay between batches
+                        setTimeout(processBatch, 1000);
                     }
+                    
+                    $('#progressive-status').html(status);
                 } else {
-                    alert('Erro ao processar lote ' + currentBatch);
-                    resetUI();
+                    $('#progressive-status').html('<p style="color: red;">Erro: ' + response.data + '</p>');
+                    processing = false;
+                    $('#stop-progressive').hide();
+                    $('#start-progressive').show();
                 }
-            }).fail(function() {
-                alert('Erro de conexão ao processar lote ' + currentBatch);
-                resetUI();
             });
-        }
-        
-        function resetUI() {
-            isProcessing = false;
-            $('#start-progressive').show();
-            $('#stop-progressive').hide();
         }
     });
     </script>
     <?php
 }
-}
-	
+
 add_filter( 'show_admin_bar', '__return_false' );
 
-// REST: Expor banners para o front em Vue
-add_action('rest_api_init', function () {
-	register_rest_route('headshop/v1', '/banners', [
-		'methods' => 'GET',
-		'callback' => 'headshop_rest_get_banners',
-		'permission_callback' => '__return_true',
-	]);
-});
+// Banner slider management
+add_action('admin_menu', 'headshop_admin_menu');
+function headshop_admin_menu() {
+    add_menu_page(
+        'Headshop',
+        'Headshop',
+        'manage_options',
+        'headshop',
+        'headshop_admin_page',
+        'dashicons-store',
+        30
+    );
+    
+    add_submenu_page(
+        'headshop',
+        'Banners',
+        'Banners',
+        'manage_options',
+        'headshop-banners',
+        'headshop_admin_banners_page'
+    );
+}
 
-function headshop_rest_get_banners( WP_REST_Request $request ) {
-	$slides = [];
+function headshop_admin_page() {
+    echo '<div class="wrap"><h1>Headshop</h1><p>Bem-vindo ao painel de administração do Headshop!</p></div>';
+}
 
-	// 1) Opcional: usar opção de múltiplos banners se existir (compatível com eventual página admin)
-	$option_banners = get_option('headshop_banner_slider');
-	if (is_array($option_banners) && !empty($option_banners)) {
-		foreach ($option_banners as $b) {
-			if (!empty($b['active']) && !empty($b['image_id'])) {
-				$image_url = wp_get_attachment_image_url((int)$b['image_id'], 'full');
-				if ($image_url) {
-					$slides[] = [
-						'image' => $image_url,
-						'title' => isset($b['title']) ? (string)$b['title'] : '',
-						'subtitle' => isset($b['subtitle']) ? (string)$b['subtitle'] : '',
-						'ctaText' => isset($b['cta_text']) ? (string)$b['cta_text'] : '',
-						'ctaUrl' => isset($b['cta_url']) ? (string)$b['cta_url'] : '',
-					];
-				}
-			}
-		}
-	}
+function headshop_admin_banners_page() {
+    // Handle form submission
+    if (isset($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'], 'headshop_banners')) {
+        $banners = [];
+        
+        if (isset($_POST['banners']) && is_array($_POST['banners'])) {
+            foreach ($_POST['banners'] as $banner) {
+                if (!empty($banner['title']) && !empty($banner['image_ids'])) {
+                    $banners[] = [
+                        'id' => sanitize_text_field($banner['id']),
+                        'title' => sanitize_text_field($banner['title']),
+                        'subtitle' => sanitize_text_field($banner['subtitle']),
+                        'cta_text' => sanitize_text_field($banner['cta_text']),
+                        'cta_url' => esc_url_raw($banner['cta_url']),
+                        'image_ids' => sanitize_text_field($banner['image_ids']),
+                        'order' => intval($banner['order']),
+                        'active' => isset($banner['active']) ? 1 : 0
+                    ];
+                }
+            }
+        }
+        
+        update_option('headshop_banner_slider', $banners);
+        echo '<div class="notice notice-success"><p>Banners salvos com sucesso!</p></div>';
+    }
+    
+    $banners = get_option('headshop_banner_slider', []);
+    
+    // Add media scripts
+    wp_enqueue_media();
+    
+    ?>
+    <div class="wrap">
+        <h1>Gerenciar Banners</h1>
+        <p class="description">Gerencie os banners que aparecem no slider da página inicial. Você pode adicionar múltiplos banners e controlar a ordem de exibição.</p>
+        
+        <form method="post">
+            <?php wp_nonce_field('headshop_banners'); ?>
+            
+            <div id="banners-container">
+                <?php if (empty($banners)): ?>
+                    <div class="banner-item" data-index="0" style="background: #f9f9f9; border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 5px;">
+                        <h3 style="margin-top: 0; color: #0073aa;">Banner 1</h3>
+                        <table class="form-table">
+                            <tr>
+                                <th scope="row">Título</th>
+                                <td><input type="text" name="banners[0][title]" value="" class="regular-text" placeholder="Título do banner" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Subtítulo</th>
+                                <td><input type="text" name="banners[0][subtitle]" value="" class="regular-text" placeholder="Subtítulo do banner" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Texto do CTA</th>
+                                <td><input type="text" name="banners[0][cta_text]" value="Ver loja" class="regular-text" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">URL do CTA</th>
+                                <td><input type="url" name="banners[0][cta_url]" value="<?php echo wc_get_page_permalink('shop'); ?>" class="regular-text" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Imagens</th>
+                                <td>
+                                    <input type="hidden" name="banners[0][image_ids]" value="" class="banner-image-ids" />
+                                    <input type="button" class="button upload-banner-images" value="Selecionar Imagens" />
+                                    <p class="description">Você pode selecionar múltiplas imagens para este banner.</p>
+                                    <div class="banner-images-preview" style="margin-top: 10px;"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Ordem</th>
+                                <td><input type="number" name="banners[0][order]" value="1" min="1" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Ativo</th>
+                                <td><label><input type="checkbox" name="banners[0][active]" value="1" checked /> Exibir no slider</label></td>
+                            </tr>
+                        </table>
+                        <input type="hidden" name="banners[0][id]" value="" />
+                        <button type="button" class="button button-secondary remove-banner" style="background: #dc3232; color: white; border-color: #dc3232;">Remover Banner</button>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($banners as $index => $banner): ?>
+                        <div class="banner-item" data-index="<?php echo $index; ?>" style="background: #f9f9f9; border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 5px;">
+                            <h3 style="margin-top: 0; color: #0073aa;">Banner <?php echo $index + 1; ?></h3>
+                            <table class="form-table">
+                                <tr>
+                                    <th scope="row">Título</th>
+                                    <td><input type="text" name="banners[<?php echo $index; ?>][title]" value="<?php echo esc_attr($banner['title']); ?>" class="regular-text" /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Subtítulo</th>
+                                    <td><input type="text" name="banners[<?php echo $index; ?>][subtitle]" value="<?php echo esc_attr($banner['subtitle']); ?>" class="regular-text" /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Texto do CTA</th>
+                                    <td><input type="text" name="banners[<?php echo $index; ?>][cta_text]" value="<?php echo esc_attr($banner['cta_text']); ?>" class="regular-text" /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">URL do CTA</th>
+                                    <td><input type="url" name="banners[<?php echo $index; ?>][cta_url]" value="<?php echo esc_attr($banner['cta_url']); ?>" class="regular-text" /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Imagens</th>
+                                    <td>
+                                        <input type="hidden" name="banners[<?php echo $index; ?>][image_ids]" value="<?php echo isset($banner['image_ids']) ? $banner['image_ids'] : (isset($banner['image_id']) ? $banner['image_id'] : ''); ?>" class="banner-image-ids" />
+                                        <input type="button" class="button upload-banner-images" value="Selecionar Imagens" />
+                                        <p class="description">Você pode selecionar múltiplas imagens para este banner.</p>
+                                        <div class="banner-images-preview" style="margin-top: 10px;">
+                                            <?php 
+                                            $image_ids = isset($banner['image_ids']) ? explode(',', $banner['image_ids']) : (isset($banner['image_id']) ? [$banner['image_id']] : []);
+                                            foreach ($image_ids as $img_id): 
+                                                if ($img_id): ?>
+                                                    <div style="display: inline-block; margin: 5px; position: relative;">
+                                                        <?php echo wp_get_attachment_image($img_id, 'thumbnail'); ?>
+                                                        <button type="button" class="remove-image" data-image-id="<?php echo $img_id; ?>" style="position: absolute; top: -5px; right: -5px; background: #dc3232; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer;">×</button>
+                                                    </div>
+                                                <?php endif;
+                                            endforeach; ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Ordem</th>
+                                    <td><input type="number" name="banners[<?php echo $index; ?>][order]" value="<?php echo $banner['order']; ?>" min="1" /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Ativo</th>
+                                    <td><label><input type="checkbox" name="banners[<?php echo $index; ?>][active]" value="1" <?php checked($banner['active']); ?> /> Exibir no slider</label></td>
+                                </tr>
+                            </table>
+                            <input type="hidden" name="banners[<?php echo $index; ?>][id]" value="<?php echo esc_attr($banner['id']); ?>" />
+                            <button type="button" class="button button-secondary remove-banner" style="background: #dc3232; color: white; border-color: #dc3232;">Remover Banner</button>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+            
+            <p>
+                <button type="button" id="add-banner" class="button button-secondary">+ Adicionar Banner</button>
+            </p>
+            
+            <?php submit_button('Salvar Banners'); ?>
+        </form>
+    </div>
+    
+    <script>
+    jQuery(document).ready(function($) {
+        var bannerIndex = <?php echo count($banners); ?>;
+        
+        // Add banner
+        $('#add-banner').click(function() {
+            var bannerHtml = '<div class="banner-item" data-index="' + bannerIndex + '" style="background: #f9f9f9; border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 5px;">' +
+                '<h3 style="margin-top: 0; color: #0073aa;">Banner ' + (bannerIndex + 1) + '</h3>' +
+                '<table class="form-table">' +
+                    '<tr><th scope="row">Título</th><td><input type="text" name="banners[' + bannerIndex + '][title]" value="" class="regular-text" placeholder="Título do banner" /></td></tr>' +
+                    '<tr><th scope="row">Subtítulo</th><td><input type="text" name="banners[' + bannerIndex + '][subtitle]" value="" class="regular-text" placeholder="Subtítulo do banner" /></td></tr>' +
+                    '<tr><th scope="row">Texto do CTA</th><td><input type="text" name="banners[' + bannerIndex + '][cta_text]" value="Ver loja" class="regular-text" /></td></tr>' +
+                    '<tr><th scope="row">URL do CTA</th><td><input type="url" name="banners[' + bannerIndex + '][cta_url]" value="<?php echo wc_get_page_permalink('shop'); ?>" class="regular-text" /></td></tr>' +
+                    '<tr><th scope="row">Imagens</th><td>' +
+                        '<input type="hidden" name="banners[' + bannerIndex + '][image_ids]" value="" class="banner-image-ids" />' +
+                        '<input type="button" class="button upload-banner-images" value="Selecionar Imagens" />' +
+                        '<p class="description">Você pode selecionar múltiplas imagens para este banner.</p>' +
+                        '<div class="banner-images-preview" style="margin-top: 10px;"></div>' +
+                    '</td></tr>' +
+                    '<tr><th scope="row">Ordem</th><td><input type="number" name="banners[' + bannerIndex + '][order]" value="' + (bannerIndex + 1) + '" min="1" /></td></tr>' +
+                    '<tr><th scope="row">Ativo</th><td><label><input type="checkbox" name="banners[' + bannerIndex + '][active]" value="1" checked /> Exibir no slider</label></td></tr>' +
+                '</table>' +
+                '<input type="hidden" name="banners[' + bannerIndex + '][id]" value="" />' +
+                '<button type="button" class="button button-secondary remove-banner" style="background: #dc3232; color: white; border-color: #dc3232;">Remover Banner</button>' +
+            '</div>';
+            
+            $('#banners-container').append(bannerHtml);
+            bannerIndex++;
+            
+            // Scroll to the new banner
+            $('html, body').animate({
+                scrollTop: $('#banners-container .banner-item:last').offset().top - 100
+            }, 500);
+        });
+        
+        // Remove banner
+        $(document).on('click', '.remove-banner', function() {
+            if (confirm('Tem certeza que deseja remover este banner?')) {
+                $(this).closest('.banner-item').fadeOut(300, function() {
+                    $(this).remove();
+                });
+            }
+        });
+        
+        // Upload multiple images
+        $(document).on('click', '.upload-banner-images', function(e) {
+            e.preventDefault();
+            
+            var button = $(this);
+            var bannerItem = button.closest('.banner-item');
+            var imageIdsInput = bannerItem.find('.banner-image-ids');
+            var preview = bannerItem.find('.banner-images-preview');
+            
+            var frame = wp.media({
+                title: 'Selecionar Imagens do Banner',
+                button: {
+                    text: 'Usar estas imagens'
+                },
+                multiple: true
+            });
+            
+            frame.on('select', function() {
+                var attachments = frame.state().get('selection').toJSON();
+                var currentIds = imageIdsInput.val() ? imageIdsInput.val().split(',') : [];
+                
+                attachments.forEach(function(attachment) {
+                    if (currentIds.indexOf(attachment.id.toString()) === -1) {
+                        currentIds.push(attachment.id);
+                        var imgHtml = '<div style="display: inline-block; margin: 5px; position: relative;">' +
+                            '<img src="' + (attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url) + '" style="width: 80px; height: 80px; object-fit: cover; border: 1px solid #ddd; border-radius: 3px;" />' +
+                            '<button type="button" class="remove-image" data-image-id="' + attachment.id + '" style="position: absolute; top: -5px; right: -5px; background: #dc3232; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px;">×</button>' +
+                        '</div>';
+                        preview.append(imgHtml);
+                    }
+                });
+                
+                imageIdsInput.val(currentIds.join(','));
+            });
+            
+            frame.open();
+        });
+        
+        // Remove individual image
+        $(document).on('click', '.remove-image', function() {
+            var imageId = $(this).data('image-id');
+            var bannerItem = $(this).closest('.banner-item');
+            var imageIdsInput = bannerItem.find('.banner-image-ids');
+            var currentIds = imageIdsInput.val() ? imageIdsInput.val().split(',') : [];
+            
+            // Remove from array
+            currentIds = currentIds.filter(function(id) {
+                return id != imageId;
+            });
+            
+            imageIdsInput.val(currentIds.join(','));
+            $(this).parent().remove();
+        });
+        
+        // Show success message when form is submitted
+        $('form').on('submit', function() {
+            $('#add-banner').text('Salvando...').prop('disabled', true);
+        });
+    });
+    </script>
+    <?php
+}
 
-	// 2) Fallback: usar Customizer (um banner)
-	if (empty($slides)) {
-		$img = (string) get_theme_mod('headshop_banner_image', '');
-		$title = (string) get_theme_mod('headshop_banner_title', 'Headshop');
-		$subtitle = (string) get_theme_mod('headshop_banner_subtitle', 'Tudo para sua experiência: sedas, bongs, vaporizadores e acessórios.');
-		$cta_text = (string) get_theme_mod('headshop_banner_cta_text', 'Ver loja');
-		$cta_url = (string) get_theme_mod('headshop_banner_cta_url', '');
-		if ($cta_text !== '' && $cta_url === '' && function_exists('wc_get_page_permalink')) {
-			$cta_url = wc_get_page_permalink('shop');
-		}
-		if ($img !== '') {
-			$slides[] = [
-				'image' => esc_url_raw($img),
-				'title' => $title,
-				'subtitle' => $subtitle,
-				'ctaText' => $cta_text,
-				'ctaUrl' => $cta_url,
-			];
-		}
-	}
+// Register banner REST API endpoint
+add_action('rest_api_init', 'headshop_register_banner_rest_endpoint');
+function headshop_register_banner_rest_endpoint() {
+    register_rest_route('headshop/v1', '/banners', [
+        'methods' => 'GET',
+        'callback' => 'headshop_get_banners_data',
+        'permission_callback' => '__return_true'
+    ]);
+}
 
-	// 3) Último fallback: imagem pública para não quebrar o layout
-	if (empty($slides)) {
-		$slides[] = [
-			'image' => 'https://images.unsplash.com/photo-1600948836101-f9ffda59d250?q=80&w=2000&auto=format&fit=crop',
-			'title' => 'Headshop',
-			'subtitle' => 'Tudo para sua experiência: sedas, bongs, vaporizadores e acessórios.',
-			'ctaText' => 'Ver loja',
-			'ctaUrl' => function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : '#',
-		];
-	}
+function headshop_get_banners_data( $request ) {
+    $banners = get_option('headshop_banner_slider', []);
+    $active_banners = array_filter($banners, function($banner) {
+        return isset($banner['active']) && $banner['active'] && !empty($banner['image_ids']);
+    });
 
-	return rest_ensure_response($slides);
+    // Fallback to customizer settings if no active banners
+    if (empty($active_banners)) {
+        $banner_image_id = get_theme_mod('headshop_banner_image_id');
+        $banner_image_url = $banner_image_id ? wp_get_attachment_image_url($banner_image_id, 'full') : get_theme_mod('headshop_banner_image');
+
+        if (empty($banner_image_url)) {
+            $banner_image_url = 'https://images.unsplash.com/photo-1600948836101-f9ffda59d250?q=80&w=2000&auto=format&fit=crop';
+        }
+
+        $active_banners[] = [
+            'id' => 'fallback-banner',
+            'images' => [esc_url($banner_image_url)],
+            'title' => get_theme_mod('headshop_banner_title', 'Headshop'),
+            'subtitle' => get_theme_mod('headshop_banner_subtitle', 'Tudo para sua experiência: sedas, bongs, vaporizadores e acessórios.'),
+            'cta_text' => get_theme_mod('headshop_banner_cta_text', 'Ver loja'),
+            'cta_url' => get_theme_mod('headshop_banner_cta_url', function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : '#'),
+            'order' => 1,
+            'active' => true
+        ];
+    } else {
+        // Process multiple images for active banners
+        foreach ($active_banners as &$banner) {
+            $images = [];
+            $image_ids = isset($banner['image_ids']) ? explode(',', $banner['image_ids']) : [];
+            
+            foreach ($image_ids as $image_id) {
+                $image_id = intval(trim($image_id));
+                if ($image_id > 0) {
+                    $image_url = wp_get_attachment_image_url($image_id, 'full');
+                    if ($image_url) {
+                        $images[] = $image_url;
+                    }
+                }
+            }
+            
+            // Fallback if no valid images found
+            if (empty($images)) {
+                $images[] = 'https://images.unsplash.com/photo-' . (1500000000000 + rand(100000, 999999)) . '-1600948836101-f9ffda59d250?q=80&w=1920&auto=format&fit=crop';
+            }
+            
+            $banner['images'] = $images;
+        }
+    }
+
+    // Sort by order
+    usort($active_banners, function($a, $b) {
+        return ($a['order'] ?? 0) - ($b['order'] ?? 0);
+    });
+
+    return new WP_REST_Response($active_banners, 200);
 }
 
 // Enfileirar build do Vite (produção)
-add_action('wp_enqueue_scripts', function(){
-	$theme_dir = get_template_directory();
-	$theme_uri = get_template_directory_uri();
-	$manifest_path = $theme_dir . '/dist/.vite/manifest.json';
-	if (!file_exists($manifest_path)) return; // se não houver build, não faz nada
-	$manifest = json_decode(file_get_contents($manifest_path), true);
-	if (!is_array($manifest)) return;
+add_action('wp_enqueue_scripts', 'headshop_enqueue_vue_assets');
+function headshop_enqueue_vue_assets() {
+    $theme_uri = get_template_directory_uri();
+    $dist_path = get_template_directory() . '/dist';
+    $manifest_path = $dist_path . '/.vite/manifest.json';
 
-	// Arquivo de entrada padrão gerado pelo Vite
-	$entry = 'index.html';
-	if (isset($manifest['index.html']) && isset($manifest['index.html']['file'])) {
-		$css_files = isset($manifest['index.html']['css']) ? (array)$manifest['index.html']['css'] : [];
-		foreach ($css_files as $i => $css) {
-			wp_enqueue_style('headshop-vite-css-' . $i, $theme_uri . '/dist/' . ltrim($css, '/'), [], null);
-		}
-		wp_enqueue_script('headshop-vite-js', $theme_uri . '/dist/' . ltrim($manifest['index.html']['file'], '/'), [], null, true);
-	}
-}, 99);
+    if (file_exists($manifest_path)) {
+        $manifest = json_decode(file_get_contents($manifest_path), true);
 
-// Admin: Gerenciador de Banners (Headshop → Banners)
-add_action('admin_menu', function () {
-	add_menu_page(
-		'Banners',
-		'Banners',
-		'manage_options',
-		'headshop-banners',
-		'headshop_admin_banners_page',
-		'dashicons-images-alt2',
-		60
-	);
-});
+        if (isset($manifest['src/main.js'])) {
+            $main_js = $manifest['src/main.js'];
+            $js_file = $theme_uri . '/dist/' . $main_js['file'];
+            wp_enqueue_script('vue-app-main', $js_file, [], null, true);
 
-function headshop_admin_banners_page() {
-	if (!current_user_can('manage_options')) {
-		return;
-	}
-	// Processar ações
-	if (!empty($_POST) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'headshop_banners_nonce')) {
-		$banners = get_option('headshop_banner_slider', []);
-		if (!is_array($banners)) $banners = [];
-
-		// Adicionar/Atualizar
-		if (isset($_POST['action_type']) && $_POST['action_type'] === 'save') {
-			$id = isset($_POST['id']) ? sanitize_text_field($_POST['id']) : '';
-			$item = [
-				'id' => $id !== '' ? $id : uniqid('banner_'),
-				'image_id' => isset($_POST['image_id']) ? absint($_POST['image_id']) : 0,
-				'title' => isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '',
-				'subtitle' => isset($_POST['subtitle']) ? sanitize_text_field($_POST['subtitle']) : '',
-				'cta_text' => isset($_POST['cta_text']) ? sanitize_text_field($_POST['cta_text']) : '',
-				'cta_url' => isset($_POST['cta_url']) ? esc_url_raw($_POST['cta_url']) : '',
-				'order' => isset($_POST['order']) ? absint($_POST['order']) : (count($banners) + 1),
-				'active' => !empty($_POST['active']) ? 1 : 0,
-			];
-			$found = false;
-			foreach ($banners as &$b) {
-				if (isset($b['id']) && $b['id'] === $item['id']) { $b = $item; $found = true; break; }
-			}
-			if (!$found) { $banners[] = $item; }
-		}
-
-		// Excluir
-		if (isset($_POST['action_type']) && $_POST['action_type'] === 'delete' && !empty($_POST['id'])) {
-			$target = sanitize_text_field($_POST['id']);
-			$banners = array_values(array_filter($banners, function($b) use ($target){ return isset($b['id']) && $b['id'] !== $target; }));
-		}
-
-		// Ordenar por "order"
-		usort($banners, function($a, $b){ return (int)($a['order'] ?? 0) <=> (int)($b['order'] ?? 0); });
-		update_option('headshop_banner_slider', $banners);
-		echo '<div class="notice notice-success"><p>Banners atualizados com sucesso.</p></div>';
-	}
-
-	// Dados atuais
-	$banners = get_option('headshop_banner_slider', []);
-	if (!is_array($banners)) $banners = [];
-	wp_enqueue_media();
-	?>
-	<div class="wrap">
-		<h1 class="wp-heading-inline">Banners</h1>
-		<p class="description">Gerencie os slides exibidos no banner da Home (consumidos pelo app Vue).</p>
-
-		<h2>Adicionar / Editar</h2>
-		<form method="post" style="max-width:880px;background:#fff;border:1px solid #ccd0d4;padding:16px;border-radius:6px;">
-			<?php wp_nonce_field('headshop_banners_nonce'); ?>
-			<input type="hidden" name="action_type" value="save">
-			<input type="hidden" name="id" id="hs-id" value="">
-			<table class="form-table" role="presentation">
-				<tr>
-					<th scope="row"><label for="hs-image-id">Imagem</label></th>
-					<td>
-						<div id="hs-image-preview" style="margin-bottom:8px"></div>
-						<input type="hidden" name="image_id" id="hs-image-id" value="">
-						<button type="button" class="button" id="hs-pick-image">Selecionar imagem</button>
-						<p class="description">Recomendado: 1920x800px ou proporção similar.</p>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="hs-title">Título</label></th>
-					<td><input type="text" class="regular-text" id="hs-title" name="title" value=""></td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="hs-subtitle">Subtítulo</label></th>
-					<td><input type="text" class="regular-text" id="hs-subtitle" name="subtitle" value=""></td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="hs-cta-text">Texto do CTA</label></th>
-					<td><input type="text" class="regular-text" id="hs-cta-text" name="cta_text" value=""></td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="hs-cta-url">URL do CTA</label></th>
-					<td><input type="url" class="regular-text" id="hs-cta-url" name="cta_url" value=""></td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="hs-order">Ordem</label></th>
-					<td><input type="number" class="small-text" id="hs-order" name="order" min="1" value="1"></td>
-				</tr>
-				<tr>
-					<th scope="row">Ativo</th>
-					<td><label><input type="checkbox" id="hs-active" name="active" checked> Exibir no slider</label></td>
-				</tr>
-			</table>
-			<p class="submit"><button type="submit" class="button button-primary">Salvar Banner</button></p>
-		</form>
-
-		<h2 style="margin-top:24px;">Lista de Banners</h2>
-		<table class="wp-list-table widefat fixed striped" style="max-width:1000px;">
-			<thead>
-				<tr>
-					<th>Preview</th>
-					<th>Título</th>
-					<th>CTA</th>
-					<th>Ordem</th>
-					<th>Status</th>
-					<th>Ações</th>
-				</tr>
-			</thead>
-			<tbody>
-			<?php if (empty($banners)) : ?>
-				<tr><td colspan="6">Nenhum banner cadastrado.</td></tr>
-			<?php else: foreach ($banners as $b): ?>
-				<tr>
-					<td style="width:160px;">
-						<?php if (!empty($b['image_id'])) echo wp_get_attachment_image((int)$b['image_id'], [160, 90]); ?>
-					</td>
-					<td><?php echo esc_html($b['title'] ?? ''); ?></td>
-					<td><?php echo esc_html($b['cta_text'] ?? ''); ?></td>
-					<td><?php echo isset($b['order']) ? (int)$b['order'] : 0; ?></td>
-					<td><?php echo !empty($b['active']) ? '<span style="color:#46b450;font-weight:600">Ativo</span>' : '<span style="color:#dc3232;font-weight:600">Inativo</span>'; ?></td>
-					<td>
-						<button class="button button-small" onclick='hsEditBanner(<?php echo wp_json_encode($b); ?>)'>Editar</button>
-						<form method="post" style="display:inline-block;margin-left:8px;" onsubmit="return confirm('Excluir este banner?');">
-							<?php wp_nonce_field('headshop_banners_nonce'); ?>
-							<input type="hidden" name="action_type" value="delete">
-							<input type="hidden" name="id" value="<?php echo esc_attr($b['id'] ?? ''); ?>">
-							<button type="submit" class="button button-small button-link-delete">Excluir</button>
-						</form>
-					</td>
-				</tr>
-			<?php endforeach; endif; ?>
-			</tbody>
-		</table>
-	</div>
-
-	<script>
-	(function($){
-		let frame;
-		$('#hs-pick-image').on('click', function(e){
-			e.preventDefault();
-			if (frame) { frame.open(); return; }
-			frame = wp.media({ title: 'Selecionar Imagem', button: { text: 'Usar imagem' }, multiple: false });
-			frame.on('select', function(){
-				const att = frame.state().get('selection').first().toJSON();
-				$('#hs-image-id').val(att.id);
-				$('#hs-image-preview').html('<img src="'+(att.sizes?.medium?.url || att.url)+'" style="max-width:320px;height:auto;border:1px solid #ddd"/>');
-			});
-			frame.open();
-		});
-
-		window.hsEditBanner = function(data){
-			$('#hs-id').val(data.id||'');
-			$('#hs-image-id').val(data.image_id||'');
-			$('#hs-title').val(data.title||'');
-			$('#hs-subtitle').val(data.subtitle||'');
-			$('#hs-cta-text').val(data.cta_text||'');
-			$('#hs-cta-url').val(data.cta_url||'');
-			$('#hs-order').val(data.order||1);
-			$('#hs-active').prop('checked', !!parseInt(data.active||1));
-			if (data.image_id) {
-				$.get(ajaxurl, { action: 'query-attachments', query: { include: data.image_id } });
-			}
-		}
-	})(jQuery);
-	</script>
-	<?php
+            if (isset($main_js['css'])) {
+                foreach ($main_js['css'] as $css_file) {
+                    wp_enqueue_style('vue-app-' . sanitize_title(basename($css_file)), $theme_uri . '/dist/' . $css_file, [], null);
+                }
+            }
+        }
+    }
 }
-
