@@ -10,8 +10,28 @@
 <header class="bg-white/95 backdrop-blur-sm border-b border-gray-200/50 shadow-sm sticky top-0 z-40">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-20">
-            <!-- Left spacer for balance -->
-            <div class="w-12"></div>
+            <!-- Cart Icon -->
+            <div class="w-12 flex justify-start">
+                <?php if (class_exists('WooCommerce')): ?>
+                    <a href="<?php echo esc_url(wc_get_cart_url()); ?>" class="relative p-2 rounded-xl text-gray-700 hover:text-green-600 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 group">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
+                        </svg>
+                        <?php
+                        $cart_count = WC()->cart->get_cart_contents_count();
+                        if ($cart_count > 0): ?>
+                            <span class="cart-counter absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium group-hover:bg-green-700 transition-colors">
+                                <?php echo $cart_count; ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="cart-counter absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium group-hover:bg-green-700 transition-colors hidden">
+                                0
+                            </span>
+                        <?php endif; ?>
+                        <span class="sr-only">Carrinho de compras</span>
+                    </a>
+                <?php endif; ?>
+            </div>
             
             <!-- Centered Logo -->
             <div class="flex-1 flex justify-center">
@@ -29,8 +49,29 @@
                 </a>
             </div>
             
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-8">
+                <?php if ( has_nav_menu('primary') ) : ?>
+                    <?php wp_nav_menu([
+                        'theme_location' => 'primary',
+                        'menu_class' => 'flex items-center space-x-6',
+                        'container' => false,
+                        'fallback_cb' => false,
+                        'link_before' => '',
+                        'link_after' => '',
+                        'walker' => new Headshop_Desktop_Menu_Walker()
+                    ]); ?>
+                <?php else: ?>
+                    <a href="<?php echo esc_url(home_url('/')); ?>" class="text-gray-700 hover:text-green-600 transition-colors font-medium">Início</a>
+                    <?php if (class_exists('WooCommerce')): ?>
+                        <a href="<?php echo esc_url(wc_get_page_permalink('shop')); ?>" class="text-gray-700 hover:text-green-600 transition-colors font-medium">Loja</a>
+                        <a href="<?php echo esc_url(wc_get_page_permalink('cart')); ?>" class="text-gray-700 hover:text-green-600 transition-colors font-medium">Carrinho</a>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
+            
             <!-- Right Menu Button -->
-            <div class="w-12 flex justify-end">
+            <div class="w-12 flex justify-end md:hidden">
                 <button type="button" 
                         aria-controls="mobile-menu-overlay" 
                         aria-expanded="false" 
@@ -75,14 +116,15 @@
                     <?php if ( has_nav_menu('primary') ) : ?>
                         <?php wp_nav_menu([
                             'theme_location' => 'primary',
-                            'menu_class' => 'space-y-8 text-2xl',
+                            'menu_class' => 'space-y-6 text-xl',
                             'container' => false,
                             'fallback_cb' => false,
                             'link_before' => '',
-                            'link_after' => ''
+                            'link_after' => '',
+                            'walker' => new Headshop_Mobile_Menu_Walker()
                         ]); ?>
                     <?php else: ?>
-                        <div class="space-y-8 text-2xl">
+                        <div class="space-y-6 text-xl">
                             <a href="<?php echo esc_url(home_url('/')); ?>" class="block text-gray-900 hover:text-green-600 transition-colors font-medium">Início</a>
                             <?php if (class_exists('WooCommerce')): ?>
                                 <a href="<?php echo esc_url(wc_get_page_permalink('shop')); ?>" class="block text-gray-900 hover:text-green-600 transition-colors font-medium">Loja</a>
@@ -118,6 +160,53 @@
         </div>
     </div>
 </header>
+
+<!-- Cart Counter Update Script -->
+<script>
+// Cache buster: <?php echo time(); ?>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update cart counter
+    function updateCartCounter() {
+        fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                action: 'get_cart_count'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const cartCounter = document.querySelector('.cart-counter');
+            if (cartCounter) {
+                if (data.count > 0) {
+                    cartCounter.textContent = data.count;
+                    cartCounter.classList.remove('hidden');
+                } else {
+                    cartCounter.classList.add('hidden');
+                }
+            }
+        })
+        .catch(error => console.log('Cart update error:', error));
+    }
+    
+    // Listen for WooCommerce cart updates
+    document.body.addEventListener('added_to_cart', function() {
+        setTimeout(updateCartCounter, 500);
+    });
+    
+    document.body.addEventListener('removed_from_cart', function() {
+        setTimeout(updateCartCounter, 500);
+    });
+    
+    // Update on page load
+    updateCartCounter();
+    
+    // Update every 5 seconds as fallback
+    setInterval(updateCartCounter, 5000);
+});
+</script>
 
 <!-- Main Content -->
 <main class="min-h-screen">

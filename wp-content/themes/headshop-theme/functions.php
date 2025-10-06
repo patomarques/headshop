@@ -9,11 +9,336 @@ function headshop_theme_setup() {
     register_nav_menus([
         'primary' => __('Menu Principal', 'headshop-theme')
     ]);
+    
+    // Add categories to menu automatically
+    add_action('wp_update_nav_menu', 'headshop_update_menu_with_categories');
+    add_action('after_switch_theme', 'headshop_create_default_menu');
+    
+    // Create categories page automatically
+    add_action('after_switch_theme', 'headshop_create_categories_page');
 }
 add_action('after_setup_theme', 'headshop_theme_setup');
 
+// Create default menu with categories
+function headshop_create_default_menu() {
+    if (!class_exists('WooCommerce')) return;
+    
+    // Check if primary menu already exists
+    $menu_locations = get_nav_menu_locations();
+    if (isset($menu_locations['primary']) && $menu_locations['primary'] != 0) {
+        return; // Menu already exists
+    }
+    
+    // Create menu
+    $menu_id = wp_create_nav_menu('Menu Principal');
+    if (is_wp_error($menu_id)) return;
+    
+    // Add basic menu items
+    wp_update_nav_menu_item($menu_id, 0, [
+        'menu-item-title' => 'Início',
+        'menu-item-url' => home_url('/'),
+        'menu-item-status' => 'publish'
+    ]);
+    
+    wp_update_nav_menu_item($menu_id, 0, [
+        'menu-item-title' => 'Loja',
+        'menu-item-url' => wc_get_page_permalink('shop'),
+        'menu-item-status' => 'publish'
+    ]);
+    
+    // Add categories
+    headshop_add_categories_to_menu($menu_id);
+    
+    // Set menu location
+    $locations = get_theme_mod('nav_menu_locations');
+    $locations['primary'] = $menu_id;
+    set_theme_mod('nav_menu_locations', $locations);
+}
+
+// Add categories to existing menu
+function headshop_update_menu_with_categories($menu_id) {
+    if (!class_exists('WooCommerce')) return;
+    
+    // Only update primary menu
+    $menu_locations = get_nav_menu_locations();
+    if (!isset($menu_locations['primary']) || $menu_locations['primary'] != $menu_id) {
+        return;
+    }
+    
+    headshop_add_categories_to_menu($menu_id);
+}
+
+// Force update menu with categories (can be called manually)
+function headshop_force_update_menu_categories() {
+    if (!class_exists('WooCommerce')) return false;
+    
+    $menu_locations = get_nav_menu_locations();
+    if (!isset($menu_locations['primary']) || $menu_locations['primary'] == 0) {
+        // Create menu if it doesn't exist
+        headshop_create_default_menu();
+        return true;
+    }
+    
+    $menu_id = $menu_locations['primary'];
+    headshop_add_categories_to_menu($menu_id);
+    return true;
+}
+
+// Create categories page
+function headshop_create_categories_page() {
+    // Check if page already exists
+    $page = get_page_by_path('categorias');
+    if ($page) {
+        return; // Page already exists
+    }
+    
+    // Create the page
+    $page_data = [
+        'post_title' => 'Categorias',
+        'post_content' => 'Esta página exibe todas as categorias de produtos disponíveis.',
+        'post_status' => 'publish',
+        'post_type' => 'page',
+        'post_name' => 'categorias',
+        'page_template' => 'page-categorias.php'
+    ];
+    
+    $page_id = wp_insert_post($page_data);
+    
+    if (!is_wp_error($page_id)) {
+        // Set the page template
+        update_post_meta($page_id, '_wp_page_template', 'page-categorias.php');
+        
+        // Add to menu if menu exists
+        $menu_locations = get_nav_menu_locations();
+        if (isset($menu_locations['primary']) && $menu_locations['primary'] != 0) {
+            $menu_id = $menu_locations['primary'];
+            
+            // Check if already in menu
+            $menu_items = wp_get_nav_menu_items($menu_id);
+            $already_in_menu = false;
+            
+            foreach ($menu_items as $item) {
+                if ($item->object_id == $page_id) {
+                    $already_in_menu = true;
+                    break;
+                }
+            }
+            
+            if (!$already_in_menu) {
+                wp_update_nav_menu_item($menu_id, 0, [
+                    'menu-item-title' => 'Categorias',
+                    'menu-item-url' => get_permalink($page_id),
+                    'menu-item-object' => 'page',
+                    'menu-item-object-id' => $page_id,
+                    'menu-item-type' => 'post_type',
+                    'menu-item-status' => 'publish'
+                ]);
+            }
+        }
+    }
+}
+
+// Custom Walker for Mobile Menu
+class Headshop_Mobile_Menu_Walker extends Walker_Nav_Menu {
+    
+    function start_lvl(&$output, $depth = 0, $args = null) {
+        $indent = str_repeat("\t", $depth);
+        $output .= "\n$indent<ul class=\"ml-6 mt-2 space-y-2 text-lg\">\n";
+    }
+    
+    function end_lvl(&$output, $depth = 0, $args = null) {
+        $indent = str_repeat("\t", $depth);
+        $output .= "$indent</ul>\n";
+    }
+    
+    function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
+        $indent = ($depth) ? str_repeat("\t", $depth) : '';
+        
+        $classes = empty($item->classes) ? array() : (array) $item->classes;
+        $classes[] = 'menu-item-' . $item->ID;
+        
+        $class_names = join(' ', apply_filters('nav_menu_css_class', array_filter($classes), $item, $args));
+        $class_names = $class_names ? ' class="' . esc_attr($class_names) . '"' : '';
+        
+        $id = apply_filters('nav_menu_item_id', 'menu-item-'. $item->ID, $item, $args);
+        $id = $id ? ' id="' . esc_attr($id) . '"' : '';
+        
+        $output .= $indent . '<li' . $id . $class_names .'>';
+        
+        $attributes = ! empty($item->attr_title) ? ' title="'  . esc_attr($item->attr_title) .'"' : '';
+        $attributes .= ! empty($item->target)     ? ' target="' . esc_attr($item->target     ) .'"' : '';
+        $attributes .= ! empty($item->xfn)        ? ' rel="'    . esc_attr($item->xfn        ) .'"' : '';
+        $attributes .= ! empty($item->url)        ? ' href="'   . esc_attr($item->url        ) .'"' : '';
+        
+        $item_output = isset($args->before) ? $args->before : '';
+        $item_output .= '<a' . $attributes . ' class="block text-gray-900 hover:text-green-600 transition-colors font-medium">';
+        $item_output .= (isset($args->link_before) ? $args->link_before : '') . apply_filters('the_title', $item->title, $item->ID) . (isset($args->link_after) ? $args->link_after : '');
+        $item_output .= '</a>';
+        $item_output .= isset($args->after) ? $args->after : '';
+        
+        $output .= apply_filters('walker_nav_menu_start_el', $item_output, $item, $depth, $args);
+    }
+    
+    function end_el(&$output, $item, $depth = 0, $args = null) {
+        $output .= "</li>\n";
+    }
+}
+
+// Custom Walker for Desktop Menu
+class Headshop_Desktop_Menu_Walker extends Walker_Nav_Menu {
+    
+    function start_lvl(&$output, $depth = 0, $args = null) {
+        $indent = str_repeat("\t", $depth);
+        $output .= "\n$indent<ul class=\"absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50\">\n";
+    }
+    
+    function end_lvl(&$output, $depth = 0, $args = null) {
+        $indent = str_repeat("\t", $depth);
+        $output .= "$indent</ul>\n";
+    }
+    
+    function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
+        $indent = ($depth) ? str_repeat("\t", $depth) : '';
+        
+        $classes = empty($item->classes) ? array() : (array) $item->classes;
+        $classes[] = 'menu-item-' . $item->ID;
+        
+        // Add dropdown classes for parent items
+        if ($depth == 0 && in_array('menu-item-has-children', $classes)) {
+            $classes[] = 'relative group';
+        }
+        
+        $class_names = join(' ', apply_filters('nav_menu_css_class', array_filter($classes), $item, $args));
+        $class_names = $class_names ? ' class="' . esc_attr($class_names) . '"' : '';
+        
+        $id = apply_filters('nav_menu_item_id', 'menu-item-'. $item->ID, $item, $args);
+        $id = $id ? ' id="' . esc_attr($id) . '"' : '';
+        
+        $output .= $indent . '<li' . $id . $class_names .'>';
+        
+        $attributes = ! empty($item->attr_title) ? ' title="'  . esc_attr($item->attr_title) .'"' : '';
+        $attributes .= ! empty($item->target)     ? ' target="' . esc_attr($item->target     ) .'"' : '';
+        $attributes .= ! empty($item->xfn)        ? ' rel="'    . esc_attr($item->xfn        ) .'"' : '';
+        $attributes .= ! empty($item->url)        ? ' href="'   . esc_attr($item->url        ) .'"' : '';
+        
+        // Different classes for parent and child items
+        $link_class = $depth == 0 ? 'text-gray-700 hover:text-green-600 transition-colors font-medium px-3 py-2' : 'block px-4 py-2 text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors';
+        
+        $item_output = isset($args->before) ? $args->before : '';
+        $item_output .= '<a' . $attributes . ' class="' . $link_class . '">';
+        $item_output .= (isset($args->link_before) ? $args->link_before : '') . apply_filters('the_title', $item->title, $item->ID) . (isset($args->link_after) ? $args->link_after : '');
+        
+        // Add dropdown arrow for parent items
+        if ($depth == 0 && in_array('menu-item-has-children', $classes)) {
+            $item_output .= ' <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>';
+        }
+        
+        $item_output .= '</a>';
+        $item_output .= isset($args->after) ? $args->after : '';
+        
+        $output .= apply_filters('walker_nav_menu_start_el', $item_output, $item, $depth, $args);
+    }
+    
+    function end_el(&$output, $item, $depth = 0, $args = null) {
+        $output .= "</li>\n";
+    }
+}
+
+// Add categories to menu
+function headshop_add_categories_to_menu($menu_id) {
+    // Get ALL product categories (including subcategories)
+    $all_categories = get_terms([
+        'taxonomy' => 'product_cat',
+        'hide_empty' => true,
+        'orderby' => 'name',
+        'order' => 'ASC'
+    ]);
+    
+    if (is_wp_error($all_categories) || empty($all_categories)) {
+        return;
+    }
+    
+    // Get existing menu items to avoid duplicates
+    $existing_items = wp_get_nav_menu_items($menu_id);
+    $existing_category_ids = [];
+    
+    foreach ($existing_items as $item) {
+        if ($item->object == 'product_cat') {
+            $existing_category_ids[] = $item->object_id;
+        }
+    }
+    
+    // Separate parent and child categories
+    $parent_categories = [];
+    $child_categories = [];
+    
+    foreach ($all_categories as $category) {
+        if ($category->parent == 0) {
+            $parent_categories[] = $category;
+        } else {
+            $child_categories[] = $category;
+        }
+    }
+    
+    // Add parent categories first
+    foreach ($parent_categories as $category) {
+        if (!in_array($category->term_id, $existing_category_ids)) {
+            $parent_item_id = wp_update_nav_menu_item($menu_id, 0, [
+                'menu-item-title' => $category->name,
+                'menu-item-url' => get_term_link($category),
+                'menu-item-object' => 'product_cat',
+                'menu-item-object-id' => $category->term_id,
+                'menu-item-type' => 'taxonomy',
+                'menu-item-status' => 'publish'
+            ]);
+            
+            // Store parent item ID for children
+            $category->menu_item_id = $parent_item_id;
+        }
+    }
+    
+    // Add child categories as submenus
+    foreach ($child_categories as $category) {
+        if (!in_array($category->term_id, $existing_category_ids)) {
+            // Find parent category in our array
+            $parent_category = null;
+            foreach ($parent_categories as $parent) {
+                if ($parent->term_id == $category->parent) {
+                    $parent_category = $parent;
+                    break;
+                }
+            }
+            
+            if ($parent_category && isset($parent_category->menu_item_id)) {
+                wp_update_nav_menu_item($menu_id, 0, [
+                    'menu-item-title' => $category->name,
+                    'menu-item-url' => get_term_link($category),
+                    'menu-item-object' => 'product_cat',
+                    'menu-item-object-id' => $category->term_id,
+                    'menu-item-type' => 'taxonomy',
+                    'menu-item-parent-id' => $parent_category->menu_item_id,
+                    'menu-item-status' => 'publish'
+                ]);
+            } else {
+                // If parent not found or not in menu, add as top-level item
+                wp_update_nav_menu_item($menu_id, 0, [
+                    'menu-item-title' => $category->name,
+                    'menu-item-url' => get_term_link($category),
+                    'menu-item-object' => 'product_cat',
+                    'menu-item-object-id' => $category->term_id,
+                    'menu-item-type' => 'taxonomy',
+                    'menu-item-status' => 'publish'
+                ]);
+            }
+        }
+    }
+}
+
 // Enqueue assets (Tailwind CDN and Swiper)
 function headshop_theme_assets() {
+    // Add version parameter to force cache refresh
+    $theme_version = wp_get_theme()->get('Version') ?: '1.0.0';
+    $cache_buster = time(); // Force refresh on every load
     // Prefer built Tailwind if present; fallback to CDN
     $built_css_path = get_template_directory() . '/assets/build/tailwind.css';
     $built_css_uri  = get_template_directory_uri() . '/assets/build/tailwind.css';
@@ -1527,11 +1852,13 @@ function headshop_admin_menu() {
         'headshop-banners',
         'headshop_admin_banners_page'
     );
+    
 }
 
 function headshop_admin_page() {
     echo '<div class="wrap"><h1>Headshop</h1><p>Bem-vindo ao painel de administração do Headshop!</p></div>';
 }
+
 
 function headshop_admin_banners_page() {
     // Handle form submission
@@ -1852,6 +2179,18 @@ function headshop_get_banners_data( $request ) {
     });
 
     return new WP_REST_Response($active_banners, 200);
+}
+
+// AJAX handler for cart count
+add_action('wp_ajax_get_cart_count', 'headshop_get_cart_count');
+add_action('wp_ajax_nopriv_get_cart_count', 'headshop_get_cart_count');
+function headshop_get_cart_count() {
+    if (class_exists('WooCommerce')) {
+        $count = WC()->cart->get_cart_contents_count();
+        wp_send_json(['count' => $count]);
+    } else {
+        wp_send_json(['count' => 0]);
+    }
 }
 
 // Enfileirar build do Vite (produção)
