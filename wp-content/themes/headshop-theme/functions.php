@@ -2177,27 +2177,64 @@ function headshop_get_cart_count() {
     }
 }
 
-// Enfileirar build do Vite (produção)
-add_action('wp_enqueue_scripts', 'headshop_enqueue_vue_assets');
-function headshop_enqueue_vue_assets() {
+// Enfileirar assets do Nuxt.js
+add_action('wp_enqueue_scripts', 'headshop_enqueue_nuxt_assets');
+function headshop_enqueue_nuxt_assets() {
     $theme_uri = get_template_directory_uri();
     $dist_path = get_template_directory() . '/dist';
+    
+    // Check for Nuxt build output (glob hashed files)
+    $nuxt_js_files = glob($dist_path . '/public/_nuxt/*.js');
+    $nuxt_css_files = glob($dist_path . '/public/_nuxt/*.css');
+    
+    if (!empty($nuxt_js_files)) {
+        // Enqueue all Nuxt JS (entry and chunks)
+        foreach ($nuxt_js_files as $js_path) {
+            $handle = 'nuxt-' . sanitize_title(basename($js_path));
+            $src = $theme_uri . '/dist/public/_nuxt/' . basename($js_path);
+            wp_enqueue_script($handle, $src, [], filemtime($js_path), true);
+        }
+        
+        // Add inline script for Nuxt hydration
+        wp_add_inline_script('nuxt-app', '
+            window.__NUXT__ = window.__NUXT__ || {};
+            window.__NUXT__.config = {
+                public: {
+                    apiBase: "' . home_url() . '",
+                    wpApiUrl: "' . home_url() . '"
+                }
+            };
+        ', 'before');
+    }
+    
+    if (!empty($nuxt_css_files)) {
+        // Enqueue all Nuxt CSS
+        foreach ($nuxt_css_files as $css_path) {
+            $handle = 'nuxt-' . sanitize_title(basename($css_path));
+            $href = $theme_uri . '/dist/public/_nuxt/' . basename($css_path);
+            wp_enqueue_style($handle, $href, [], filemtime($css_path));
+        }
+    }
+    
+    // Fallback: check for Vite manifest (for development)
     $manifest_path = $dist_path . '/.vite/manifest.json';
-
-    if (file_exists($manifest_path)) {
+    if (file_exists($manifest_path) && !file_exists($nuxt_js)) {
         $manifest = json_decode(file_get_contents($manifest_path), true);
 
-        // Prefer src/main.js entry; fallback to index.html entry used by Vite
-        $entryKey = isset($manifest['src/main.js']) ? 'src/main.js' : (isset($manifest['index.html']) ? 'index.html' : null);
-        if ($entryKey) {
-            $entry = $manifest[$entryKey];
-            if (!empty($entry['file'])) {
-                $js_file = $theme_uri . '/dist/' . $entry['file'];
-                wp_enqueue_script('vue-app-main', $js_file, [], null, true);
-            }
-            if (!empty($entry['css']) && is_array($entry['css'])) {
-                foreach ($entry['css'] as $css_file) {
-                    wp_enqueue_style('vue-app-' . sanitize_title(basename($css_file)), $theme_uri . '/dist/' . $css_file, [], null);
+        $main_entry = null;
+        if (isset($manifest['src/main.js'])) {
+            $main_entry = $manifest['src/main.js'];
+        } elseif (isset($manifest['index.html'])) {
+            $main_entry = $manifest['index.html'];
+        }
+
+        if ($main_entry) {
+            $js_file = $theme_uri . '/dist/' . $main_entry['file'];
+            wp_enqueue_script('nuxt-app-dev', $js_file, [], null, true);
+
+            if (isset($main_entry['css'])) {
+                foreach ($main_entry['css'] as $css_file) {
+                    wp_enqueue_style('nuxt-app-dev-' . sanitize_title(basename($css_file)), $theme_uri . '/dist/' . $css_file, [], null);
                 }
             }
         }
