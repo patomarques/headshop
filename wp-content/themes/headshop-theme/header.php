@@ -7,7 +7,7 @@
 </head>
 <body <?php body_class('min-h-full bg-gray-50 text-gray-900 antialiased'); ?>>
 <!-- Modern Header -->
-<header class="bg-white/95 backdrop-blur-sm border-b border-gray-200/50 shadow-sm sticky top-0 z-40">
+<header id="site-header" class="header header--transparent">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-20">
             <!-- Cart Icon -->
@@ -160,6 +160,95 @@
         </div>
     </div>
 </header>
+
+<!-- Header Scroll Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var header = document.getElementById('site-header');
+    var lastKnownScrollY = 0;
+    var ticking = false;
+    var nextSection = null;
+
+    // Find the next section after the hero/banner
+    function findNextSection() {
+        // Look for common section selectors
+        var selectors = [
+            '.home__featured',
+            '.section',
+            '.products',
+            '.banner-slider',
+            'main > div > div:not(:first-child)',
+            '[class*="section"]',
+            '[class*="featured"]'
+        ];
+        
+        for (var i = 0; i < selectors.length; i++) {
+            var element = document.querySelector(selectors[i]);
+            if (element && element.offsetTop > 100) {
+                return element;
+            }
+        }
+        
+        // Fallback: if no specific section found, use a scroll threshold
+        return null;
+    }
+
+    function onScrollChange(scrollY) {
+        if (!header) return;
+        
+        console.log('Scroll Y:', scrollY, 'Next Section:', nextSection);
+        
+        // If we found a next section, use its position
+        if (nextSection) {
+            var sectionTop = nextSection.offsetTop;
+            var triggerPoint = sectionTop - 100; // Trigger 100px before the section
+            
+            console.log('Section Top:', sectionTop, 'Trigger Point:', triggerPoint);
+            
+            if (scrollY >= triggerPoint) {
+                header.classList.add('header--fixed');
+                console.log('Header fixo ativado');
+            } else {
+                header.classList.remove('header--fixed');
+                console.log('Header transparente ativado');
+            }
+        } else {
+            // Fallback: use a simple scroll threshold
+            if (scrollY > 300) {
+                header.classList.add('header--fixed');
+                console.log('Header fixo ativado (fallback)');
+            } else {
+                header.classList.remove('header--fixed');
+                console.log('Header transparente ativado (fallback)');
+            }
+        }
+    }
+
+    // Initialize
+    nextSection = findNextSection();
+    
+    window.addEventListener('scroll', function () {
+        lastKnownScrollY = window.scrollY || window.pageYOffset;
+        if (!ticking) {
+            window.requestAnimationFrame(function () {
+                onScrollChange(lastKnownScrollY);
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+
+    // Initialize state on load
+    onScrollChange(window.scrollY || window.pageYOffset);
+    
+    // Re-check for sections after a short delay (in case Vue.js loads content)
+    setTimeout(function() {
+        if (!nextSection) {
+            nextSection = findNextSection();
+        }
+    }, 1000);
+});
+</script>
 
 <!-- Cart Counter Update Script -->
 <script>

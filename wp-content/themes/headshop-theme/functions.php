@@ -336,40 +336,20 @@ function headshop_add_categories_to_menu($menu_id) {
 
 // Enqueue assets (Tailwind CDN and Swiper)
 function headshop_theme_assets() {
-    // Add version parameter to force cache refresh
-    $theme_version = wp_get_theme()->get('Version') ?: '1.0.0';
-    $cache_buster = time(); // Force refresh on every load
-    // Prefer built Tailwind if present; fallback to CDN
-    $built_css_path = get_template_directory() . '/assets/build/tailwind.css';
-    $built_css_uri  = get_template_directory_uri() . '/assets/build/tailwind.css';
-    // Force Tailwind CSS to load with high priority
-    if ( file_exists( $built_css_path ) ) {
-        wp_enqueue_style('tailwindcss-built', $built_css_uri, [], filemtime($built_css_path), 'all');
-    } else {
-        // Use unpkg CDN which has better MIME type handling
-        wp_enqueue_style('tailwindcss-cdn', 'https://unpkg.com/tailwindcss@3.4.0/dist/tailwind.min.css', [], '3.4.0-v5', 'all');
+    // If Vite manifest exists (Vue build), do not enqueue Tailwind or add inline overrides
+    $manifest_path = get_template_directory() . '/dist/.vite/manifest.json';
+    if (!file_exists($manifest_path)) {
+        // Legacy fallback (Tailwind) only when Vite build not present
+        $built_css_path = get_template_directory() . '/assets/build/tailwind.css';
+        $built_css_uri  = get_template_directory_uri() . '/assets/build/tailwind.css';
+        if ( file_exists( $built_css_path ) ) {
+            wp_enqueue_style('tailwindcss-built', $built_css_uri, [], filemtime($built_css_path), 'all');
+        } else {
+            wp_enqueue_style('tailwindcss-cdn', 'https://unpkg.com/tailwindcss@3.4.0/dist/tailwind.min.css', [], '3.4.0-v5', 'all');
+        }
     }
-    
-    // Add !important to critical Tailwind classes to override plugin conflicts
-    $critical_css = '
-        .container { max-width: 1280px !important; margin-left: auto !important; margin-right: auto !important; padding-left: 1rem !important; padding-right: 1rem !important; }
-        .mx-auto { margin-left: auto !important; margin-right: auto !important; }
-        .px-4 { padding-left: 1rem !important; padding-right: 1rem !important; }
-        .py-8 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
-        .bg-white { background-color: #ffffff !important; }
-        .text-gray-900 { color: #111827 !important; }
-        .rounded-2xl { border-radius: 1rem !important; }
-        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; }
-        .hover\\:shadow-xl:hover { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important; }
-        .transition-all { transition-property: all !important; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important; transition-duration: 150ms !important; }
-        .duration-300 { transition-duration: 300ms !important; }
-        .hover\\:scale-105:hover { transform: scale(1.05) !important; }
-    ';
-    
-    wp_add_inline_style('tailwindcss-cdn', $critical_css);
-    wp_add_inline_style('tailwindcss-built', $critical_css);
 
-    // Swiper for product carousel
+    // Swiper for product carousel (leave as-is)
     wp_enqueue_style('swiper', 'https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css', [], '10');
     wp_enqueue_script('swiper', 'https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js', [], '10', true);
     
@@ -653,9 +633,13 @@ function headshop_theme_assets() {
         }
     ';
     
-    // Add custom CSS to both possible handles
-    wp_add_inline_style('tailwindcss-cdn', $custom_css);
-    wp_add_inline_style('tailwindcss-built', $custom_css);
+    // Attach custom CSS if Tailwind handle exists
+    if (wp_style_is('tailwindcss-cdn', 'registered') || wp_style_is('tailwindcss-cdn', 'enqueued')) {
+        wp_add_inline_style('tailwindcss-cdn', $custom_css);
+    }
+    if (wp_style_is('tailwindcss-built', 'registered') || wp_style_is('tailwindcss-built', 'enqueued')) {
+        wp_add_inline_style('tailwindcss-built', $custom_css);
+    }
 }
 add_action('wp_enqueue_scripts', 'headshop_theme_assets', 20);
 
@@ -2203,13 +2187,16 @@ function headshop_enqueue_vue_assets() {
     if (file_exists($manifest_path)) {
         $manifest = json_decode(file_get_contents($manifest_path), true);
 
-        if (isset($manifest['src/main.js'])) {
-            $main_js = $manifest['src/main.js'];
-            $js_file = $theme_uri . '/dist/' . $main_js['file'];
-            wp_enqueue_script('vue-app-main', $js_file, [], null, true);
-
-            if (isset($main_js['css'])) {
-                foreach ($main_js['css'] as $css_file) {
+        // Prefer src/main.js entry; fallback to index.html entry used by Vite
+        $entryKey = isset($manifest['src/main.js']) ? 'src/main.js' : (isset($manifest['index.html']) ? 'index.html' : null);
+        if ($entryKey) {
+            $entry = $manifest[$entryKey];
+            if (!empty($entry['file'])) {
+                $js_file = $theme_uri . '/dist/' . $entry['file'];
+                wp_enqueue_script('vue-app-main', $js_file, [], null, true);
+            }
+            if (!empty($entry['css']) && is_array($entry['css'])) {
+                foreach ($entry['css'] as $css_file) {
                     wp_enqueue_style('vue-app-' . sanitize_title(basename($css_file)), $theme_uri . '/dist/' . $css_file, [], null);
                 }
             }
