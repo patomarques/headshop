@@ -76,12 +76,24 @@ onMounted(async () => {
   swiperInstance = new Swiper(swiperEl.value, {
     modules: [Navigation, Pagination, EffectFade, Autoplay],
     effect: props.effect,
+    // Infinite loop when there is more than one slide
     loop: processedSlides.value.length > 1,
-    speed: 1000,
+    loopAdditionalSlides: 2,
+    // Draggable / mouse & touch
+    allowTouchMove: true,
+    simulateTouch: true,
+    grabCursor: true,
+    // Smoothness
+    speed: 800,
     autoplay: props.autoplay ? { delay: props.speed, disableOnInteraction: false } : false,
     fadeEffect: { crossFade: true },
-    navigation: props.showArrows ? { nextEl: nextRef.value, prevEl: prevRef.value } : undefined,
+    // Dots
     pagination: props.showDots ? { el: paginationEl, clickable: true, dynamicBullets: true } : undefined,
+    // Arrows
+    navigation: props.showArrows ? { nextEl: nextRef.value, prevEl: prevRef.value } : undefined,
+    // Ensure it reacts to DOM updates
+    observer: true,
+    observeParents: true,
   })
 })
 
