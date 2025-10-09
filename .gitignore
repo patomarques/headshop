@@ -28,7 +28,7 @@ xmlrpc.php
 /.env.local
 /.env.production
 
-# Dependências
+# DependênciasP
 /node_modules/
 /vendor/
 
