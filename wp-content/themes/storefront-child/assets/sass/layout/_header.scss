@@ -1,0 +1,380 @@
+/**
+ * Header Layout
+ * 
+ * @package Storefront_Child
+ * @version 1.0.0
+ */
+
+// ==========================================================================
+// HEADER PRINCIPAL
+// ==========================================================================
+
+.site-header {
+  background-color: $header-bg;
+  border-bottom: 3px solid $primary-color;
+  position: relative;
+  z-index: z-index(sticky);
+  
+  @include respond-below(md) {
+    padding: $spacing-sm 0;
+  }
+}
+
+// ==========================================================================
+// CONTAINER DO HEADER
+// ==========================================================================
+
+.header-container {
+  @extend %container;
+  @extend %flex-between;
+  min-height: $header-height;
+  
+  @include respond-below(md) {
+    min-height: $header-height-mobile;
+  }
+}
+
+// ==========================================================================
+// BRANDING
+// ==========================================================================
+
+.site-branding {
+  @extend %flex-center;
+  
+  .site-title {
+    margin: 0;
+    
+    a {
+      color: $white;
+      text-decoration: none;
+      font-family: $font-family-secondary;
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      
+      &:hover {
+        color: $primary-color;
+        text-decoration: none;
+      }
+    }
+  }
+  
+  .site-description {
+    color: rgba($white, 0.8);
+    font-size: $font-size-sm;
+    margin: 0;
+    margin-top: $spacing-xs;
+  }
+  
+  .custom-logo {
+    max-height: 60px;
+    width: auto;
+    
+    @include respond-below(md) {
+      max-height: 40px;
+    }
+  }
+}
+
+// ==========================================================================
+// NAVEGAÇÃO PRINCIPAL
+// ==========================================================================
+
+.main-navigation {
+  @include respond-below(md) {
+    display: none;
+  }
+  
+  ul {
+    @extend %flex-center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: $spacing-lg;
+    
+    li {
+      margin: 0;
+      
+      a {
+        color: $white;
+        font-weight: $font-weight-semibold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: $spacing-sm $spacing-md;
+        border-radius: $border-radius;
+        transition: all $transition-base $ease-in-out;
+        
+        &:hover {
+          color: $primary-color;
+          background-color: rgba($white, 0.1);
+          text-decoration: none;
+        }
+      }
+      
+      &.current-menu-item a,
+      &.current_page_item a {
+        color: $primary-color;
+        background-color: rgba($white, 0.1);
+      }
+    }
+  }
+}
+
+// ==========================================================================
+// MENU MOBILE
+// ==========================================================================
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: $white;
+  cursor: pointer;
+  padding: $spacing-sm;
+  border-radius: $border-radius;
+  transition: all $transition-base $ease-in-out;
+  
+  @include respond-below(md) {
+    display: block;
+  }
+  
+  &:hover {
+    background-color: rgba($white, 0.1);
+    color: $primary-color;
+  }
+  
+  &:focus {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+  
+  .hamburger {
+    width: 24px;
+    height: 18px;
+    position: relative;
+    
+    span {
+      display: block;
+      height: 2px;
+      width: 100%;
+      background-color: currentColor;
+      border-radius: 1px;
+      position: absolute;
+      transition: all $transition-base $ease-in-out;
+      
+      &:nth-child(1) {
+        top: 0;
+      }
+      
+      &:nth-child(2) {
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      
+      &:nth-child(3) {
+        bottom: 0;
+      }
+    }
+    
+    &.active {
+      span {
+        &:nth-child(1) {
+          top: 50%;
+          transform: translateY(-50%) rotate(45deg);
+        }
+        
+        &:nth-child(2) {
+          opacity: 0;
+        }
+        
+        &:nth-child(3) {
+          bottom: 50%;
+          transform: translateY(50%) rotate(-45deg);
+        }
+      }
+    }
+  }
+}
+
+// ==========================================================================
+// BUSCA CUSTOMIZADA
+// ==========================================================================
+
+.site-search {
+  @extend %custom-search-base;
+  
+  .search-toggle {
+    @extend %flex-center;
+  }
+  
+  .search-icon {
+    @extend %custom-search-icon;
+    
+    svg {
+      width: $search-icon-size;
+      height: $search-icon-size;
+    }
+  }
+  
+  .search-form-container {
+    @extend %custom-search-dropdown;
+    @include custom-search-mobile;
+    
+    &.show {
+      display: block !important;
+      @extend %slide-down;
+    }
+  }
+  
+  .woocommerce-product-search {
+    @extend %flex-center;
+    gap: $spacing-sm;
+    position: relative;
+  }
+  
+  .search-field {
+    @extend %form-control;
+    flex: 1;
+    border-radius: $border-radius-full;
+    font-size: $font-size-sm;
+    
+    @include respond-below(md) {
+      font-size: $font-size-base; // Evita zoom no iOS
+    }
+  }
+  
+  .search-submit {
+    @extend %button-primary;
+    min-width: 40px;
+    height: 40px;
+    padding: 0;
+    
+    @include respond-below(md) {
+      min-width: 44px;
+      height: 44px;
+    }
+    
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+  
+  .search-close {
+    background: $gray-600;
+    border: none;
+    color: $white;
+    padding: $spacing-sm;
+    border-radius: $border-radius-full;
+    cursor: pointer;
+    transition: all $transition-base $ease-in-out;
+    @extend %flex-center;
+    min-width: 32px;
+    height: 32px;
+    
+    @include respond-below(md) {
+      min-width: 36px;
+      height: 36px;
+    }
+    
+    &:hover {
+      background: $gray-700;
+    }
+    
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+// ==========================================================================
+// CARRINHO DO HEADER
+// ==========================================================================
+
+.header-cart {
+  @extend %flex-center;
+  position: relative;
+  
+  .cart-contents {
+    color: $white;
+    text-decoration: none;
+    @extend %flex-center;
+    gap: $spacing-xs;
+    padding: $spacing-sm;
+    border-radius: $border-radius;
+    transition: all $transition-base $ease-in-out;
+    
+    &:hover {
+      color: $primary-color;
+      background-color: rgba($white, 0.1);
+      text-decoration: none;
+    }
+    
+    .cart-icon {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .cart-count {
+      background-color: $primary-color;
+      color: $white;
+      border-radius: $border-radius-full;
+      padding: 2px 6px;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-bold;
+      min-width: 18px;
+      text-align: center;
+    }
+  }
+}
+
+// ==========================================================================
+// OVERLAY PARA BUSCA MOBILE
+// ==========================================================================
+
+body.search-open {
+  @extend %no-scroll;
+  
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba($black, 0.5);
+    z-index: z-index(modal-backdrop);
+    opacity: 0;
+    animation: fadeIn $transition-base $ease-in-out forwards;
+  }
+}
+
+// ==========================================================================
+// RESPONSIVIDADE
+// ==========================================================================
+
+@include respond-below(md) {
+  .site-header {
+    .header-container {
+      flex-wrap: wrap;
+      gap: $spacing-sm;
+    }
+    
+    .site-branding {
+      order: 1;
+    }
+    
+    .site-search {
+      order: 2;
+    }
+    
+    .header-cart {
+      order: 3;
+    }
+    
+    .menu-toggle {
+      order: 4;
+    }
+  }
+}
+

@@ -1,0 +1,301 @@
+/**
+ * Footer Layout
+ * 
+ * @package Storefront_Child
+ * @version 1.0.0
+ */
+
+// ==========================================================================
+// FOOTER PRINCIPAL
+// ==========================================================================
+
+.site-footer {
+  background-color: $footer-bg;
+  color: $footer-text;
+  padding: $spacing-3xl 0 $spacing-xl;
+  margin-top: $spacing-3xl;
+  
+  @include respond-below(md) {
+    padding: $spacing-2xl 0 $spacing-lg;
+  }
+}
+
+// ==========================================================================
+// CONTAINER DO FOOTER
+// ==========================================================================
+
+.footer-container {
+  @extend %container;
+}
+
+// ==========================================================================
+// WIDGETS DO FOOTER
+// ==========================================================================
+
+.footer-widgets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: $spacing-2xl;
+  margin-bottom: $spacing-2xl;
+  
+  @include respond-below(md) {
+    grid-template-columns: 1fr;
+    gap: $spacing-xl;
+  }
+}
+
+.footer-widget {
+  h1, h2, h3, h4, h5, h6 {
+    color: $white;
+    margin-bottom: $spacing-md;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+  }
+  
+  p {
+    color: $footer-text;
+    line-height: $line-height-relaxed;
+  }
+  
+  a {
+    color: $footer-text;
+    text-decoration: none;
+    transition: color $transition-base $ease-in-out;
+    
+    &:hover {
+      color: $primary-color;
+    }
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    li {
+      margin-bottom: $spacing-sm;
+      
+      a {
+        display: block;
+        padding: $spacing-xs 0;
+        border-bottom: 1px solid transparent;
+        transition: all $transition-base $ease-in-out;
+        
+        &:hover {
+          border-bottom-color: $primary-color;
+          padding-left: $spacing-sm;
+        }
+      }
+    }
+  }
+}
+
+// ==========================================================================
+// NEWSLETTER
+// ==========================================================================
+
+.newsletter-widget {
+  .newsletter-form {
+    display: flex;
+    gap: $spacing-sm;
+    margin-top: $spacing-md;
+    
+    @include respond-below(sm) {
+      flex-direction: column;
+    }
+    
+    input[type="email"] {
+      flex: 1;
+      @extend %form-control;
+      background-color: rgba($white, 0.1);
+      border-color: rgba($white, 0.2);
+      color: $white;
+      
+      &::placeholder {
+        color: rgba($white, 0.7);
+      }
+      
+      &:focus {
+        border-color: $primary-color;
+        background-color: rgba($white, 0.15);
+      }
+    }
+    
+    button {
+      @extend %button-primary;
+      white-space: nowrap;
+      
+      @include respond-below(sm) {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// ==========================================================================
+// REDES SOCIAIS
+// ==========================================================================
+
+.social-links {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: rgba($white, 0.1);
+    border-radius: $border-radius-full;
+    color: $white;
+    text-decoration: none;
+    transition: all $transition-base $ease-in-out;
+    
+    &:hover {
+      background-color: $primary-color;
+      transform: translateY(-2px);
+    }
+    
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// ==========================================================================
+// FOOTER BOTTOM
+// ==========================================================================
+
+.footer-bottom {
+  border-top: 1px solid rgba($white, 0.1);
+  padding-top: $spacing-lg;
+  @extend %flex-between;
+  
+  @include respond-below(md) {
+    flex-direction: column;
+    gap: $spacing-md;
+    text-align: center;
+  }
+  
+  .copyright {
+    color: $footer-text;
+    font-size: $font-size-sm;
+    margin: 0;
+  }
+  
+  .footer-links {
+    display: flex;
+    gap: $spacing-lg;
+    
+    @include respond-below(md) {
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: $spacing-md;
+    }
+    
+    a {
+      color: $footer-text;
+      text-decoration: none;
+      font-size: $font-size-sm;
+      transition: color $transition-base $ease-in-out;
+      
+      &:hover {
+        color: $primary-color;
+      }
+    }
+  }
+}
+
+// ==========================================================================
+// BREADCRUMBS
+// ==========================================================================
+
+.woocommerce-breadcrumb {
+  background-color: $gray-100;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $border-radius;
+  margin-bottom: $spacing-lg;
+  font-size: $font-size-sm;
+  
+  a {
+    color: $primary-color;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  
+  .delimiter {
+    color: $text-muted;
+    margin: 0 $spacing-sm;
+  }
+}
+
+// ==========================================================================
+// BACK TO TOP
+// ==========================================================================
+
+.back-to-top {
+  position: fixed;
+  bottom: $spacing-lg;
+  right: $spacing-lg;
+  width: 50px;
+  height: 50px;
+  background-color: $primary-color;
+  color: $white;
+  border: none;
+  border-radius: $border-radius-full;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: all $transition-base $ease-in-out;
+  z-index: z-index(fixed);
+  @extend %flex-center;
+  
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  &:hover {
+    background-color: $primary-dark;
+    transform: translateY(-2px);
+  }
+  
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// ==========================================================================
+// RESPONSIVIDADE
+// ==========================================================================
+
+@include respond-below(md) {
+  .site-footer {
+    .footer-widgets {
+      text-align: center;
+    }
+    
+    .footer-widget {
+      h1, h2, h3, h4, h5, h6 {
+        text-align: center;
+      }
+    }
+  }
+}
+
+@include respond-below(sm) {
+  .back-to-top {
+    bottom: $spacing-md;
+    right: $spacing-md;
+    width: 45px;
+    height: 45px;
+  }
+}
+

@@ -1,0 +1,211 @@
+/**
+ * Functions
+ * 
+ * @package Storefront_Child
+ * @version 1.0.0
+ */
+
+// ==========================================================================
+// COLOR FUNCTIONS
+// ==========================================================================
+
+// Função para escurecer uma cor
+@use "sass:color";
+@function darken($color, $amount) {
+  @return color.mix(black, $color, $amount);
+}
+
+// Função para clarear uma cor
+@function lighten($color, $amount) {
+  @return color.mix(white, $color, $amount);
+}
+
+// Função para criar transparência
+@function rgba-color($color, $alpha) {
+  @return rgba($color, $alpha);
+}
+
+// Função para obter contraste de cor
+@function contrast-color($color, $light: $white, $dark: $black) {
+  $lightness: lightness($color);
+  @return if($lightness > 50%, $dark, $light);
+}
+
+// ==========================================================================
+// MATH FUNCTIONS
+// ==========================================================================
+
+// Função para converter px para rem
+@function rem($pixels, $base: 16) {
+  @return #{$pixels / $base}rem;
+}
+
+// Função para converter px para em
+@function em($pixels, $base: 16) {
+  @return #{$pixels / $base}em;
+}
+
+// Função para calcular porcentagem
+@function percentage($value) {
+  @return $value * 100%;
+}
+
+// ==========================================================================
+// STRING FUNCTIONS
+// ==========================================================================
+
+// Função para remover unidades
+@function strip-unit($number) {
+  @if type-of($number) == 'number' and not unitless($number) {
+    @return $number / ($number * 0 + 1);
+  }
+  @return $number;
+}
+
+// ==========================================================================
+// LAYOUT FUNCTIONS
+// ==========================================================================
+
+// Função para calcular largura de coluna
+@function column-width($columns, $total-columns: 12) {
+  @return percentage($columns / $total-columns);
+}
+
+// Função para calcular espaçamento responsivo
+@function responsive-spacing($base, $multiplier: 1.5) {
+  @return $base * $multiplier;
+}
+
+// ==========================================================================
+// WOOCOMMERCE FUNCTIONS
+// ==========================================================================
+
+// Função para calcular preço com desconto
+@function discounted-price($original-price, $discount-percentage) {
+  @return $original-price * (1 - $discount-percentage / 100);
+}
+
+// Função para calcular margem de lucro
+@function profit-margin($cost, $selling-price) {
+  @return (($selling-price - $cost) / $selling-price) * 100;
+}
+
+// ==========================================================================
+// UTILITY FUNCTIONS
+// ==========================================================================
+
+// Função para verificar se uma cor é clara
+@function is-light($color) {
+  @return lightness($color) > 50%;
+}
+
+// Função para verificar se uma cor é escura
+@function is-dark($color) {
+  @return lightness($color) <= 50%;
+}
+
+// Função para criar gradiente
+@function gradient($start-color, $end-color, $direction: to bottom) {
+  @return linear-gradient($direction, $start-color, $end-color);
+}
+
+// Função para criar sombra
+@function shadow($x: 0, $y: 2px, $blur: 4px, $spread: 0, $color: rgba(0, 0, 0, 0.1)) {
+  @return #{$x} #{$y} #{$blur} #{$spread} #{$color};
+}
+
+// ==========================================================================
+// BREAKPOINT FUNCTIONS
+// ==========================================================================
+
+// Função para obter breakpoint
+@function breakpoint($name) {
+  @if $name == xs {
+    @return $breakpoint-xs;
+  } @else if $name == sm {
+    @return $breakpoint-sm;
+  } @else if $name == md {
+    @return $breakpoint-md;
+  } @else if $name == lg {
+    @return $breakpoint-lg;
+  } @else if $name == xl {
+    @return $breakpoint-xl;
+  } @else if $name == 2xl {
+    @return $breakpoint-2xl;
+  }
+  @return null;
+}
+
+// Função para obter container width
+@function container-width($breakpoint) {
+  @if $breakpoint == sm {
+    @return $container-sm;
+  } @else if $breakpoint == md {
+    @return $container-md;
+  } @else if $breakpoint == lg {
+    @return $container-lg;
+  } @else if $breakpoint == xl {
+    @return $container-xl;
+  } @else if $breakpoint == 2xl {
+    @return $container-2xl;
+  }
+  @return null;
+}
+
+// ==========================================================================
+// ANIMATION FUNCTIONS
+// ==========================================================================
+
+// Função para criar keyframes
+@function keyframes($name) {
+  @return #{$name};
+}
+
+// Função para calcular duração de animação
+@function animation-duration($base-duration: $transition-base, $multiplier: 1) {
+  @return $base-duration * $multiplier;
+}
+
+// ==========================================================================
+// Z-INDEX FUNCTIONS
+// ==========================================================================
+
+// Função para obter z-index
+@function z-index($level) {
+  @if $level == dropdown {
+    @return $z-index-dropdown;
+  } @else if $level == sticky {
+    @return $z-index-sticky;
+  } @else if $level == fixed {
+    @return $z-index-fixed;
+  } @else if $level == modal-backdrop {
+    @return $z-index-modal-backdrop;
+  } @else if $level == modal {
+    @return $z-index-modal;
+  } @else if $level == popover {
+    @return $z-index-popover;
+  } @else if $level == tooltip {
+    @return $z-index-tooltip;
+  }
+  @return 1;
+}
+
+// ==========================================================================
+// CUSTOM FUNCTIONS
+// ==========================================================================
+
+// Função para calcular tamanho de fonte responsivo
+@function responsive-font-size($min-size, $max-size, $min-width: 320px, $max-width: 1200px) {
+  @return calc(#{$min-size} + #{strip-unit($max-size - $min-size)} * ((100vw - #{$min-width}) / #{strip-unit($max-width - $min-width)}));
+}
+
+// Função para criar espaçamento vertical
+@function vertical-rhythm($base-line-height: $line-height-normal, $font-size: $font-size-base) {
+  @return $base-line-height * $font-size;
+}
+
+// Função para calcular largura de grid
+@function grid-width($columns, $gutter: $spacing-md) {
+  @return calc(#{percentage($columns / 12)} - #{$gutter});
+}
+

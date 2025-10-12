@@ -1,0 +1,207 @@
+/**
+ * Main SASS File
+ * 
+ * @package Storefront_Child
+ * @version 1.0.0
+ */
+
+// ==========================================================================
+// IMPORTAR ABSTRACTS
+// ==========================================================================
+
+@import 'abstracts/abstracts';
+
+// ==========================================================================
+// IMPORTAR BASE
+// ==========================================================================
+
+@import 'base/base';
+
+// ==========================================================================
+// IMPORTAR LAYOUT
+// ==========================================================================
+
+@import 'layout/layout';
+
+// ==========================================================================
+// IMPORTAR COMPONENTES
+// ==========================================================================
+
+@import 'components/components';
+
+// ==========================================================================
+// IMPORTAR PÁGINAS
+// ==========================================================================
+
+@import 'pages/pages';
+
+// ==========================================================================
+// IMPORTAR TEMAS
+// ==========================================================================
+
+@import 'themes/themes';
+
+// ==========================================================================
+// IMPORTAR VENDORS (OPCIONAL)
+// ==========================================================================
+
+// @import 'vendors/vendors';
+
+// ==========================================================================
+// ESTILOS ESPECÍFICOS DO TEMA
+// ==========================================================================
+
+// Importar estilos do tema pai
+@import url('../storefront/style.css');
+
+// ==========================================================================
+// UTILITÁRIOS FINAIS
+// ==========================================================================
+
+// Classes utilitárias
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: $spacing-xs; }
+.mb-2 { margin-bottom: $spacing-sm; }
+.mb-3 { margin-bottom: $spacing-md; }
+.mb-4 { margin-bottom: $spacing-lg; }
+.mb-5 { margin-bottom: $spacing-xl; }
+
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: $spacing-xs; }
+.mt-2 { margin-top: $spacing-sm; }
+.mt-3 { margin-top: $spacing-md; }
+.mt-4 { margin-top: $spacing-lg; }
+.mt-5 { margin-top: $spacing-xl; }
+
+.p-0 { padding: 0; }
+.p-1 { padding: $spacing-xs; }
+.p-2 { padding: $spacing-sm; }
+.p-3 { padding: $spacing-md; }
+.p-4 { padding: $spacing-lg; }
+.p-5 { padding: $spacing-xl; }
+
+.d-none { display: none; }
+.d-block { display: block; }
+.d-flex { display: flex; }
+.d-grid { display: grid; }
+
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
+
+// ==========================================================================
+// RESPONSIVIDADE GLOBAL
+// ==========================================================================
+
+@include respond-below(md) {
+  .d-md-none { display: none; }
+  .d-md-block { display: block; }
+  .d-md-flex { display: flex; }
+}
+
+@include respond-below(sm) {
+  .d-sm-none { display: none; }
+  .d-sm-block { display: block; }
+  .d-sm-flex { display: flex; }
+}
+
+// ==========================================================================
+// ANIMAÇÕES GLOBAIS
+// ==========================================================================
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ==========================================================================
+// PRINT STYLES
+// ==========================================================================
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .site-header,
+  .site-footer,
+  .sidebar {
+    display: none !important;
+  }
+  
+  .main-content {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  a {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+  
+  .btn {
+    border: 1px solid #000 !important;
+    background: transparent !important;
+    color: #000 !important;
+  }
+}
+

@@ -1,0 +1,129 @@
+# Copyright (C) 2024 Storefront Child Theme
+# This file is distributed under the same license as the Storefront Child Theme package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Storefront Child Theme 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/theme/storefront-child\n"
+"POT-Creation-Date: 2024-01-01 12:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2024-01-01 12:00+0000\n"
+"Last-Translator: Indicativa Headshop\n"
+"Language-Team: Português do Brasil\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Storefront Child Translation\n"
+"X-Domain: storefront-child\n"
+
+#: functions.php:45
+msgid "Área Customizada do Rodapé"
+msgstr "Área Customizada do Rodapé"
+
+#: functions.php:46
+msgid "Adicione widgets aqui para aparecerem na área customizada do rodapé."
+msgstr "Adicione widgets aqui para aparecerem na área customizada do rodapé."
+
+#: functions.php:54
+msgid "Sidebar de Produtos"
+msgstr "Sidebar de Produtos"
+
+#: functions.php:55
+msgid "Adicione widgets aqui para aparecerem na sidebar das páginas de produtos."
+msgstr "Adicione widgets aqui para aparecerem na sidebar das páginas de produtos."
+
+#: functions.php:85
+msgid "Ver Detalhes"
+msgstr "Ver Detalhes"
+
+#: functions.php:95
+msgid "%s foi adicionado ao seu carrinho!"
+msgstr "%s foi adicionado ao seu carrinho!"
+
+#: functions.php:105
+msgid "Cores Customizadas"
+msgstr "Cores Customizadas"
+
+#: functions.php:106
+msgid "Personalize as cores do seu site."
+msgstr "Personalize as cores do seu site."
+
+#: functions.php:113
+msgid "Cor Primária"
+msgstr "Cor Primária"
+
+#: functions.php:123
+msgid "Cor Secundária"
+msgstr "Cor Secundária"
+
+#: functions.php:150
+msgid "© %s %s. Todos os direitos reservados. Desenvolvido com %s"
+msgstr "© %s %s. Todos os direitos reservados. Desenvolvido com %s"
+
+#: functions.php:160
+msgid "Loja Online"
+msgstr "Loja Online"
+
+#: functions.php:175
+msgid "Início"
+msgstr "Início"
+
+#: assets/js/child-theme.js:45
+msgid "Carregando..."
+msgstr "Carregando..."
+
+#: assets/js/child-theme.js:46
+msgid "Ocorreu um erro. Tente novamente."
+msgstr "Ocorreu um erro. Tente novamente."
+
+#: assets/js/child-theme.js:65
+msgid "Carrinho atualizado!"
+msgstr "Carrinho atualizado!"
+
+#: assets/js/child-theme.js:75
+msgid "Produto adicionado ao carrinho!"
+msgstr "Produto adicionado ao carrinho!"
+
+#: assets/js/child-theme.js:85
+msgid "Buscar produtos..."
+msgstr "Buscar produtos..."
+
+#: assets/js/child-theme.js:86
+msgid "Digite o nome do produto..."
+msgstr "Digite o nome do produto..."
+
+#: assets/js/child-theme.js:87
+msgid "O que você está procurando?"
+msgstr "O que você está procurando?"
+
+#: assets/js/child-theme.js:200
+msgid "Pular para o conteúdo"
+msgstr "Pular para o conteúdo"
+
+#: assets/js/child-theme.js:205
+msgid "Buscar produtos"
+msgstr "Buscar produtos"
+
+#: assets/js/child-theme.js:206
+msgid "Alternar menu de navegação"
+msgstr "Alternar menu de navegação"
+
+#: functions.php:371
+msgid "Abrir busca"
+msgstr "Abrir busca"
+
+#: functions.php:379
+msgid "Buscar produtos:"
+msgstr "Buscar produtos:"
+
+#: functions.php:380
+msgid "Buscar produtos..."
+msgstr "Buscar produtos..."
+
+#: functions.php:381
+msgid "Buscar"
+msgstr "Buscar"
+
+#: functions.php:387
+msgid "Fechar busca"
+msgstr "Fechar busca"
