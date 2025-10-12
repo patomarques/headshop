@@ -7,3 +7,14 @@
 
 // Importar todos os temas
 // Temas serão importados diretamente no main.scss
+
+// Exemplo de tema personalizado
+.theme-dark {
+  background-color: #333;
+  color: #fff;
+}
+
+.theme-light {
+  background-color: #fff;
+  color: #333;
+}

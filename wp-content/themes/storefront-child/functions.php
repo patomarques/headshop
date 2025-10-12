@@ -361,6 +361,15 @@ add_action('template_redirect', 'storefront_child_add_breadcrumbs');
 require_once get_stylesheet_directory() . '/VERIFICACAO.php';
 
 /**
+ * Remover título "Shop by Category" das categorias de produtos
+ */
+function storefront_child_remove_category_title( $args ) {
+    $args['title'] = '';
+    return $args;
+}
+add_filter( 'storefront_product_categories_args', 'storefront_child_remove_category_title' );
+
+/**
  * Sobrescrever a função de busca do Storefront para criar busca com ícone
  */
 function storefront_product_search() {

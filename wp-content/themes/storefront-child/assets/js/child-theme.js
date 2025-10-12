@@ -19,6 +19,7 @@
         initMobileMenu();
         initLazyLoading();
         initCustomSearch();
+        initProductTooltips();
         
     });
 
@@ -423,6 +424,69 @@
                 $(document).off('keydown.lightbox');
             }
         });
+    }
+
+    /**
+     * Inicializar tooltips para botões de produto
+     */
+    function initProductTooltips() {
+        var $productButtons = $('.product-search-button');
+        
+        if ($productButtons.length) {
+            // Adicionar eventos de hover para tooltip
+            $productButtons.each(function() {
+                var $button = $(this);
+                var tooltipText = $button.data('tooltip');
+                
+                if (tooltipText) {
+                    // Adicionar atributo title para acessibilidade
+                    $button.attr('title', tooltipText);
+                    
+                    // Melhorar acessibilidade
+                    $button.attr('aria-label', tooltipText);
+                    
+                    // Adicionar evento de foco para teclado
+                    $button.on('focus', function() {
+                        $(this).addClass('tooltip-focus');
+                    });
+                    
+                    $button.on('blur', function() {
+                        $(this).removeClass('tooltip-focus');
+                    });
+                }
+            });
+            
+            // Melhorar posicionamento do tooltip em mobile
+            if ($(window).width() <= 768) {
+                $productButtons.on('touchstart', function(e) {
+                    e.preventDefault();
+                    var $button = $(this);
+                    
+                    // Remover tooltip de outros botões
+                    $productButtons.removeClass('tooltip-active');
+                    
+                    // Adicionar tooltip ativo
+                    $button.addClass('tooltip-active');
+                    
+                    // Remover após 3 segundos
+                    setTimeout(function() {
+                        $button.removeClass('tooltip-active');
+                    }, 3000);
+                });
+            }
+            
+            // Adicionar suporte para teclado
+            $productButtons.on('keydown', function(e) {
+                if (e.keyCode === 13 || e.keyCode === 32) { // Enter ou Space
+                    e.preventDefault();
+                    $(this).click();
+                }
+            });
+        }
+        
+        // Melhorar acessibilidade para screen readers
+        $productButtons.attr('role', 'button');
+        $productButtons.attr('tabindex', '0');
     }
 
 })(jQuery);
