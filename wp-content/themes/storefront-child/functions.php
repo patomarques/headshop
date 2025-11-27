@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 function storefront_child_setup() {
     // Carregar textdomain para traduções
     load_child_theme_textdomain('storefront-child', get_stylesheet_directory() . '/languages');
-    
+
     // Adicionar suporte a recursos do WordPress
     add_theme_support('post-thumbnails');
     add_theme_support('html5', array(
@@ -27,7 +27,7 @@ function storefront_child_setup() {
         'gallery',
         'caption',
     ));
-    
+
     // Adicionar suporte ao WooCommerce
     add_theme_support('woocommerce');
     add_theme_support('wc-product-gallery-zoom');
@@ -39,17 +39,22 @@ add_action('after_setup_theme', 'storefront_child_setup');
 /**
  * Enfileirar estilos e scripts do tema filho
  */
+function storefront_child_enqueue_styles() {
+    wp_enqueue_style( 'storefront-parent-style', get_template_directory_uri() . '/style.css' );
+    wp_enqueue_style( 'storefront-child-style', get_stylesheet_uri() );
+}
+add_action( 'wp_enqueue_scripts', 'storefront_child_enqueue_styles' );
 function storefront_child_scripts() {
     // Enfileirar estilos do tema pai
     wp_enqueue_style('storefront-style', get_template_directory_uri() . '/style.css');
-    
+
     // Enfileirar estilos do tema filho
-    wp_enqueue_style('storefront-child-style', 
+    wp_enqueue_style('storefront-child-style',
         get_stylesheet_directory_uri() . '/style.css',
         array('storefront-style'),
         wp_get_theme()->get('Version')
     );
-    
+
     // Enfileirar scripts customizados
     wp_enqueue_script('storefront-child-script',
         get_stylesheet_directory_uri() . '/assets/js/child-theme.js',
@@ -57,7 +62,7 @@ function storefront_child_scripts() {
         wp_get_theme()->get('Version'),
         true
     );
-    
+
     // Localizar script para AJAX
     wp_localize_script('storefront-child-script', 'storefront_child_ajax', array(
         'ajax_url' => admin_url('admin-ajax.php'),
@@ -90,20 +95,20 @@ add_action('wp_head', 'storefront_child_custom_logo');
 function storefront_child_body_classes($classes) {
     // Adicionar classe para identificar o tema filho
     $classes[] = 'storefront-child-theme';
-    
+
     // Adicionar classe baseada na página atual
     if (is_woocommerce()) {
         $classes[] = 'woocommerce-page';
     }
-    
+
     if (is_cart()) {
         $classes[] = 'woocommerce-cart-page';
     }
-    
+
     if (is_checkout()) {
         $classes[] = 'woocommerce-checkout-page';
     }
-    
+
     return $classes;
 }
 add_filter('body_class', 'storefront_child_body_classes');
@@ -118,7 +123,7 @@ function storefront_child_footer_text() {
         get_bloginfo('name'),
         '<span class="heart">♥</span>'
     );
-    
+
     return $footer_text;
 }
 
@@ -136,7 +141,7 @@ function storefront_child_widgets_init() {
         'before_title' => '<h3 class="widget-title">',
         'after_title' => '</h3>',
     ));
-    
+
     // Área de widget para página de produtos
     register_sidebar(array(
         'name' => __('Sidebar de Produtos', 'storefront-child'),
@@ -159,7 +164,7 @@ function storefront_child_nav_menu_args($args) {
         $args['menu_class'] = 'nav-menu custom-nav-menu';
         $args['container_class'] = 'custom-nav-container';
     }
-    
+
     return $args;
 }
 add_filter('wp_nav_menu_args', 'storefront_child_nav_menu_args');
@@ -178,7 +183,7 @@ add_action('woocommerce_shop_loop_item_title', 'storefront_child_woocommerce_loo
  */
 function storefront_child_add_custom_button() {
     global $product;
-    
+
     if ($product && $product->is_purchasable()) {
         echo '<div class="custom-product-actions">';
         echo '<a href="' . esc_url($product->get_permalink()) . '" class="button custom-view-button">';
@@ -217,25 +222,25 @@ function storefront_child_customize_register($wp_customize) {
         'description' => __('Personalize as cores do seu site.', 'storefront-child'),
         'priority' => 30,
     ));
-    
+
     // Cor primária
     $wp_customize->add_setting('storefront_child_primary_color', array(
         'default' => '#e74c3c',
         'sanitize_callback' => 'sanitize_hex_color',
     ));
-    
+
     $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'storefront_child_primary_color', array(
         'label' => __('Cor Primária', 'storefront-child'),
         'section' => 'storefront_child_colors',
         'settings' => 'storefront_child_primary_color',
     )));
-    
+
     // Cor secundária
     $wp_customize->add_setting('storefront_child_secondary_color', array(
         'default' => '#2c3e50',
         'sanitize_callback' => 'sanitize_hex_color',
     ));
-    
+
     $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'storefront_child_secondary_color', array(
         'label' => __('Cor Secundária', 'storefront-child'),
         'section' => 'storefront_child_colors',
@@ -250,7 +255,7 @@ add_action('customize_register', 'storefront_child_customize_register');
 function storefront_child_custom_colors() {
     $primary_color = get_theme_mod('storefront_child_primary_color', '#e74c3c');
     $secondary_color = get_theme_mod('storefront_child_secondary_color', '#2c3e50');
-    
+
     if ($primary_color !== '#e74c3c' || $secondary_color !== '#2c3e50') {
         echo '<style type="text/css">';
         echo ':root {';
@@ -268,14 +273,14 @@ add_action('wp_head', 'storefront_child_custom_colors');
 function storefront_child_seo_meta() {
     if (is_single() || is_page()) {
         global $post;
-        
+
         $description = '';
         if (has_excerpt($post->ID)) {
             $description = get_the_excerpt($post->ID);
         } else {
             $description = wp_trim_words($post->post_content, 20);
         }
-        
+
         if ($description) {
             echo '<meta name="description" content="' . esc_attr($description) . '">' . "\n";
         }
@@ -292,10 +297,10 @@ function storefront_child_optimize_performance() {
         remove_action('wp_head', 'print_emoji_detection_script', 7);
         remove_action('wp_print_styles', 'print_emoji_styles');
     }
-    
+
     // Remover versão do WordPress do head
     remove_action('wp_head', 'wp_generator');
-    
+
     // Remover links desnecessários
     remove_action('wp_head', 'wlwmanifest_link');
     remove_action('wp_head', 'rsd_link');
@@ -309,10 +314,10 @@ function storefront_child_lazy_loading($content) {
     if (is_admin() || is_feed() || is_preview()) {
         return $content;
     }
-    
+
     // Adicionar loading="lazy" às imagens
     $content = preg_replace('/<img(.*?)src=/', '<img$1loading="lazy" src=', $content);
-    
+
     return $content;
 }
 add_filter('the_content', 'storefront_child_lazy_loading');
@@ -324,10 +329,27 @@ function storefront_child_document_title_parts($title) {
     if (is_woocommerce()) {
         $title['title'] = get_bloginfo('name') . ' - ' . __('Loja Online', 'storefront-child');
     }
-    
+
     return $title;
 }
 add_filter('document_title_parts', 'storefront_child_document_title_parts');
+
+/**
+ * Remover título/entry-header na Home
+ * - Remove o page header da Storefront via hook
+ * - Garante via CSS que o .entry-header não apareça na página inicial
+ */
+function storefront_child_hide_home_entry_header_setup() {
+    if (is_front_page()) {
+        // Remove o header padrão da Storefront antes do conteúdo
+        remove_action('storefront_before_content', 'storefront_page_header', 10);
+        // Adiciona CSS para esconder qualquer header gerado por templates de página
+        add_action('wp_head', function () {
+            echo '<style>.home .entry-header{display:none!important}.home .entry-title{display:none!important}</style>';
+        });
+    }
+}
+add_action('wp', 'storefront_child_hide_home_entry_header_setup');
 
 /**
  * Adicionar breadcrumbs customizados

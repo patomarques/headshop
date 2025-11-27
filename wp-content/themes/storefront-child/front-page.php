@@ -12,7 +12,15 @@
  * @package storefront-child
  */
 
+// Remover o header com título padrão da Storefront na home
+remove_action( 'storefront_before_content', 'storefront_page_header', 10 );
+
 get_header(); ?>
+
+	<style>
+		/* Ocultar o header.entry-header somente na homepage */
+		.home .entry-header { display: none !important; }
+	</style>
 
 	<div id="primary" class="content-area">
 		<main id="main" class="site-main" role="main">
