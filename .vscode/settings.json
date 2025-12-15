@@ -1,0 +1,23 @@
+{
+  "liveSassCompile.settings.formats": [
+    {
+      "format": "expanded",
+      "extensionName": ".css",
+      "savePath": "/wp-content/themes/storefront-child/assets/css"
+    }
+  ],
+  "liveSassCompile.settings.generateMap": false,
+  "liveSassCompile.settings.autoprefix": [
+    "> 1%",
+    "last 2 versions",
+    "Firefox ESR"
+  ],
+  "liveSassCompile.settings.includeItems": [
+    "/wp-content/themes/storefront-child/assets/sass/main.scss"
+  ],
+  "liveSassCompile.settings.excludeList": [
+    "/wp-content/themes/*/assets/sass/**",
+    "/wp-content/themes/*/assets/scss/**",
+    "/wp-content/**/node_modules/**"
+  ]
+}
