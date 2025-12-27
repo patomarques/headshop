@@ -16,10 +16,12 @@ xmlrpc.php
 /wp-content/plugins/*
 !/wp-content/plugins/seu-plugin-custom
 /wp-content/themes/*
-/wp-content/themes/storefront-child/node_modules
 /wp-content/languages/*
 !/wp-content/themes/languages/your-theme-language.po
 !/wp-content/themes/storefront-child
+/wp-content/themes/storefront-child/node_modules
+!/wp-content/themes/wp-headshop
+/wp-content/themes/wp-headshop/node_modules
 !/wp-content/themes/seu-child-theme
 
 # Ambiente
