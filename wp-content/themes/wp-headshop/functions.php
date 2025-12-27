@@ -83,6 +83,40 @@ function storefront_child_homepage_banner_slider() {
 }
 add_action( 'storefront_before_content', 'storefront_child_homepage_banner_slider', 5 );
 
+function storefront_child_homepage_categories_section() {
+	if ( ! is_front_page() || ! class_exists( 'WooCommerce' ) ) { return; }
+
+	$categories = get_terms( array(
+		'taxonomy'   => 'product_cat',
+		'hide_empty' => true,
+		'parent'     => 0,
+	) );
+
+	if ( empty( $categories ) || is_wp_error( $categories ) ) { return; }
+
+	$placeholder_url = wc_placeholder_img_src( 'woocommerce_thumbnail' );
+
+	echo '<section class="categories-section">';
+	echo '<div class="categories-grid">';
+
+	foreach ( $categories as $category ) {
+		$cat_id      = $category->term_id;
+		$cat_name    = $category->name;
+		$cat_link    = get_term_link( $cat_id, 'product_cat' );
+		$thumbnail_id = get_term_meta( $cat_id, 'thumbnail_id', true );
+		$cat_img     = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : $placeholder_url;
+
+		echo '<a href="' . esc_url( $cat_link ) . '" class="category-card">';
+		echo '<div class="category-image" style="background-image: url(' . esc_url( $cat_img ) . ');"></div>';
+		echo '<h3 class="category-name">' . esc_html( $cat_name ) . '</h3>';
+		echo '</a>';
+	}
+
+	echo '</div>';
+	echo '</section>';
+}
+add_action( 'storefront_before_content', 'storefront_child_homepage_categories_section', 10 );
+
 // Fullscreen search overlay (rendered near footer to sit above everything)
 function storefront_child_search_overlay() {
     $action = esc_url( home_url( '/' ) );
