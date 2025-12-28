@@ -5,5 +5,36 @@
 
   a {
     color: inherit;
+    text-decoration: underline;
+  }
+
+  .footer-container {
+    padding: 2.5rem 0;
+  }
+
+  .footer-title {
+    font-weight: 700;
+    margin-bottom: .5rem;
+  }
+
+  .footer-note {
+    margin-bottom: .75rem;
+    color: rgba($footer-text, .85);
+  }
+
+  .footer-contact li,
+  .footer-menu li {
+    margin-bottom: .45rem;
+  }
+
+  .footer-social {
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+  }
+
+  .footer-legal {
+    margin-top: 1rem;
+    color: rgba($footer-text, .8);
   }
 }
