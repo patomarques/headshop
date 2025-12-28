@@ -1,9 +1,14 @@
 <?php
-// Minimal Storefront child theme functions
+/**
+ * wp-headshop child theme functions
+ *
+ * Minimal Storefront child theme customizations.
+ *
+ * @package wp-headshop
+ */
 
 if (!defined('ABSPATH')) { exit; }
 add_action('wp_enqueue_scripts', function() {
-    // Bootstrap CSS (needed for markup classes used in header mini-cart)
     wp_enqueue_style(
         'storefront-child-bootstrap',
         'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
@@ -11,27 +16,21 @@ add_action('wp_enqueue_scripts', function() {
         '5.3.3'
     );
 
-    // Enqueue parent theme stylesheet first
     wp_enqueue_style('storefront-parent-style', get_template_directory_uri() . '/style.css', [], null);
-    // Then enqueue child theme stylesheet
     wp_enqueue_style('storefront-child-style', get_stylesheet_uri(), ['storefront-parent-style'], null);
-    // Ensure WordPress dashicons available on frontend for icons
     wp_enqueue_style('dashicons');
 
-    // Script handle for inline header/cart toggles
     wp_register_script( 'storefront-child-scripts', '', [], null, true );
     wp_enqueue_script( 'storefront-child-scripts' );
-    // Enqueue compiled Sass output if present
     $compiled_rel = '/assets/css/main.css';
     $compiled_path = get_stylesheet_directory() . $compiled_rel;
     $compiled_url  = get_stylesheet_directory_uri() . $compiled_rel;
     if ( file_exists( $compiled_path ) ) {
         $ver = @filemtime( $compiled_path ) ?: null;
         wp_enqueue_style( 'storefront-child-compiled', $compiled_url, ['storefront-child-style'], $ver );
-    } else {
-        // Optional: warn in console to remind compiling SCSS
-        wp_add_inline_script( 'storefront-child-scripts', "console.warn('Storefront Child: assets/css/main.css not found. Run npm run build.');" );
-    }
+	} else {
+		wp_add_inline_script( 'storefront-child-scripts', "console.warn('Storefront Child: assets/css/main.css not found. Run npm run build.');" );
+	}
 
 	if ( is_front_page() && get_post_type() !== 'banner' ) {
 		wp_enqueue_script( 'storefront-child-banner-slider', get_stylesheet_directory_uri() . '/assets/js/banner-slider.js', array(), null, true );
@@ -46,15 +45,10 @@ add_filter('woocommerce_checkout_form_class', 'storefront_child_checkout_form_cl
  * Header search: hide input, show search icon next to cart, toggle on click
  */
 function storefront_child_customize_header_search_setup() {
-    // Remove Storefront's default header search output if present
     remove_action( 'storefront_header', 'storefront_product_search', 40 );
 }
 add_action( 'init', 'storefront_child_customize_header_search_setup' );
 
-// Remove parent theme's storefront product categories section from the homepage
-// We'll remove the function hooked to the `homepage` action so the parent
-// markup `<section class="storefront-product-section storefront-product-categories">`
-// does not appear. The child theme renders its own categories mosaic.
 add_action( 'init', function() {
 	remove_action( 'homepage', 'storefront_product_categories', 20 );
 } );
@@ -325,7 +319,6 @@ function storefront_child_homepage_categories_section() {
 }
 add_action( 'storefront_before_content', 'storefront_child_homepage_categories_section', 10 );
 
-// Fullscreen search overlay (rendered near footer to sit above everything)
 function storefront_child_search_overlay() {
     $action = esc_url( home_url( '/' ) );
     $is_wc  = class_exists( 'WooCommerce' );
@@ -344,7 +337,6 @@ function storefront_child_search_overlay() {
 }
 add_action( 'wp_footer', 'storefront_child_search_overlay', 5 );
 
-// Enqueue minimal script to toggle the search form
 function storefront_child_enqueue_search_toggle_script() {
     $script = "document.addEventListener('DOMContentLoaded',function(){var btn=document.getElementById('searchToggleBtn');var overlay=document.getElementById('headerSearchOverlay');var inner=overlay?overlay.querySelector('.search-overlay-inner'):null;var input=document.getElementById('headerSearchInput');if(!btn||!overlay) return;function openOverlay(){overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');document.body.classList.add('search-overlay-open');if(input){setTimeout(function(){input.focus();},0);}}function closeOverlay(){overlay.classList.remove('is-open');overlay.setAttribute('aria-hidden','true');document.body.classList.remove('search-overlay-open');}btn.addEventListener('click',function(e){e.preventDefault();if(overlay.classList.contains('is-open')){closeOverlay();}else{openOverlay();}});overlay.addEventListener('click',function(){closeOverlay();});if(inner){inner.addEventListener('click',function(e){e.stopPropagation();});}document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay.classList.contains('is-open')){closeOverlay();}});});";
     wp_add_inline_script( 'storefront-child-scripts', $script );
@@ -355,7 +347,6 @@ add_action( 'wp_enqueue_scripts', 'storefront_child_enqueue_search_toggle_script
  * Header cart: icon + item count, dropdown mini-cart on hover/click
  */
 function storefront_child_replace_header_cart_setup() {
-    // Remove default Storefront header cart to inject our custom
     remove_action( 'storefront_header', 'storefront_header_cart', 60 );
 }
 add_action( 'init', 'storefront_child_replace_header_cart_setup' );
@@ -467,7 +458,6 @@ function storefront_child_render_cart_dropdown_inner() {
 
     echo '  <div class="cart-dropdown-footer p-3">';
 
-    // Total row (full total incl. coupons/discounts)
     $total_html = WC()->cart->get_total();
     echo '    <div class="d-flex justify-content-between fw-semibold cart-total-row">';
     echo '      <span>Total</span>';
@@ -479,7 +469,6 @@ function storefront_child_render_cart_dropdown_inner() {
         echo '    <div class="text-muted small mt-1">Você economizou ' . wp_kses_post( wc_price( $economy ) ) . '!</div>';
     }
 
-    // Action buttons
     echo '    <div class="mt-3 d-grid gap-2">';
     echo '      <a class="btn btn-lg cart-action-btn cart-action-cart fw-bold text-uppercase d-flex align-items-center justify-content-center gap-2" href="' . esc_url( $cart_url ) . '">';
     echo '        <span class="dashicons dashicons-cart"></span> Ver carrinho';
@@ -653,8 +642,6 @@ add_filter( 'the_title', function( $title, $post_id ) {
 	if ( is_admin() ) {
 		return $title;
 	}
-
-	// Only alter the main loop title on the front page
 	if ( ( is_front_page() || is_home() ) && in_the_loop() ) {
 		return '';
 	}
@@ -675,13 +662,12 @@ add_filter( 'the_content', function( $content ) {
 		'Compre por categoria',
 		'Compre por marca',
 		'Favoritos dos fãs',
-		'Favoritos dos fa\xE7', // fallback without diacritics encoded if needed
+		'Favoritos dos fa\xE7',
 	);
 
 	$escaped = array_map( function( $s ) { return preg_quote( $s, '/' ); }, $labels );
 	$regex_label = implode( '|', $escaped );
 
-	// Remove from the heading up to the next heading or end of content (non-greedy)
 	$pattern = '/<h[1-6][^>]*>\s*(?:' . $regex_label . ')\s*<\/h[1-6]>.*?(?=(?:<h[1-6][^>]*>)|$)/is';
 
 	$content = preg_replace( $pattern, '', $content );

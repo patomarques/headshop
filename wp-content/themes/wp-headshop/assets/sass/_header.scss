@@ -106,10 +106,10 @@
       box-shadow: none;
     }
 
-    // &:focus-visible {
-    //   outline: 2px solid rgba($header-text, 0.18);
-    //   outline-offset: 2px;
-    // }
+    &:focus-visible {
+      outline: 2px solid rgba($header-text, 0.18);
+      outline-offset: 2px;
+    }
   }
 
   .cart-icon-img { 

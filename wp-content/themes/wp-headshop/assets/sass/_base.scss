@@ -2,7 +2,6 @@ html {
     overflow-x: hidden;
 }
 
-/* Hide the page title on the front page (remove "Início") */
 body.home .entry-title,
 body.front-page .entry-title {
     display: none !important;

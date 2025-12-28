@@ -55,12 +55,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 				</div>
 			</div>
-		</div><!-- .col-full -->
-	</footer><!-- #colophon -->
+		</div>
+	</footer>
 
 	<?php do_action( 'storefront_after_footer' ); ?>
 
-</div><!-- #page -->
+</div>
 
 <?php wp_footer(); ?>
 
