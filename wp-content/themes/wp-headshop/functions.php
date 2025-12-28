@@ -633,3 +633,54 @@ function storefront_child_register_banner_cpt() {
 	register_post_type( 'banner', $args );
 }
 add_action( 'init', 'storefront_child_register_banner_cpt' );
+
+/**
+ * Remove homepage sections and title via theme PHP
+ */
+add_action( 'init', function() {
+	// Remove the child theme categories section from the homepage output
+	remove_action( 'storefront_before_content', 'storefront_child_homepage_categories_section', 10 );
+});
+
+/**
+ * Hide the post/page title on the front page (remove "Início")
+ */
+add_filter( 'the_title', function( $title, $post_id ) {
+	if ( is_admin() ) {
+		return $title;
+	}
+
+	// Only alter the main loop title on the front page
+	if ( ( is_front_page() || is_home() ) && in_the_loop() ) {
+		return '';
+	}
+
+	return $title;
+}, 10, 2 );
+
+/**
+ * Strip homepage sections that have explicit headings so they won't render
+ * (targets headings like "Compre por categoria", "Compre por marca", "Favoritos dos fãs").
+ */
+add_filter( 'the_content', function( $content ) {
+	if ( ! is_front_page() ) {
+		return $content;
+	}
+
+	$labels = array(
+		'Compre por categoria',
+		'Compre por marca',
+		'Favoritos dos fãs',
+		'Favoritos dos fa\xE7', // fallback without diacritics encoded if needed
+	);
+
+	$escaped = array_map( function( $s ) { return preg_quote( $s, '/' ); }, $labels );
+	$regex_label = implode( '|', $escaped );
+
+	// Remove from the heading up to the next heading or end of content (non-greedy)
+	$pattern = '/<h[1-6][^>]*>\s*(?:' . $regex_label . ')\s*<\/h[1-6]>.*?(?=(?:<h[1-6][^>]*>)|$)/is';
+
+	$content = preg_replace( $pattern, '', $content );
+
+	return $content;
+}, 20 );
