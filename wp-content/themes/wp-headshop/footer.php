@@ -43,10 +43,12 @@ if (! defined('ABSPATH')) {
                     <div class="footer-social">
                         <a class="footer-social__link footer-social__whatsapp" href="https://wa.me/5581996366201" target="_blank" rel="noopener noreferrer" aria-label="Enviar WhatsApp para +55 81 99636 6201">
                             <!-- WhatsApp SVG -->
-                                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path fill="#000000" d="M12.04 2C6.47 2 2 6.48 2 12.06c0 2.12.56 4.09 1.53 5.82L2 22l3.32-1.35C7.03 21.32 9.47 22 12.04 22 17.61 22 22.04 17.52 22.04 11.94 22.04 6.36 17.57 2 12.04 2z" />
-                                    <path fill="#ffffff" d="M17.5 14.27c-.26-.13-1.54-.76-1.78-.85-.24-.09-.42-.13-.6.13-.18.26-.7.85-.86 1.03-.16.18-.32.2-.59.07-.27-.13-1.14-.42-2.17-1.33-.8-.7-1.34-1.55-1.5-1.82-.16-.27-.02-.42.12-.55.12-.12.27-.32.41-.48.14-.16.19-.27.28-.45.09-.18.05-.34-.02-.47-.07-.12-.6-1.43-.82-1.95-.22-.51-.45-.44-.62-.45-.16-.01-.35-.01-.54-.01s-.46.07-.7.34c-.24.27-.9.88-.9 2.14 0 1.26.92 2.48 1.05 2.65.13.16 1.82 2.94 4.41 4.12 1.61.7 2.47.8 3.34.65.57-.1 1.54-.63 1.75-1.24.21-.61.21-1.13.15-1.24-.06-.11-.23-.18-.49-.31z" />
-                            </svg>
+                                <svg class="wzp-icon" width="60" height="60" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                                    <g fill="none" stroke="#000" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="9" />
+                                        <path d="M7.8 13.9c.8 1.2 2.1 2.2 3.7 2.8.9.3 1.6.4 2.1.4.4 0 .8-.1 1.1-.2.3-.1.9-.4 1.1-.6.2-.2.3-.5.2-.8-.1-.2-.3-.4-.6-.6-.2-.1-.4-.2-.6-.1-.2.02-.6.2-1 .4-.3.2-.6.3-1 .3-.3 0-.6-.1-.9-.2-.6-.2-1.4-.7-2-1.2-.7-.6-1.2-1.3-1.4-1.7" />
+                                    </g>
+                                </svg>
                             <span class="sr-only">WhatsApp</span>
                         </a>
                         <a class="footer-social__link footer-social__instagram" href="https://instagram.com/indicativaheadshop2" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram Indicativa Headshop">
