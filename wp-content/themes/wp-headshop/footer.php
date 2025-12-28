@@ -51,7 +51,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<span class="sr-only">Instagram</span>
 							</a>
 						</div>
-						<p class="footer-legal small">&copy; <?php echo date( 'Y' ); ?> Loja diversa. Todos os direitos reservados.</p>
+						<p class="footer-legal small">&copy; 2025 Loja diversa. Todos os direitos reservados.</p>
 					</div>
 				</div>
 			</div>

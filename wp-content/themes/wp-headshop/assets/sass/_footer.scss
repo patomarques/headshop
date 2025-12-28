@@ -34,7 +34,18 @@
   }
 
   .footer-legal {
-    margin-top: 1rem;
+    margin: 0;
     color: rgba($footer-text, .8);
+    padding-top: 30px;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  @media (max-width: 767px) {
+    .footer-legal {
+      white-space: normal;
+      text-align: center;
+      padding-top: 15px;
+    }
   }
 }
