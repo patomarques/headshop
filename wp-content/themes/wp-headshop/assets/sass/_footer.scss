@@ -1,97 +1,9 @@
-
 @use 'colors' as *;
 .site-footer {
   background: $footer-bg;
   color: $footer-text;
-  a { color: inherit; }
-}
 
-.custom-footer {
-  background: #181818;
-  color: #fff;
-  padding: 48px 0 24px 0;
-  font-size: 1rem;
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-
-  .footer-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 32px;
-    justify-content: space-between;
-  }
-
-  .footer-col {
-    flex: 1 1 220px;
-    min-width: 220px;
-    margin-bottom: 32px;
-  }
-
-  .footer-col-1 {
-    max-width: 340px;
-    .footer-logo {
-      width: 100%;
-      max-width: 180px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      background: #fff;
-    }
-    .footer-desc {
-      font-size: 1rem;
-      line-height: 1.6;
-      margin-top: 8px;
-      color: #eee;
-      strong { color: #fff; font-size: 1.1rem; }
-    }
-  }
-
-  .footer-col-2 {
-    .footer-contact {
-      margin-top: 10px;
-      a {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #fff;
-        text-decoration: none;
-        font-weight: 500;
-        margin-bottom: 10px;
-        transition: color 0.2s;
-        &:hover { color: #25d366; }
-        .dashicons-whatsapp { font-size: 1.5em; color: #25d366; }
-        .dashicons-instagram { font-size: 1.5em; color: #e4405f; }
-      }
-    }
-  }
-
-  .footer-col-3 {
-    .footer-links {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      li {
-        margin-bottom: 8px;
-        a {
-          color: #fff;
-          text-decoration: none;
-          transition: color 0.2s;
-          &:hover { color: #ffb300; }
-        }
-      }
-    }
-  }
-}
-
-@media (max-width: 900px) {
-  .custom-footer .footer-row {
-    flex-direction: column;
-    gap: 0;
-  }
-  .custom-footer .footer-col {
-    margin-bottom: 24px;
+  a {
+    color: inherit;
   }
 }

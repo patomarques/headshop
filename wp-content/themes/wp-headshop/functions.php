@@ -51,6 +51,14 @@ function storefront_child_customize_header_search_setup() {
 }
 add_action( 'init', 'storefront_child_customize_header_search_setup' );
 
+// Remove parent theme's storefront product categories section from the homepage
+// We'll remove the function hooked to the `homepage` action so the parent
+// markup `<section class="storefront-product-section storefront-product-categories">`
+// does not appear. The child theme renders its own categories mosaic.
+add_action( 'init', function() {
+	remove_action( 'homepage', 'storefront_product_categories', 20 );
+} );
+
 function storefront_child_homepage_banner_slider() {
 	if ( ! is_front_page() ) { return; }
 
@@ -637,10 +645,6 @@ add_action( 'init', 'storefront_child_register_banner_cpt' );
 /**
  * Remove homepage sections and title via theme PHP
  */
-add_action( 'init', function() {
-	// Remove the child theme categories section from the homepage output
-	remove_action( 'storefront_before_content', 'storefront_child_homepage_categories_section', 10 );
-});
 
 /**
  * Hide the post/page title on the front page (remove "Início")
