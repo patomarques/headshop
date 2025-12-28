@@ -83,14 +83,214 @@ function storefront_child_homepage_banner_slider() {
 }
 add_action( 'storefront_before_content', 'storefront_child_homepage_banner_slider', 5 );
 
+function storefront_child_register_settings() {
+	add_menu_page(
+		'Configurações da Home',
+		'Home Config',
+		'manage_options',
+		'storefront-child-home-config',
+		'storefront_child_home_config_page',
+		'dashicons-admin-home',
+		61
+	);
+}
+add_action( 'admin_menu', 'storefront_child_register_settings' );
+
+function storefront_child_home_config_page() {
+	if ( ! current_user_can( 'manage_options' ) ) { return; }
+
+	if ( isset( $_POST['storefront_child_home_cats_nonce'] ) && wp_verify_nonce( $_POST['storefront_child_home_cats_nonce'], 'save_home_categories' ) ) {
+		$selected_cats = isset( $_POST['home_categories_ordered'] ) ? $_POST['home_categories_ordered'] : '';
+		$ordered_array = array_filter( array_map( 'intval', explode( ',', $selected_cats ) ) );
+		update_option( 'storefront_child_home_categories', $ordered_array );
+		echo '<div class="notice notice-success is-dismissible"><p>Configurações salvas com sucesso!</p></div>';
+	}
+
+	$saved_cats = get_option( 'storefront_child_home_categories', array() );
+	$all_categories = get_terms( array(
+		'taxonomy'   => 'product_cat',
+		'hide_empty' => false,
+	) );
+
+	function storefront_child_sort_categories_hierarchical( $categories ) {
+		$sorted = array();
+		$by_parent = array();
+
+		foreach ( $categories as $cat ) {
+			if ( ! isset( $by_parent[ $cat->parent ] ) ) {
+				$by_parent[ $cat->parent ] = array();
+			}
+			$by_parent[ $cat->parent ][] = $cat;
+		}
+
+		function add_children( &$sorted, $by_parent, $parent_id = 0, $level = 0 ) {
+			if ( ! isset( $by_parent[ $parent_id ] ) ) { return; }
+			foreach ( $by_parent[ $parent_id ] as $cat ) {
+				$cat->level = $level;
+				$sorted[] = $cat;
+				add_children( $sorted, $by_parent, $cat->term_id, $level + 1 );
+			}
+		}
+
+		add_children( $sorted, $by_parent );
+		return $sorted;
+	}
+
+	$all_categories = storefront_child_sort_categories_hierarchical( $all_categories );
+
+	?>
+	<div class="wrap">
+		<h1>Configurações da Home</h1>
+		<div style="max-width: 1200px;">
+			<form method="post" action="">
+				<?php wp_nonce_field( 'save_home_categories', 'storefront_child_home_cats_nonce' ); ?>
+				<input type="hidden" name="home_categories_ordered" id="homeCategoriesOrdered" value="<?php echo esc_attr( implode( ',', $saved_cats ) ); ?>" />
+				
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+					<div>
+						<h2>Categorias Disponíveis</h2>
+						<p>Arraste as categorias para a direita para exibir na home:</p>
+						<div id="availableCategories" class="category-sortable-list" style="background: #f9f9f9; border: 2px dashed #ccc; border-radius: 8px; padding: 15px; min-height: 400px;">
+							<?php foreach ( $all_categories as $cat ) : 
+								if ( in_array( $cat->term_id, $saved_cats ) ) continue;
+							?>
+								<div class="category-item" data-id="<?php echo esc_attr( $cat->term_id ); ?>" draggable="true" style="background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 12px; margin-bottom: 8px; cursor: move; display: flex; align-items: center; gap: 10px;">
+									<span class="dashicons dashicons-move" style="color: #999;"></span>
+									<span style="flex: 1;">
+										<?php echo str_repeat( '<span style="color: #ccc;">└</span> ', $cat->level ); ?>
+										<?php echo esc_html( $cat->name ); ?>
+										<small style="color: #999;">(<?php echo $cat->count; ?>)</small>
+									</span>
+								</div>
+							<?php endforeach; ?>
+						</div>
+					</div>
+
+					<div>
+						<h2>Categorias na Home <span style="font-size: 14px; font-weight: normal; color: #999;">(ordem de exibição)</span></h2>
+						<p>Arraste para reordenar ou remova arrastando para a esquerda:</p>
+						<div id="selectedCategories" class="category-sortable-list" style="background: #e8f5e9; border: 2px solid #4caf50; border-radius: 8px; padding: 15px; min-height: 400px;">
+							<?php 
+							foreach ( $saved_cats as $cat_id ) :
+								$cat = get_term( $cat_id, 'product_cat' );
+								if ( ! $cat || is_wp_error( $cat ) ) continue;
+								$level = 0;
+								$parent_id = $cat->parent;
+								while ( $parent_id > 0 ) {
+									$parent = get_term( $parent_id, 'product_cat' );
+									$parent_id = $parent->parent;
+									$level++;
+								}
+							?>
+								<div class="category-item" data-id="<?php echo esc_attr( $cat_id ); ?>" draggable="true" style="background: #fff; border: 1px solid #4caf50; border-radius: 4px; padding: 12px; margin-bottom: 8px; cursor: move; display: flex; align-items: center; gap: 10px;">
+									<span class="dashicons dashicons-move" style="color: #4caf50;"></span>
+									<span style="flex: 1;">
+										<?php echo str_repeat( '<span style="color: #ccc;">└</span> ', $level ); ?>
+										<?php echo esc_html( $cat->name ); ?>
+										<small style="color: #999;">(<?php echo $cat->count; ?>)</small>
+									</span>
+								</div>
+							<?php endforeach; ?>
+						</div>
+					</div>
+				</div>
+
+				<?php submit_button( 'Salvar Configurações', 'primary', 'submit', false ); ?>
+			</form>
+		</div>
+	</div>
+
+	<style>
+		.category-item:hover {
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+			transform: translateY(-2px);
+			transition: all 0.2s ease;
+		}
+		.category-sortable-list.drag-over {
+			background: #fff3cd !important;
+			border-color: #ffc107 !important;
+		}
+		.category-item.dragging {
+			opacity: 0.5;
+		}
+	</style>
+
+	<script>
+	(function() {
+		const available = document.getElementById('availableCategories');
+		const selected = document.getElementById('selectedCategories');
+		const input = document.getElementById('homeCategoriesOrdered');
+		let draggedElement = null;
+
+		function setupDragAndDrop(container) {
+			const items = container.querySelectorAll('.category-item');
+			items.forEach(item => {
+				item.addEventListener('dragstart', function(e) {
+					draggedElement = this;
+					this.classList.add('dragging');
+					e.dataTransfer.effectAllowed = 'move';
+				});
+
+				item.addEventListener('dragend', function() {
+					this.classList.remove('dragging');
+					available.classList.remove('drag-over');
+					selected.classList.remove('drag-over');
+				});
+			});
+		}
+
+		[available, selected].forEach(container => {
+			container.addEventListener('dragover', function(e) {
+				e.preventDefault();
+				e.dataTransfer.dropEffect = 'move';
+				this.classList.add('drag-over');
+			});
+
+			container.addEventListener('dragleave', function() {
+				this.classList.remove('drag-over');
+			});
+
+			container.addEventListener('drop', function(e) {
+				e.preventDefault();
+				this.classList.remove('drag-over');
+				if (draggedElement) {
+					this.appendChild(draggedElement);
+					updateHiddenInput();
+				}
+			});
+
+			setupDragAndDrop(container);
+		});
+
+		function updateHiddenInput() {
+			const selectedItems = selected.querySelectorAll('.category-item');
+			const ids = Array.from(selectedItems).map(item => item.getAttribute('data-id'));
+			input.value = ids.join(',');
+		}
+	})();
+	</script>
+	<?php
+}
+
 function storefront_child_homepage_categories_section() {
 	if ( ! is_front_page() || ! class_exists( 'WooCommerce' ) ) { return; }
 
-	$categories = get_terms( array(
-		'taxonomy'   => 'product_cat',
-		'hide_empty' => true,
-		'parent'     => 0,
-	) );
+	$selected_cats = get_option( 'storefront_child_home_categories', array() );
+
+	if ( empty( $selected_cats ) ) {
+		$categories = get_terms( array(
+			'taxonomy'   => 'product_cat',
+			'hide_empty' => true,
+			'parent'     => 0,
+		) );
+	} else {
+		$categories = get_terms( array(
+			'taxonomy'   => 'product_cat',
+			'hide_empty' => false,
+			'include'    => $selected_cats,
+			'orderby'    => 'include',
+		) );
+	}
 
 	if ( empty( $categories ) || is_wp_error( $categories ) ) { return; }
 
