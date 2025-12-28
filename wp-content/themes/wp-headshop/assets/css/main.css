@@ -454,13 +454,15 @@ body.search-overlay-open {
   border-radius: 0;
   overflow: hidden;
   position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 .categories-section .categories-grid .category-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   z-index: 1;
+}
+.categories-section .categories-grid .category-card:hover .category-image {
+  transform: scale(1.05);
 }
 .categories-section .categories-grid .category-card:first-child {
   grid-column: 1/3;
@@ -489,6 +491,7 @@ body.search-overlay-open {
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
+  transition: transform 0.5s ease;
 }
 .categories-section .categories-grid .category-card .category-image::after {
   content: "";
@@ -497,29 +500,32 @@ body.search-overlay-open {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.5);
   transition: background 0.3s ease;
 }
 .categories-section .categories-grid .category-card:hover .category-image::after {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.3);
 }
 .categories-section .categories-grid .category-card .category-name {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
   padding: 20px;
   margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
   color: #fff;
-  text-align: left;
+  text-align: center;
+  text-transform: uppercase;
   z-index: 2;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+  letter-spacing: 1px;
 }
 .categories-section .categories-grid .category-card:first-child .category-name {
-  font-size: 2rem;
-  padding: 30px;
+  font-size: 2.2rem;
+  letter-spacing: 2px;
 }
 
 @media (max-width: 1024px) {
@@ -549,9 +555,11 @@ body.search-overlay-open {
   }
   .categories-section .categories-grid .category-card .category-name {
     font-size: 1.2rem;
+    letter-spacing: 1px;
   }
   .categories-section .categories-grid .category-card:first-child .category-name {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
+    letter-spacing: 1.5px;
   }
 }
 @media (max-width: 768px) {
@@ -570,9 +578,11 @@ body.search-overlay-open {
   .categories-section .categories-grid .category-card .category-name {
     font-size: 1.1rem;
     padding: 15px;
+    letter-spacing: 0.5px;
   }
   .categories-section .categories-grid .category-card:first-child .category-name {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     padding: 20px;
+    letter-spacing: 1px;
   }
 }
