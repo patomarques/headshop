@@ -49,6 +49,14 @@
     display: block;
   }
 
+  .footer-social__link img,
+  .footer-social__link .social-icon-img {
+    width: 60px;
+    height: 60px;
+    display: block;
+    object-fit: contain;
+  }
+
   .footer-legal {
     margin: 0;
     color: rgba($footer-text, .8);

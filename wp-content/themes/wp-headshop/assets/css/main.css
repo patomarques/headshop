@@ -373,6 +373,13 @@ body.search-overlay-open {
   height: 60px;
   display: block;
 }
+.site-footer .footer-social__link img,
+.site-footer .footer-social__link .social-icon-img {
+  width: 60px;
+  height: 60px;
+  display: block;
+  object-fit: contain;
+}
 .site-footer .footer-legal {
   margin: 0;
   color: rgba(221, 221, 221, 0.8);
