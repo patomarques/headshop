@@ -42,21 +42,21 @@ if (! defined('ABSPATH')) {
                     <h3 class="footer-title">Contato</h3>
                     <div class="footer-social">
                         <a class="footer-social__link footer-social__whatsapp" href="https://wa.me/5581996366201" target="_blank" rel="noopener noreferrer" aria-label="Enviar WhatsApp para +55 81 99636 6201">
-                            <!-- WhatsApp SVG -->
-                                <svg class="wzp-icon" width="60" height="60" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
-                                    <g fill="none" stroke="#000" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="9" />
-                                        <path d="M7.8 13.9c.8 1.2 2.1 2.2 3.7 2.8.9.3 1.6.4 2.1.4.4 0 .8-.1 1.1-.2.3-.1.9-.4 1.1-.6.2-.2.3-.5.2-.8-.1-.2-.3-.4-.6-.6-.2-.1-.4-.2-.6-.1-.2.02-.6.2-1 .4-.3.2-.6.3-1 .3-.3 0-.6-.1-.9-.2-.6-.2-1.4-.7-2-1.2-.7-.6-1.2-1.3-1.4-1.7" />
-                                    </g>
-                                </svg>
+                            <svg class="social-icon" width="60" height="60" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                                <g fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="9" />
+                                    <path d="M16.5 15.5c-.4.6-1 1-1.6 1.3-.6.3-1.3.5-2 .5-.6 0-1.2-.1-1.8-.3-1-.3-1.8-.9-2.4-1.6-.6-.7-1-1.5-1.2-2.5-.2-1.1.1-2.1.9-2.9.8-.9 1.8-1.3 2.9-1.3.9 0 1.8.2 2.6.6.7.4 1.3 1 1.7 1.7.3.5.3 1 .1 1.4c-.1.2-.2.4-.4.6c-.2.2-.4.3-.7.2c-.3-.1-.8-.3-1.3-.5c-.4-.2-.8-.3-1.1-.3" />
+                                </g>
+                            </svg>
                             <span class="sr-only">WhatsApp</span>
                         </a>
                         <a class="footer-social__link footer-social__instagram" href="https://instagram.com/indicativaheadshop2" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram Indicativa Headshop">
-                            <!-- Instagram SVG -->
-                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
-                                <circle cx="17.5" cy="6.5" r="0.5" fill="#000" />
+                            <svg class="social-icon" width="60" height="60" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                                <g fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="5" />
+                                    <circle cx="12" cy="12" r="4" />
+                                    <circle cx="17.5" cy="6.5" r="0.6" fill="#000" />
+                                </g>
                             </svg>
                             <span class="sr-only">Instagram</span>
                         </a>
