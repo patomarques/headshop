@@ -43,7 +43,7 @@ if (! defined('ABSPATH')) {
                     <div class="footer-social">
                         <a class="footer-social__link footer-social__whatsapp" href="https://wa.me/5581996366201" target="_blank" rel="noopener noreferrer" aria-label="Enviar WhatsApp para +55 81 99636 6201">
                             <svg class="social-icon" width="60" height="60" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
-                                <g fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <g fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="12" cy="12" r="9" />
                                     <path d="M16.5 15.5c-.4.6-1 1-1.6 1.3-.6.3-1.3.5-2 .5-.6 0-1.2-.1-1.8-.3-1-.3-1.8-.9-2.4-1.6-.6-.7-1-1.5-1.2-2.5-.2-1.1.1-2.1.9-2.9.8-.9 1.8-1.3 2.9-1.3.9 0 1.8.2 2.6.6.7.4 1.3 1 1.7 1.7.3.5.3 1 .1 1.4c-.1.2-.2.4-.4.6c-.2.2-.4.3-.7.2c-.3-.1-.8-.3-1.3-.5c-.4-.2-.8-.3-1.1-.3" />
                                 </g>
@@ -52,7 +52,7 @@ if (! defined('ABSPATH')) {
                         </a>
                         <a class="footer-social__link footer-social__instagram" href="https://instagram.com/indicativaheadshop2" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram Indicativa Headshop">
                             <svg class="social-icon" width="60" height="60" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
-                                <g fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <g fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="3" y="3" width="18" height="18" rx="5" />
                                     <circle cx="12" cy="12" r="4" />
                                     <circle cx="17.5" cy="6.5" r="0.6" fill="#000" />
