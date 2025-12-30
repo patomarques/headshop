@@ -2,6 +2,11 @@ html {
   overflow-x: hidden;
 }
 
+body.home .entry-title,
+body.front-page .entry-title {
+  display: none !important;
+}
+
 #masthead {
   background: #ffffff;
   color: #222222;
@@ -92,6 +97,10 @@ html {
 .custom-header-cart .cart-icon-link:focus, .custom-header-cart .cart-icon-link:active {
   outline: none;
   box-shadow: none;
+}
+.custom-header-cart .cart-icon-link:focus-visible {
+  outline: 2px solid rgba(34, 34, 34, 0.18);
+  outline-offset: 2px;
 }
 .custom-header-cart .cart-icon-img {
   display: block;
@@ -328,6 +337,55 @@ body.search-overlay-open {
 }
 .site-footer a {
   color: inherit;
+  text-decoration: underline;
+}
+.site-footer .footer-container {
+  padding: 2.5rem 0;
+}
+.site-footer .footer-title {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.site-footer .footer-note {
+  margin-bottom: 0.75rem;
+  color: rgba(221, 221, 221, 0.85);
+}
+.site-footer .footer-contact li,
+.site-footer .footer-menu li {
+  margin-bottom: 0.45rem;
+}
+.site-footer .footer-social {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+.site-footer .footer-social__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  background: transparent;
+}
+.site-footer .footer-social__link svg {
+  width: 60px;
+  height: 60px;
+  display: block;
+}
+.site-footer .footer-legal {
+  margin: 0;
+  color: rgba(221, 221, 221, 0.8);
+  padding-top: 30px;
+  white-space: nowrap;
+  text-align: right;
+}
+@media (max-width: 767px) {
+  .site-footer .footer-legal {
+    white-space: normal;
+    text-align: center;
+    padding-top: 15px;
+  }
 }
 
 .banner-slider-wrapper {
