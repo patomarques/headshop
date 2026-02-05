@@ -45,8 +45,8 @@ body.home #masthead.site-header-scrolled {
   position: fixed;
   background: #ffffff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding-top: 0;
+  padding-bottom: 0;
   color: #000000;
 }
 body.home #masthead.site-header-scrolled .main-navigation ul li a,
@@ -63,8 +63,18 @@ body.home #masthead.site-header-scrolled .header-search-icon {
 body.home #masthead.site-header-scrolled .cart-icon-img {
   filter: brightness(0);
 }
+body.home #masthead.site-header-scrolled .site-branding {
+  height: 50px;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+}
 body.home #masthead.site-header-scrolled .site-branding .custom-logo {
-  max-height: 50px;
+  max-height: 90px;
+  position: relative;
+  top: 15px;
+  z-index: 100;
+  transition: all 0.3s ease;
 }
 
 #masthead:not(.home) {
@@ -105,7 +115,7 @@ body.home #masthead.site-header-scrolled .site-branding .custom-logo {
   justify-content: center;
 }
 .site-header .col-full .site-branding .custom-logo {
-  max-height: 90px;
+  max-height: 110px;
   width: auto;
 }
 .site-header .col-full .site-branding .site-title, .site-header .col-full .site-branding .site-description {
@@ -477,7 +487,7 @@ body.search-overlay-open {
 .banner-slider-wrapper {
   position: relative;
   width: 100%;
-  height: 75vh;
+  height: 85vh;
   overflow: hidden;
   background: #000;
 }
