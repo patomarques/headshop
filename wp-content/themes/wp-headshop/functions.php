@@ -388,10 +388,10 @@ function storefront_child_replace_header_cart_setup() {
 add_action( 'init', 'storefront_child_replace_header_cart_setup' );
 
 /**
- * Remove Storefront sidebar (#secondary) on Cart and Checkout pages.
+ * Remove Storefront sidebar (#secondary) on Cart, Checkout, and Single Product pages.
  */
 add_action( 'wp', function () {
-    if ( function_exists( 'is_cart' ) && ( is_cart() || is_checkout() ) ) {
+    if ( function_exists( 'is_cart' ) && ( is_cart() || is_checkout() || is_product() ) ) {
         remove_action( 'storefront_sidebar', 'storefront_get_sidebar', 10 );
     }
 } );

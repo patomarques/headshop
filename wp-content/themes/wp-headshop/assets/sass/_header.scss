@@ -93,6 +93,9 @@ body.home {
 }
 
 #masthead {
+  padding-left: 1rem; // Simulating .px-3
+  padding-right: 1rem; // Simulating .px-3
+
   // background definition is handled above for home specifically
   // for non-home pages:
   &:not(.home) {
@@ -128,6 +131,11 @@ body.home {
         order: 1;
         margin: 0;
         width: auto;
+        
+        // Menu item hover color
+        ul li a:hover {
+            color: $color-main-hover !important;
+        }
     }
 
     // Logo (Center)
@@ -173,8 +181,17 @@ body.home {
   align-items: center;
   justify-content: center;
 
+  // Hover state update
   &:hover {
-    background: rgba($header-text, 0.08);
+    background: transparent; // Remove gray bg
+    color: $color-main-hover; // Hover color
+
+    .header-search-icon {
+        background-color: $color-main-hover !important; // Force mask color
+    }
+    .dashicons {
+        color: $color-main-hover;
+    }
   }
 
   &:focus,
@@ -195,16 +212,18 @@ body.home {
     background-color: $header-text;
     -webkit-mask: url("../img/search.png") no-repeat center / contain;
     mask: url("../img/search.png") no-repeat center / contain;
+    transition: background-color 0.2s ease;
   }
 
   .dashicons {
     font-size: 34px;
     line-height: 1;
+    transition: color 0.2s ease;
   }
 }
 
 .header-search-btn {
-  margin-right: 8px;
+  margin-right: 20px; // Increased spacing (was 8px)
 }
 
 .custom-header-cart {

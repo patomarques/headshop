@@ -41,6 +41,15 @@
     height: 60px;
     border-radius: 8px;
     background: transparent;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: transparent;
+        color: $color-main-hover;
+        svg {
+            fill: $color-main-hover;
+        }
+    }
   }
 
   .footer-social__link svg {
