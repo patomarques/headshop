@@ -1,6 +1,107 @@
 @use "colors" as *;
+
+// Global transition for header elements
+.site-header {
+    transition: background-color 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease;
+    
+    .custom-logo-link img, 
+    .site-branding .custom-logo {
+        transition: max-height 0.3s ease, width 0.3s ease;
+    }
+}
+
+// Home Page Header Styles (Overlay & Scrolling)
+body.home {
+    #masthead {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000; // Above banner
+        background: transparent;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border-bottom: 0;
+
+        // Colors when transparent (initial state)
+        color: #ffffff;
+        
+        .main-navigation ul li a,
+        .site-header-cart .cart-contents, 
+        .site-header-cart .cart-icon-link,
+        .header-icon-btn,
+        .header-icon-btn .dashicons,
+        .header-icon-btn .header-search-icon {
+            color: #ffffff;
+        }
+
+        // Fix background of search icon to be white so mask works
+        .header-search-icon {
+            background-color: #ffffff;
+        }
+
+        // Fix cart image (png) to be white using filter
+        .cart-icon-img {
+            filter: brightness(0) invert(1);
+        }
+    }
+
+    // Scrolled State
+    #masthead.site-header-scrolled {
+        position: fixed;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding-top: 0;
+        padding-bottom: 0;
+        
+        // Colors when scrolled (fixed state - white bg)
+        color: #000000;
+
+        .main-navigation ul li a,
+        .site-header-cart .cart-contents, 
+        .site-header-cart .cart-icon-link,
+        .header-icon-btn,
+        .header-icon-btn .dashicons, 
+        .header-icon-btn .header-search-icon {
+             color: #000000;
+        }
+
+        .header-search-icon {
+            background-color: #000000;
+        }
+        
+        // Reset cart image to black
+        .cart-icon-img {
+            filter: brightness(0);
+        }
+
+        .site-branding {
+            height: 50px; // Fix container height to prevent header growing
+            overflow: visible;
+            display: flex;
+            align-items: center;
+            
+            .custom-logo {
+                max-height: 90px; // Larger logo (was 80px)
+                position: relative;
+                top: 15px; // Shift down to overlap bottom edge
+                z-index: 100;
+                transition: all 0.3s ease;
+            }
+        }
+    }
+}
+
 #masthead {
-  background: $header-bg;
+  padding-left: 1rem; // Simulating .px-3
+  padding-right: 1rem; // Simulating .px-3
+
+  // background definition is handled above for home specifically
+  // for non-home pages:
+  &:not(.home) {
+      background: $header-bg;
+      color: $header-text;
+  }
   color: $header-text;
 }
 
@@ -17,28 +118,55 @@
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 12px;
-  }
+    
+    // Remove container width constraint to make it full width
+    max-width: 100%;
+    margin: 0;
+    padding: 0 30px; // Add some padding so content doesn't touch screen edges
 
-  .site-branding {
-    justify-content: center;
-
-    .custom-logo {
-      max-height: 128px;
-      width: auto;
+    // Menu (Left)
+    .main-navigation, .storefront-primary-navigation {
+        grid-column: 1;
+        justify-self: start;
+        order: 1;
+        margin: 0;
+        width: auto;
+        
+        // Menu item hover color
+        ul li a:hover {
+            color: $color-main-hover !important;
+        }
     }
-  }
 
-  .site-header-cart {
-    justify-content: flex-end;
+    // Logo (Center)
+    .site-branding {
+        grid-column: 2;
+        justify-self: center;
+        order: 2;
+        margin: 0;
+        justify-content: center;
 
-    &.header-actions {
-      gap: 12px;
+        .custom-logo {
+            max-height: 110px;
+            width: auto;
+        }
+
+        .site-title, .site-description {
+            display: none;
+        }
     }
-  }
 
-  @media (min-width: 768px) {
-    .storefront-primary-navigation {
-      justify-content: center;
+    // Actions (Right)
+    .site-header-cart {
+         grid-column: 3;
+         justify-self: end;
+         order: 3;
+         margin: 0;
+         justify-content: flex-end;
+
+         &.header-actions {
+             gap: 12px;
+         }
     }
   }
 }
@@ -53,8 +181,17 @@
   align-items: center;
   justify-content: center;
 
+  // Hover state update
   &:hover {
-    background: rgba($header-text, 0.08);
+    background: transparent; // Remove gray bg
+    color: $color-main-hover; // Hover color
+
+    .header-search-icon {
+        background-color: $color-main-hover !important; // Force mask color
+    }
+    .dashicons {
+        color: $color-main-hover;
+    }
   }
 
   &:focus,
@@ -75,16 +212,18 @@
     background-color: $header-text;
     -webkit-mask: url("../img/search.png") no-repeat center / contain;
     mask: url("../img/search.png") no-repeat center / contain;
+    transition: background-color 0.2s ease;
   }
 
   .dashicons {
     font-size: 34px;
     line-height: 1;
+    transition: color 0.2s ease;
   }
 }
 
 .header-search-btn {
-  margin-right: 8px;
+  margin-right: 20px; // Increased spacing (was 8px)
 }
 
 .custom-header-cart {

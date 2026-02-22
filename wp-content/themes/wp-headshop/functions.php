@@ -8,6 +8,14 @@
  */
 
 if (!defined('ABSPATH')) { exit; }
+
+add_filter( 'show_admin_bar', function( $show ) {
+    if ( is_front_page() ) {
+        return false;
+    }
+    return $show;
+} );
+
 add_action('wp_enqueue_scripts', function() {
     wp_enqueue_style(
         'storefront-child-bootstrap',
@@ -19,6 +27,9 @@ add_action('wp_enqueue_scripts', function() {
     wp_enqueue_style('storefront-parent-style', get_template_directory_uri() . '/style.css', [], null);
     wp_enqueue_style('storefront-child-style', get_stylesheet_uri(), ['storefront-parent-style'], null);
     wp_enqueue_style('dashicons');
+
+    // Header Scroll Effect Script
+    wp_enqueue_script( 'storefront-child-header-scroll', get_stylesheet_directory_uri() . '/assets/js/header-scroll.js', [], null, true );
 
     wp_register_script( 'storefront-child-scripts', '', [], null, true );
     wp_enqueue_script( 'storefront-child-scripts' );
@@ -45,13 +56,38 @@ add_filter('woocommerce_checkout_form_class', 'storefront_child_checkout_form_cl
  * Header search: hide input, show search icon next to cart, toggle on click
  */
 function storefront_child_customize_header_search_setup() {
-    remove_action( 'storefront_header', 'storefront_product_search', 40 );
+    // This is now handled in the main init block with priority 99 to ensure removal
 }
-add_action( 'init', 'storefront_child_customize_header_search_setup' );
+// add_action( 'init', 'storefront_child_customize_header_search_setup' );
 
+/**
+ * Move Primary Navigation to be a direct child of .col-full to allow single row layout
+ * Note: storefront_header_container_close is at 41. We must be before that to stay in .col-full.
+ * Default Logo is at 20.
+ * Using high priority on init to ensure Storefront parent theme hooks are already registered so we can remove them.
+ */
 add_action( 'init', function() {
-	remove_action( 'homepage', 'storefront_product_categories', 20 );
-} );
+    // Remove wrapper (usually 42)
+    remove_action( 'storefront_header', 'storefront_primary_navigation_wrapper', 42 );
+    
+    // Also try to remove navigation directly if it was added directly (defense in depth)
+    remove_action( 'storefront_header', 'storefront_primary_navigation', 42 );
+    remove_action( 'storefront_header', 'storefront_primary_navigation', 50 );
+    
+    // Add navigation back at 30 (after logo 20, before container close 41)
+    add_action( 'storefront_header', 'storefront_primary_navigation', 30 );
+    
+    // Remove default search
+    remove_action( 'storefront_header', 'storefront_product_search', 40 );
+    
+    // Move custom cart/actions to 40 (after nav 30, before container close 41)
+    remove_action( 'storefront_header', 'storefront_child_header_cart', 60 );
+    remove_action( 'storefront_header', 'storefront_header_cart', 60 ); // Original Storefront cart
+    
+    add_action( 'storefront_header', 'storefront_child_header_cart', 40 );
+
+    remove_action( 'homepage', 'storefront_product_categories', 20 );
+}, 99 );
 
 function storefront_child_homepage_banner_slider() {
 	if ( ! is_front_page() ) { return; }
@@ -352,10 +388,10 @@ function storefront_child_replace_header_cart_setup() {
 add_action( 'init', 'storefront_child_replace_header_cart_setup' );
 
 /**
- * Remove Storefront sidebar (#secondary) on Cart and Checkout pages.
+ * Remove Storefront sidebar (#secondary) on Cart, Checkout, and Single Product pages.
  */
 add_action( 'wp', function () {
-    if ( function_exists( 'is_cart' ) && ( is_cart() || is_checkout() ) ) {
+    if ( function_exists( 'is_cart' ) && ( is_cart() || is_checkout() || is_product() ) ) {
         remove_action( 'storefront_sidebar', 'storefront_get_sidebar', 10 );
     }
 } );
@@ -386,7 +422,8 @@ function storefront_child_header_cart() {
     echo '  </div>';
     echo '</div>';
 }
-add_action( 'storefront_header', 'storefront_child_header_cart', 60 );
+// Hooked in init now with improved priority
+// add_action( 'storefront_header', 'storefront_child_header_cart', 60 );
 
 function storefront_child_render_cart_dropdown_inner() {
     if ( ! class_exists( 'WooCommerce' ) || ! WC()->cart ) {
