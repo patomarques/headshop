@@ -6,6 +6,13 @@
 
 2. Commits devem ter no máximo 12 palavras, sempre com prefixo (feature, bug, chore, refactor, etc). Separe commits por funcionalidade ou correção implementada, evitando mudanças grandes e genéricas.
 
+## css / scss
+
+1. Aplique BEM no CSS, siga padrões de escrita de CSS, evite abreviações e escreva as classes sempre em inglês.
+2. Nunca use CSS inline no atributo `style` dos componentes; evite ao máximo.
+3. Priorize usar classes já existentes do Bootstrap, em vez de escrever mais código CSS.
+4. Sempre que implementar elementos novos, cuide também da parte responsiva.
+
 - Tema WordPress em uso (produção/dev atual): **bootscore-child**
 - Tema pai: **bootscore**
 - Tema legado de referência visual/comportamental: **wp-headshop**
