@@ -47,6 +47,80 @@ add_action('wp_enqueue_scripts', function() {
 		wp_enqueue_script( 'storefront-child-banner-slider', get_stylesheet_directory_uri() . '/assets/js/banner-slider.js', array(), null, true );
 	}
 });
+
+// Translate WooCommerce cart/checkout labels to PT-BR.
+function storefront_child_is_cart_checkout_context() {
+	if ( is_admin() || ! function_exists( 'is_cart' ) ) {
+		return false;
+	}
+
+	return is_cart()
+		|| is_checkout()
+		|| ( function_exists( 'is_wc_endpoint_url' ) && ( is_wc_endpoint_url( 'order-pay' ) || is_wc_endpoint_url( 'order-received' ) ) );
+}
+
+function storefront_child_translate_cart_checkout_labels( $translated, $text, $domain ) {
+	if ( ! in_array( $domain, array( 'woocommerce', 'bootscore' ), true ) ) {
+		return $translated;
+	}
+
+	if ( ! storefront_child_is_cart_checkout_context() ) {
+		return $translated;
+	}
+
+	static $labels = array(
+		'Cart' => 'Carrinho',
+		'Checkout' => 'Finalizar compra',
+		'Proceed to checkout' => 'Finalizar compra',
+		'View cart' => 'Ver carrinho',
+		'Shopping cart' => 'Carrinho de compras',
+		'Cart totals' => 'Total do carrinho',
+		'Update cart' => 'Atualizar carrinho',
+		'Apply coupon' => 'Aplicar cupom',
+		'Coupon code' => 'Código do cupom',
+		'Coupon:' => 'Cupom:',
+		'Remove' => 'Remover',
+		'Product' => 'Produto',
+		'Products' => 'Produtos',
+		'Price' => 'Preço',
+		'Quantity' => 'Quantidade',
+		'Subtotal' => 'Subtotal',
+		'Totals' => 'Totais',
+		'Total' => 'Total',
+		'Shipping' => 'Entrega',
+		'Calculate shipping' => 'Calcular frete',
+		'Billing details' => 'Detalhes de cobrança',
+		'Additional information' => 'Informações adicionais',
+		'Your order' => 'Seu pedido',
+		'Order notes' => 'Observações do pedido',
+		'Payment' => 'Pagamento',
+		'Place order' => 'Finalizar pedido',
+		'Returning customer?' => 'Já é cliente?',
+		'Click here to login' => 'Clique aqui para entrar',
+		'Have a coupon?' => 'Tem um cupom?',
+		'Click here to enter your code' => 'Clique aqui para inserir seu código',
+		'If you have a coupon code, please apply it below.' => 'Se você tiver um cupom, aplique abaixo.',
+		'Ship to a different address?' => 'Enviar para um endereço diferente?',
+		'Proceed to payment' => 'Ir para pagamento',
+		'Order summary' => 'Resumo do pedido',
+	);
+
+	return isset( $labels[ $text ] ) ? $labels[ $text ] : $translated;
+}
+add_filter( 'gettext', 'storefront_child_translate_cart_checkout_labels', 20, 3 );
+
+function storefront_child_translate_cart_checkout_labels_plural( $translated, $single, $plural, $number, $domain ) {
+	if ( 'woocommerce' !== $domain || ! storefront_child_is_cart_checkout_context() ) {
+		return $translated;
+	}
+
+	if ( '%d item' === $single && '%d items' === $plural ) {
+		return ( (int) $number === 1 ) ? '%d item' : '%d itens';
+	}
+
+	return $translated;
+}
+add_filter( 'ngettext', 'storefront_child_translate_cart_checkout_labels_plural', 20, 5 );
 /**
  * Use Bootstrap classes to make checkout full-width aligned with menu
  */
