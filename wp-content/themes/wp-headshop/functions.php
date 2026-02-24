@@ -24,12 +24,19 @@ add_action('wp_enqueue_scripts', function() {
         '5.3.3'
     );
 
-    wp_enqueue_style('storefront-parent-style', get_template_directory_uri() . '/style.css', [], null);
-    wp_enqueue_style('storefront-child-style', get_stylesheet_uri(), ['storefront-parent-style'], null);
+    $parent_css_path = get_template_directory() . '/style.css';
+    $parent_css_ver  = file_exists($parent_css_path) ? filemtime($parent_css_path) : null;
+    wp_enqueue_style('storefront-parent-style', get_template_directory_uri() . '/style.css', [], $parent_css_ver);
+
+    $child_css_path = get_stylesheet_directory() . '/style.css';
+    $child_css_ver  = file_exists($child_css_path) ? filemtime($child_css_path) : null;
+    wp_enqueue_style('storefront-child-style', get_stylesheet_uri(), ['storefront-parent-style'], $child_css_ver);
     wp_enqueue_style('dashicons');
 
     // Header Scroll Effect Script
-    wp_enqueue_script( 'storefront-child-header-scroll', get_stylesheet_directory_uri() . '/assets/js/header-scroll.js', [], null, true );
+    $header_scroll_path = get_stylesheet_directory() . '/assets/js/header-scroll.js';
+    $header_scroll_ver  = file_exists($header_scroll_path) ? filemtime($header_scroll_path) : null;
+    wp_enqueue_script( 'storefront-child-header-scroll', get_stylesheet_directory_uri() . '/assets/js/header-scroll.js', [], $header_scroll_ver, true );
 
     wp_register_script( 'storefront-child-scripts', '', [], null, true );
     wp_enqueue_script( 'storefront-child-scripts' );
@@ -44,7 +51,9 @@ add_action('wp_enqueue_scripts', function() {
 	}
 
 	if ( is_front_page() && get_post_type() !== 'banner' ) {
-		wp_enqueue_script( 'storefront-child-banner-slider', get_stylesheet_directory_uri() . '/assets/js/banner-slider.js', array(), null, true );
+		$banner_js_path = get_stylesheet_directory() . '/assets/js/banner-slider.js';
+		$banner_js_ver  = file_exists($banner_js_path) ? filemtime($banner_js_path) : null;
+		wp_enqueue_script( 'storefront-child-banner-slider', get_stylesheet_directory_uri() . '/assets/js/banner-slider.js', array(), $banner_js_ver, true );
 	}
 });
 /**
