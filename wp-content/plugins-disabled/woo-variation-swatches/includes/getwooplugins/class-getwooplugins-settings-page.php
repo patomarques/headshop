@@ -172,7 +172,8 @@ if ( ! class_exists( 'GetWooPlugins_Settings_Page', false ) ) :
 				return;
 			}
 
-			echo '<nav class="nav-tab-wrapper woo-nav-tab-wrapper getwooplugins-nav-tab-wrapper">';
+			// Adiciona classes Bootstrap para espaçamento lateral e vertical
+			echo '<nav class="nav-tab-wrapper woo-nav-tab-wrapper getwooplugins-nav-tab-wrapper container-fluid px-4 py-3">';
 
 			foreach ( $sections as $id => $label ) {
 

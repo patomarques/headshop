@@ -8,6 +8,14 @@
  */
 
 if (!defined('ABSPATH')) { exit; }
+
+add_filter( 'show_admin_bar', function( $show ) {
+    if ( is_front_page() ) {
+        return false;
+    }
+    return $show;
+} );
+
 add_action('wp_enqueue_scripts', function() {
     wp_enqueue_style(
         'storefront-child-bootstrap',
@@ -19,6 +27,9 @@ add_action('wp_enqueue_scripts', function() {
     wp_enqueue_style('storefront-parent-style', get_template_directory_uri() . '/style.css', [], null);
     wp_enqueue_style('storefront-child-style', get_stylesheet_uri(), ['storefront-parent-style'], null);
     wp_enqueue_style('dashicons');
+
+    // Header Scroll Effect Script
+    wp_enqueue_script( 'storefront-child-header-scroll', get_stylesheet_directory_uri() . '/assets/js/header-scroll.js', [], null, true );
 
     wp_register_script( 'storefront-child-scripts', '', [], null, true );
     wp_enqueue_script( 'storefront-child-scripts' );
@@ -36,6 +47,100 @@ add_action('wp_enqueue_scripts', function() {
 		wp_enqueue_script( 'storefront-child-banner-slider', get_stylesheet_directory_uri() . '/assets/js/banner-slider.js', array(), null, true );
 	}
 });
+
+// Translate WooCommerce cart/checkout labels to PT-BR.
+function storefront_child_is_cart_checkout_context() {
+	if ( is_admin() || ! function_exists( 'is_cart' ) ) {
+		return false;
+	}
+
+	return is_cart()
+		|| is_checkout()
+		|| ( function_exists( 'is_wc_endpoint_url' ) && ( is_wc_endpoint_url( 'order-pay' ) || is_wc_endpoint_url( 'order-received' ) ) );
+}
+
+function storefront_child_translate_cart_checkout_labels( $translated, $text, $domain ) {
+	if ( ! in_array( $domain, array( 'woocommerce', 'bootscore' ), true ) ) {
+		return $translated;
+	}
+
+	if ( ! storefront_child_is_cart_checkout_context() ) {
+		return $translated;
+	}
+
+	static $labels = array(
+		'Cart' => 'Carrinho',
+		'Checkout' => 'Finalizar compra',
+		'Proceed to checkout' => 'Finalizar compra',
+		'View cart' => 'Ver carrinho',
+		'Continue shopping' => 'Continuar comprando',
+		'Return to shop' => 'Voltar para a loja',
+		'Shopping cart' => 'Carrinho de compras',
+		'Your cart is currently empty.' => 'Seu carrinho está vazio no momento.',
+		'Cart totals' => 'Total do carrinho',
+		'Update cart' => 'Atualizar carrinho',
+		'Cart updated.' => 'Carrinho atualizado.',
+		'Apply coupon' => 'Aplicar cupom',
+		'Coupon code' => 'Código do cupom',
+		'Enter coupon code' => 'Digite o código do cupom',
+		'Add a coupon' => 'Adicionar cupom',
+		'Remove coupon' => 'Remover cupom',
+		'Coupon has been removed.' => 'O cupom foi removido.',
+		'Coupon:' => 'Cupom:',
+		'Discount' => 'Desconto',
+		'Remove' => 'Remover',
+		'Remove item' => 'Remover item',
+		'Remove this item' => 'Remover este item',
+		'Product' => 'Produto',
+		'Products' => 'Produtos',
+		'Price' => 'Preço',
+		'Quantity' => 'Quantidade',
+		'Subtotal' => 'Subtotal',
+		'Totals' => 'Totais',
+		'Total' => 'Total',
+		'Shipping' => 'Entrega',
+		'Shipping to %s.' => 'Entrega para %s.',
+		'Shipping options' => 'Opções de entrega',
+		'No shipping options were found for %s.' => 'Nenhuma opção de entrega foi encontrada para %s.',
+		'Enter your address to view shipping options.' => 'Digite seu endereço para ver as opções de entrega.',
+		'There are no shipping options available. Please ensure that your address has been entered correctly.' => 'Não há opções de entrega disponíveis. Verifique se seu endereço foi preenchido corretamente.',
+		'Shipping options will be updated during checkout.' => 'As opções de entrega serão atualizadas durante a finalização da compra.',
+		'Estimated for %s.' => 'Estimado para %s.',
+		'Estimated totals' => 'Totais estimados',
+		'Calculate shipping' => 'Calcular frete',
+		'Update totals' => 'Atualizar totais',
+		'Billing details' => 'Detalhes de cobrança',
+		'Additional information' => 'Informações adicionais',
+		'Your order' => 'Seu pedido',
+		'Order notes' => 'Observações do pedido',
+		'Payment' => 'Pagamento',
+		'Place order' => 'Finalizar pedido',
+		'Returning customer?' => 'Já é cliente?',
+		'Click here to login' => 'Clique aqui para entrar',
+		'Have a coupon?' => 'Tem um cupom?',
+		'Click here to enter your code' => 'Clique aqui para inserir seu código',
+		'If you have a coupon code, please apply it below.' => 'Se você tiver um cupom, aplique abaixo.',
+		'Ship to a different address?' => 'Enviar para um endereço diferente?',
+		'Proceed to payment' => 'Ir para pagamento',
+		'Order summary' => 'Resumo do pedido',
+	);
+
+	return isset( $labels[ $text ] ) ? $labels[ $text ] : $translated;
+}
+add_filter( 'gettext', 'storefront_child_translate_cart_checkout_labels', 20, 3 );
+
+function storefront_child_translate_cart_checkout_labels_plural( $translated, $single, $plural, $number, $domain ) {
+	if ( 'woocommerce' !== $domain || ! storefront_child_is_cart_checkout_context() ) {
+		return $translated;
+	}
+
+	if ( '%d item' === $single && '%d items' === $plural ) {
+		return ( (int) $number === 1 ) ? '%d item' : '%d itens';
+	}
+
+	return $translated;
+}
+add_filter( 'ngettext', 'storefront_child_translate_cart_checkout_labels_plural', 20, 5 );
 /**
  * Use Bootstrap classes to make checkout full-width aligned with menu
  */
@@ -45,13 +150,38 @@ add_filter('woocommerce_checkout_form_class', 'storefront_child_checkout_form_cl
  * Header search: hide input, show search icon next to cart, toggle on click
  */
 function storefront_child_customize_header_search_setup() {
-    remove_action( 'storefront_header', 'storefront_product_search', 40 );
+    // This is now handled in the main init block with priority 99 to ensure removal
 }
-add_action( 'init', 'storefront_child_customize_header_search_setup' );
+// add_action( 'init', 'storefront_child_customize_header_search_setup' );
 
+/**
+ * Move Primary Navigation to be a direct child of .col-full to allow single row layout
+ * Note: storefront_header_container_close is at 41. We must be before that to stay in .col-full.
+ * Default Logo is at 20.
+ * Using high priority on init to ensure Storefront parent theme hooks are already registered so we can remove them.
+ */
 add_action( 'init', function() {
-	remove_action( 'homepage', 'storefront_product_categories', 20 );
-} );
+    // Remove wrapper (usually 42)
+    remove_action( 'storefront_header', 'storefront_primary_navigation_wrapper', 42 );
+    
+    // Also try to remove navigation directly if it was added directly (defense in depth)
+    remove_action( 'storefront_header', 'storefront_primary_navigation', 42 );
+    remove_action( 'storefront_header', 'storefront_primary_navigation', 50 );
+    
+    // Add navigation back at 30 (after logo 20, before container close 41)
+    add_action( 'storefront_header', 'storefront_primary_navigation', 30 );
+    
+    // Remove default search
+    remove_action( 'storefront_header', 'storefront_product_search', 40 );
+    
+    // Move custom cart/actions to 40 (after nav 30, before container close 41)
+    remove_action( 'storefront_header', 'storefront_child_header_cart', 60 );
+    remove_action( 'storefront_header', 'storefront_header_cart', 60 ); // Original Storefront cart
+    
+    add_action( 'storefront_header', 'storefront_child_header_cart', 40 );
+
+    remove_action( 'homepage', 'storefront_product_categories', 20 );
+}, 99 );
 
 function storefront_child_homepage_banner_slider() {
 	if ( ! is_front_page() ) { return; }
@@ -352,10 +482,10 @@ function storefront_child_replace_header_cart_setup() {
 add_action( 'init', 'storefront_child_replace_header_cart_setup' );
 
 /**
- * Remove Storefront sidebar (#secondary) on Cart and Checkout pages.
+ * Remove Storefront sidebar (#secondary) on Cart, Checkout, and Single Product pages.
  */
 add_action( 'wp', function () {
-    if ( function_exists( 'is_cart' ) && ( is_cart() || is_checkout() ) ) {
+    if ( function_exists( 'is_cart' ) && ( is_cart() || is_checkout() || is_product() ) ) {
         remove_action( 'storefront_sidebar', 'storefront_get_sidebar', 10 );
     }
 } );
@@ -386,7 +516,8 @@ function storefront_child_header_cart() {
     echo '  </div>';
     echo '</div>';
 }
-add_action( 'storefront_header', 'storefront_child_header_cart', 60 );
+// Hooked in init now with improved priority
+// add_action( 'storefront_header', 'storefront_child_header_cart', 60 );
 
 function storefront_child_render_cart_dropdown_inner() {
     if ( ! class_exists( 'WooCommerce' ) || ! WC()->cart ) {
