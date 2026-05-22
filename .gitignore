@@ -43,6 +43,7 @@ xmlrpc.php
 # Sistema
 .DS_Store
 Thumbs.db
+.idead
 
 # Jetpack (arquivos/runtime gerados, não versionar)
 /wp-content/jetpack-*/
