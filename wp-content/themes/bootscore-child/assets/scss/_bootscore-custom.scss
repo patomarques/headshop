@@ -73,11 +73,14 @@
       color: $header-text !important;
     }
   }
-  transition: background-color 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease;
-  padding: 12px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   z-index: 1050;
-  position: relative;
   background: $header-bg;
+  transition: background 0.4s ease, box-shadow 0.4s ease, padding 0.3s ease;
+  padding: 12px 0;
 
   &__row {
     min-height: 72px;
@@ -86,12 +89,8 @@
 
   // Home: transparent overlay (DEVE VIR ANTES DO --scrolled)
   &--home {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1050;
-    background: transparent !important;
+    background: transparent;
+    box-shadow: none;
     color: #fff;
 
     .headshop-nav a,
@@ -114,8 +113,8 @@
   // Quando home E scrolled, sobrescreve para fundo branco
   &.headshop-header--home.headshop-header--scrolled,
   &--home.headshop-header--scrolled {
-    position: fixed;
-    background: $header-bg !important;
+    background: $header-bg;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     color: $header-text;
 
     .headshop-nav a,
@@ -143,14 +142,9 @@
     }
   }
 
-  // Estado "fixo" usado nas páginas internas (desde o carregamento)
+  // Estado "compacto" — home após scroll e páginas internas
   &--scrolled {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1050;
-    background: $header-bg !important;
+    background: $header-bg;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     padding: 4px 0;
     color: $header-text;
@@ -1002,6 +996,7 @@ body.search-overlay-open {
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -1176,6 +1171,7 @@ body.search-overlay-open {
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -1348,6 +1344,7 @@ body.search-overlay-open {
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
