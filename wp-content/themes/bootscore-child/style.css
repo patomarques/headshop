@@ -1,0 +1,18 @@
+/*
+Theme Name: Headshop (Bootscore Child)
+Theme URI: https://example.com/
+Description: Tema filho personalizado baseado no Bootscore para a loja Headshop.
+Author: Headshop
+Template: bootscore
+Text Domain: bootscore-child
+Version: 1.0.0
+*/
+
+/*
+ Nota: Os estilos principais deste tema estão em
+ wp-content/themes/bootscore-child/assets/css/main.css
+ e são enfileirados via functions.php.
+ Este arquivo existe principalmente para que o WordPress
+ reconheça o tema filho.
+*/
+
