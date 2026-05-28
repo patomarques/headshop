@@ -83,15 +83,37 @@
     transition: min-height 0.3s ease;
   }
 
-  // Home: fixed e transparent ao carregar; fade para branco no scroll
+  // Home: fixed e transparent ao carregar; itens brancos
   &--home {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
+    z-index: 1050;
     background: transparent;
     box-shadow: none;
     transition: background 0.4s ease, box-shadow 0.4s ease, padding 0.3s ease;
+
+    .headshop-nav a {
+      color: #fff !important;
+    }
+    .headshop-action-btn,
+    .headshop-action-btn i,
+    .headshop-cart__link {
+      color: #fff !important;
+    }
+    .headshop-search-icon {
+      background-color: #fff;
+    }
+    .headshop-cart__icon {
+      filter: brightness(10);
+    }
+
+    // Seletor composto (0,2,0) garante override após scroll
+    &.headshop-header--scrolled {
+      background: $header-bg !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    }
   }
 
   // Estado fixo — home após scroll e páginas internas
