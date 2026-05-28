@@ -22,6 +22,8 @@ xmlrpc.php
 /wp-content/themes/storefront-child/node_modules
 !/wp-content/themes/wp-headshop
 /wp-content/themes/wp-headshop/node_modules
+!/wp-content/themes/bootscore-child
+!/wp-content/themes/bootscore
 !/wp-content/themes/seu-child-theme
 
 # Ambiente
