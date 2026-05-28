@@ -1,7 +1,8 @@
 .categories-section {
 	padding: 60px 20px;
-	max-width: 1400px;
-	margin: 0 auto;
+	width: 100%;
+	max-width: none;
+	margin: 0;
 
 	.categories-grid {
 		display: grid;

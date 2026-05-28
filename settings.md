@@ -15,3 +15,4 @@ Notas:
 - SCSS do tema bootscore-child: `wp-content/themes/bootscore-child/assets/scss/`.
 - O compilador SCSS em PHP do Bootscore está desativado; a compilação é feita via Sass CLI.
 - Comportamento do header (`#masthead`) no bootscore-child foi ajustado para imitar o tema `wp-headshop`.
+
