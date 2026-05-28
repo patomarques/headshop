@@ -73,13 +73,9 @@
       color: $header-text !important;
     }
   }
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
+  position: relative;
   z-index: 1050;
   background: $header-bg;
-  transition: background 0.4s ease, box-shadow 0.4s ease, padding 0.3s ease;
   padding: 12px 0;
 
   &__row {
@@ -87,63 +83,18 @@
     transition: min-height 0.3s ease;
   }
 
-  // Home: transparent overlay (DEVE VIR ANTES DO --scrolled)
-  &--home {
-    background: transparent;
-    box-shadow: none;
-    color: #fff;
-
-    .headshop-nav a,
-    .headshop-action-btn,
-    .headshop-action-btn i,
-    .headshop-cart__link,
-    .headshop-user-btn {
-      color: #fff !important;
-    }
-
-    .headshop-search-icon {
-      background-color: #fff;
-    }
-
-    .headshop-cart__icon {
-      filter: brightness(0) invert(1);
-    }
-  }
-
-  // Quando home E scrolled, sobrescreve para fundo branco
-  &.headshop-header--home.headshop-header--scrolled,
+  // Home + scrolled: slide-in animation quando o header se fixa
   &--home.headshop-header--scrolled {
-    background: $header-bg;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    color: $header-text;
-
-    .headshop-nav a,
-    .headshop-action-btn,
-    .headshop-action-btn i,
-    .headshop-cart__link {
-      color: $header-text !important;
-    }
-
-    .headshop-search-icon {
-      background-color: $header-text;
-    }
-
-    .headshop-cart__icon {
-      filter: brightness(0);
-    }
-
-    .headshop-header__row {
-      min-height: 52px;
-    }
-
-    .headshop-logo {
-      max-height: 64px;
-      transition: max-height 0.3s ease;
-    }
+    animation: headerSlideIn 0.35s ease forwards;
   }
 
-  // Estado "compacto" — home após scroll e páginas internas
+  // Estado fixo — home após scroll e páginas internas
   &--scrolled {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1050;
     background: $header-bg;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     padding: 4px 0;
@@ -251,6 +202,17 @@
     }
   }
 }
+}
+
+@keyframes headerSlideIn {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 // Action buttons (search, cart)
