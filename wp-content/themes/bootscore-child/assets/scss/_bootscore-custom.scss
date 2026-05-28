@@ -83,9 +83,15 @@
     transition: min-height 0.3s ease;
   }
 
-  // Home + scrolled: slide-in animation quando o header se fixa
-  &--home.headshop-header--scrolled {
-    animation: headerSlideIn 0.35s ease forwards;
+  // Home: fixed e transparent ao carregar; fade para branco no scroll
+  &--home {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: transparent;
+    box-shadow: none;
+    transition: background 0.4s ease, box-shadow 0.4s ease, padding 0.3s ease;
   }
 
   // Estado fixo — home após scroll e páginas internas
@@ -204,16 +210,6 @@
 }
 }
 
-@keyframes headerSlideIn {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
 
 // Action buttons (search, cart)
 .headshop-action-btn {
