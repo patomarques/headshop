@@ -16,74 +16,42 @@ jQuery(function ($) {
 
     /* =================================================================
        HEADER SCROLL EFFECT
-       - Home: igual wp-headshop (muda após rolar)
-       - Internas: já carrega fixo/compacto
+       - Home: transparent → white ao rolar além do banner
+       - Internas: sempre fixo/branco
        ================================================================= */
     (function () {
         var header = document.getElementById('masthead');
         if (!header) return;
 
-        var body   = document.body;
-        var isHome = body.classList.contains('home') ||
-                     body.classList.contains('front-page');
+        var SCROLLED = 'headshop-header--scrolled';
+        var isHome   = document.body.classList.contains('home') ||
+                       document.body.classList.contains('front-page');
 
-        var banner = null;
-        var nextSection = null;
-        var triggerPoint = null;
-
-        function recalcRefs() {
-            if (!isHome) return;
-            banner = document.querySelector('.headshop-banner');
-            nextSection = document.querySelector('section.headshop-categories') || document.querySelector('.headshop-categories');
-            var headerHeight = header ? header.offsetHeight : 0;
-
-            if (nextSection) {
-                var nextSectionTop = nextSection.getBoundingClientRect().top + window.pageYOffset;
-                triggerPoint = Math.max(0, nextSectionTop - headerHeight);
-                return;
-            }
-
-            if (banner) {
-                var bannerBottom = banner.getBoundingClientRect().bottom + window.pageYOffset;
-                triggerPoint = Math.max(0, bannerBottom - headerHeight);
-                return;
-            }
-
-            triggerPoint = 100;
+        if (!isHome) {
+            header.classList.add(SCROLLED);
+            return;
         }
 
-        function updateHeader() {
-            if (!isHome) {
-                header.classList.add('headshop-header--scrolled');
-            } else {
-                if (triggerPoint === null) {
-                    recalcRefs();
-                }
-                var scrolled = window.pageYOffset || document.documentElement.scrollTop || 0;
-                var compactHeader = scrolled > 0 && scrolled >= triggerPoint;
-                header.classList.toggle('headshop-header--scrolled', compactHeader);
+        var threshold = 200;
+
+        function calcThreshold() {
+            var banner = document.querySelector('.headshop-banner');
+            if (banner && banner.offsetHeight > 0) {
+                threshold = Math.max(50, banner.offsetHeight - header.offsetHeight);
             }
         }
 
-        recalcRefs();
-        updateHeader();
-        window.addEventListener('load', function() {
-            recalcRefs();
-            updateHeader();
-        });
-        setTimeout(function () {
-            recalcRefs();
-            updateHeader();
-        }, 300);
-        window.addEventListener('resize', function() {
-            recalcRefs();
-            updateHeader();
-        });
-        window.addEventListener('orientationchange', function() {
-            recalcRefs();
-            updateHeader();
-        });
-        window.addEventListener('scroll', updateHeader);
+        function tick() {
+            var y = window.pageYOffset || window.scrollY || 0;
+            header.classList.toggle(SCROLLED, y >= threshold);
+        }
+
+        calcThreshold();
+        tick();
+
+        window.addEventListener('load', function () { calcThreshold(); tick(); });
+        window.addEventListener('scroll', tick, { passive: true });
+        window.addEventListener('resize', function () { calcThreshold(); tick(); });
     })();
 
 
