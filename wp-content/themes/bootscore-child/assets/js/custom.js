@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 /* =================================================================
    HEADER SCROLL EFFECT
-   - Home: transparent → white ao rolar além do banner
-   - Internas: sempre fixo/branco
+   - Home: fixo transparente → fixo branco após scroll > 80vh
+   - Internas: sempre fixo branco
    ================================================================= */
 (function () {
     var header = document.getElementById('masthead');
@@ -30,29 +30,16 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    var threshold = 200;
-
-    function calcThreshold() {
-        var banner = document.querySelector('.headshop-banner');
-        if (banner && banner.offsetHeight > 0) {
-            threshold = Math.max(50, banner.offsetHeight - header.offsetHeight);
-        }
-    }
-
     function tick() {
-        var y = window.pageYOffset || window.scrollY || 0;
-        header.classList.toggle(SCROLLED, y >= threshold);
+        var y = document.body.scrollTop || window.pageYOffset || 0;
+        header.classList.toggle(SCROLLED, y > window.innerHeight * 0.8);
     }
 
-    calcThreshold();
     tick();
-
-    window.addEventListener('load', function () { calcThreshold(); tick(); });
-    window.addEventListener('scroll', tick, { passive: true });
-    window.addEventListener('resize', function () { calcThreshold(); tick(); });
+    document.body.addEventListener('scroll', tick, { passive: true });
 })();
 
-jQuery(function ($) {
+jQuery(function () {
 
 
     /* =================================================================

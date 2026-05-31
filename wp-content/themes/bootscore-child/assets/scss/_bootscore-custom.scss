@@ -83,7 +83,8 @@
     transition: min-height 0.3s ease;
   }
 
-  // Home: fixed e transparent ao carregar; itens brancos
+  // Home: fixo no topo, transparente, itens brancos
+  // transition aqui para animar a troca de background ao scroll
   &--home {
     position: fixed;
     top: 0;
@@ -92,14 +93,15 @@
     z-index: 1050;
     background: transparent;
     box-shadow: none;
-    transition: background 0.4s ease, box-shadow 0.4s ease, padding 0.3s ease;
+    transition: background 0.35s ease, box-shadow 0.35s ease;
 
     .headshop-nav a {
       color: #fff !important;
     }
     .headshop-action-btn,
     .headshop-action-btn i,
-    .headshop-cart__link {
+    .headshop-cart__link,
+    .headshop-menu-toggle {
       color: #fff !important;
     }
     .headshop-search-icon {
@@ -108,15 +110,9 @@
     .headshop-cart__icon {
       filter: brightness(10);
     }
-
-    // Seletor composto (0,2,0) garante override após scroll
-    &.headshop-header--scrolled {
-      background: $header-bg !important;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-    }
   }
 
-  // Estado fixo — home após scroll e páginas internas
+  // Aplicado pelo JS quando scroll > 80vh — sobrescreve --home por vir depois no CSS
   &--scrolled {
     position: fixed;
     top: 0;
@@ -131,7 +127,8 @@
     .headshop-nav a,
     .headshop-action-btn,
     .headshop-action-btn i,
-    .headshop-cart__link {
+    .headshop-cart__link,
+    .headshop-menu-toggle {
       color: $header-text !important;
     }
 
@@ -303,7 +300,7 @@
     stroke: $color-secondary;
   }
 
-  // Home transparent header — branco
+  // Home transparente — branco
   .headshop-header--home & {
     color: #fff !important;
 
@@ -316,8 +313,7 @@
     }
   }
 
-  // Após scroll — volta para dark
-  .headshop-header--home.headshop-header--scrolled &,
+  // Fixo/scrolled — escuro (sobrescreve --home por vir depois no CSS)
   .headshop-header--scrolled & {
     color: $header-text !important;
 
