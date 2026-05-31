@@ -12,79 +12,34 @@ document.addEventListener('DOMContentLoaded', function() {
         breadcrumb.classList.remove('bg-body-tertiary');
     }
 });
-jQuery(function ($) {
+/* =================================================================
+   HEADER SCROLL EFFECT
+   - Home: fixo transparente → fixo branco após scroll > 80vh
+   - Internas: sempre fixo branco
+   ================================================================= */
+(function () {
+    var header = document.getElementById('masthead');
+    if (!header) return;
 
-    /* =================================================================
-       HEADER SCROLL EFFECT
-       - Home: igual wp-headshop (muda após rolar)
-       - Internas: já carrega fixo/compacto
-       ================================================================= */
-    (function () {
-        var header = document.getElementById('masthead');
-        if (!header) return;
+    var SCROLLED = 'headshop-header--scrolled';
+    var isHome   = document.body.classList.contains('home') ||
+                   document.body.classList.contains('front-page');
 
-        var body   = document.body;
-        var isHome = body.classList.contains('home') ||
-                     body.classList.contains('front-page');
+    if (!isHome) {
+        header.classList.add(SCROLLED);
+        return;
+    }
 
-        var banner = null;
-        var nextSection = null;
-        var triggerPoint = null;
+    function tick() {
+        var y = document.body.scrollTop || window.pageYOffset || 0;
+        header.classList.toggle(SCROLLED, y > window.innerHeight * 0.8);
+    }
 
-        function recalcRefs() {
-            if (!isHome) return;
-            banner = document.querySelector('.headshop-banner');
-            nextSection = document.querySelector('section.headshop-categories') || document.querySelector('.headshop-categories');
-            var headerHeight = header ? header.offsetHeight : 0;
+    tick();
+    document.body.addEventListener('scroll', tick, { passive: true });
+})();
 
-            if (nextSection) {
-                var nextSectionTop = nextSection.getBoundingClientRect().top + window.pageYOffset;
-                triggerPoint = Math.max(0, nextSectionTop - headerHeight);
-                return;
-            }
-
-            if (banner) {
-                var bannerBottom = banner.getBoundingClientRect().bottom + window.pageYOffset;
-                triggerPoint = Math.max(0, bannerBottom - headerHeight);
-                return;
-            }
-
-            triggerPoint = 100;
-        }
-
-        function updateHeader() {
-            if (!isHome) {
-                header.classList.add('headshop-header--scrolled');
-            } else {
-                if (triggerPoint === null) {
-                    recalcRefs();
-                }
-                var scrolled = window.pageYOffset || document.documentElement.scrollTop || 0;
-                var compactHeader = scrolled > 0 && scrolled >= triggerPoint;
-                header.classList.toggle('headshop-header--scrolled', compactHeader);
-            }
-        }
-
-        recalcRefs();
-        updateHeader();
-        window.addEventListener('load', function() {
-            recalcRefs();
-            updateHeader();
-        });
-        setTimeout(function () {
-            recalcRefs();
-            updateHeader();
-        }, 300);
-        window.addEventListener('resize', function() {
-            recalcRefs();
-            updateHeader();
-        });
-        window.addEventListener('orientationchange', function() {
-            recalcRefs();
-            updateHeader();
-        });
-        window.addEventListener('scroll', updateHeader);
-    })();
+jQuery(function () {
 
 
     /* =================================================================
