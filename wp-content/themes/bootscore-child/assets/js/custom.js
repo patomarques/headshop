@@ -16,6 +16,22 @@ document.addEventListener('DOMContentLoaded', function() {
    PRODUCTS CAROUSEL
    ================================================================= */
 document.addEventListener('DOMContentLoaded', function () {
+    var mobileSearchBtn = document.getElementById('mobileSearchBtn');
+    if (mobileSearchBtn) {
+        mobileSearchBtn.addEventListener('click', function () {
+            var offcanvasEl = document.getElementById('offcanvasMenu');
+            if (offcanvasEl && window.bootstrap) {
+                bootstrap.Offcanvas.getInstance(offcanvasEl)?.hide();
+            }
+            setTimeout(function () {
+                var searchBtn = document.getElementById('searchToggleBtn');
+                if (searchBtn) searchBtn.click();
+            }, 320);
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.headshop-products-carousel').forEach(function (carousel) {
         var track = carousel.querySelector('.headshop-products-carousel__track');
         var prev  = carousel.querySelector('.headshop-products-carousel__btn--prev');

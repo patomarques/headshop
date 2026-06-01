@@ -115,20 +115,40 @@ defined('ABSPATH') || exit;
   </header>
 
   <!-- Mobile Offcanvas Menu -->
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasMenu">
-    <div class="offcanvas-header">
-      <span class="h5 offcanvas-title">Menu</span>
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+  <div class="offcanvas offcanvas-end headshop-offcanvas" tabindex="-1" id="offcanvasMenu">
+    <div class="offcanvas-header headshop-offcanvas__header">
+      <a href="<?= esc_url(home_url('/')); ?>" class="headshop-offcanvas__logo-link" data-bs-dismiss="offcanvas">
+        <?php
+        $custom_logo_id = get_theme_mod('custom_logo');
+        if ($custom_logo_id) {
+          echo wp_get_attachment_image($custom_logo_id, 'full', false, array('class' => 'headshop-offcanvas__logo'));
+        } else {
+          $fallback = get_stylesheet_directory_uri() . '/assets/img/logo.jpg';
+          echo '<img src="' . esc_url($fallback) . '" alt="' . esc_attr(get_bloginfo('name')) . '" class="headshop-offcanvas__logo" />';
+        }
+        ?>
+      </a>
+      <button type="button" class="headshop-offcanvas__close" data-bs-dismiss="offcanvas" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
-    <div class="offcanvas-body">
+    <div class="offcanvas-body headshop-offcanvas__body">
       <?php
       wp_nav_menu(array(
         'theme_location' => 'main-menu',
         'container'      => false,
-        'menu_class'     => 'navbar-nav',
+        'menu_class'     => 'headshop-offcanvas__nav',
         'fallback_cb'    => false,
         'depth'          => 2,
       ));
       ?>
+      <div class="headshop-offcanvas__social">
+        <a href="https://wa.me/5581996366201" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" class="headshop-offcanvas__social-link">
+          <img src="<?= esc_url(get_stylesheet_directory_uri()); ?>/assets/img/whatsapp.png" alt="WhatsApp" width="36" height="36" />
+        </a>
+        <a href="https://instagram.com/indicativaheadshop2" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="headshop-offcanvas__social-link">
+          <img src="<?= esc_url(get_stylesheet_directory_uri()); ?>/assets/img/instagram.png" alt="Instagram" width="36" height="36" />
+        </a>
+      </div>
     </div>
   </div>
