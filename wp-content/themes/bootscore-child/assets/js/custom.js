@@ -13,6 +13,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 /* =================================================================
+   PRODUCTS CAROUSEL
+   ================================================================= */
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.headshop-products-carousel').forEach(function (carousel) {
+        var track = carousel.querySelector('.headshop-products-carousel__track');
+        var prev  = carousel.querySelector('.headshop-products-carousel__btn--prev');
+        var next  = carousel.querySelector('.headshop-products-carousel__btn--next');
+        if (!track) return;
+
+        function scrollBy(dir) {
+            track.scrollBy({ left: dir * track.offsetWidth * 0.8, behavior: 'smooth' });
+        }
+
+        if (prev) prev.addEventListener('click', function () { scrollBy(-1); });
+        if (next) next.addEventListener('click', function () { scrollBy(1); });
+    });
+});
+
+/* =================================================================
    HEADER SCROLL EFFECT
    - Home: fixo transparente → fixo branco após scroll > 80vh
    - Internas: sempre fixo branco

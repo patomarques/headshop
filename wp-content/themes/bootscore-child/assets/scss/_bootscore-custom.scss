@@ -1238,7 +1238,7 @@ body.search-overlay-open {
    ===================================================================== */
 
 .headshop-new-products {
-  background: $color-light;
+  background: #fff;
 
   &__title {
     font-size: 2rem;
@@ -1402,6 +1402,79 @@ body.search-overlay-open {
 
   .headshop-new-products__name {
     font-size: 0.85rem;
+  }
+}
+
+
+/* =====================================================================
+   PRODUCTS CAROUSEL
+   ===================================================================== */
+.headshop-products-carousel {
+  position: relative;
+
+  &__track {
+    display: flex !important;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    gap: 24px;
+    padding-bottom: 8px;
+
+    &::-webkit-scrollbar { display: none; }
+
+    > * {
+      flex: 0 0 calc(25% - 18px);
+      min-width: 200px;
+      scroll-snap-align: start;
+    }
+  }
+
+  &__btn {
+    position: absolute;
+    top: 40%;
+    transform: translateY(-50%);
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    z-index: 10;
+    font-size: 1.2rem;
+    line-height: 1;
+    color: $color-dark;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: $color-primary;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    &--prev { left: -22px; }
+    &--next { right: -22px; }
+  }
+}
+
+@media (max-width: 1024px) {
+  .headshop-products-carousel__track > * {
+    flex: 0 0 calc(33.33% - 16px);
+  }
+}
+
+@media (max-width: 768px) {
+  .headshop-products-carousel {
+    &__track > * { flex: 0 0 calc(60% - 12px); }
+    &__btn { width: 36px; height: 36px; font-size: 1rem; }
+    &__btn--prev { left: -12px; }
+    &__btn--next { right: -12px; }
   }
 }
 

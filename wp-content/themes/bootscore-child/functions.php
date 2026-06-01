@@ -603,33 +603,37 @@ function headshop_sale_products() {
     <section class="headshop-sale-products py-5">
       <div class="container" style="max-width:1400px;">
         <h2 class="headshop-sale-products__title text-center mb-4">PRODUTOS EM OFERTA</h2>
-        <div class="headshop-sale-products__grid">
-          <?php foreach ($products as $product) :
-              $id         = $product->get_id();
-              $name       = $product->get_name();
-              $link       = get_permalink($id);
-              $img_id     = $product->get_image_id();
-              $img_url    = $img_id ? wp_get_attachment_image_url($img_id, 'woocommerce_thumbnail') : $placeholder;
-              $price_html = $product->get_price_html();
-              $regular    = (float) $product->get_regular_price();
-              $sale       = (float) $product->get_sale_price();
-              $discount   = $regular > 0 ? round((1 - $sale / $regular) * 100) : 0;
-          ?>
-            <a href="<?= esc_url($link); ?>" class="headshop-sale-products__card">
-              <?php if ($discount > 0) : ?>
-                <span class="headshop-sale-products__badge">-<?= (int) $discount; ?>%</span>
-              <?php else : ?>
-                <span class="headshop-sale-products__badge">OFERTA</span>
-              <?php endif; ?>
-              <div class="headshop-sale-products__image-wrap">
-                <img src="<?= esc_url($img_url); ?>" alt="<?= esc_attr($name); ?>" class="headshop-sale-products__image" loading="lazy" />
-              </div>
-              <div class="headshop-sale-products__info">
-                <h3 class="headshop-sale-products__name"><?= esc_html($name); ?></h3>
-                <div class="headshop-sale-products__price"><?= wp_kses_post($price_html); ?></div>
-              </div>
-            </a>
-          <?php endforeach; ?>
+        <div class="headshop-products-carousel">
+          <button class="headshop-products-carousel__btn headshop-products-carousel__btn--prev" aria-label="Anterior">&#8592;</button>
+          <div class="headshop-sale-products__grid headshop-products-carousel__track">
+            <?php foreach ($products as $product) :
+                $id         = $product->get_id();
+                $name       = $product->get_name();
+                $link       = get_permalink($id);
+                $img_id     = $product->get_image_id();
+                $img_url    = $img_id ? wp_get_attachment_image_url($img_id, 'woocommerce_thumbnail') : $placeholder;
+                $price_html = $product->get_price_html();
+                $regular    = (float) $product->get_regular_price();
+                $sale       = (float) $product->get_sale_price();
+                $discount   = $regular > 0 ? round((1 - $sale / $regular) * 100) : 0;
+            ?>
+              <a href="<?= esc_url($link); ?>" class="headshop-sale-products__card">
+                <?php if ($discount > 0) : ?>
+                  <span class="headshop-sale-products__badge">-<?= (int) $discount; ?>%</span>
+                <?php else : ?>
+                  <span class="headshop-sale-products__badge">OFERTA</span>
+                <?php endif; ?>
+                <div class="headshop-sale-products__image-wrap">
+                  <img src="<?= esc_url($img_url); ?>" alt="<?= esc_attr($name); ?>" class="headshop-sale-products__image" loading="lazy" />
+                </div>
+                <div class="headshop-sale-products__info">
+                  <h3 class="headshop-sale-products__name"><?= esc_html($name); ?></h3>
+                  <div class="headshop-sale-products__price"><?= wp_kses_post($price_html); ?></div>
+                </div>
+              </a>
+            <?php endforeach; ?>
+          </div>
+          <button class="headshop-products-carousel__btn headshop-products-carousel__btn--next" aria-label="Próximo">&#8594;</button>
         </div>
         <div class="text-center mt-4">
           <a href="<?= esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="btn headshop-sale-products__btn">Ver todos →</a>
@@ -662,26 +666,30 @@ function headshop_new_products() {
     <section class="headshop-new-products py-5">
       <div class="container" style="max-width:1400px;">
         <h2 class="headshop-new-products__title text-center mb-4">PRODUTOS NOVOS</h2>
-        <div class="headshop-new-products__grid">
-          <?php foreach ($products as $product) :
-              $id         = $product->get_id();
-              $name       = $product->get_name();
-              $link       = get_permalink($id);
-              $img_id     = $product->get_image_id();
-              $img_url    = $img_id ? wp_get_attachment_image_url($img_id, 'woocommerce_thumbnail') : $placeholder;
-              $price_html = $product->get_price_html();
-          ?>
-            <a href="<?= esc_url($link); ?>" class="headshop-new-products__card">
-              <span class="headshop-new-products__badge">NOVO</span>
-              <div class="headshop-new-products__image-wrap">
-                <img src="<?= esc_url($img_url); ?>" alt="<?= esc_attr($name); ?>" class="headshop-new-products__image" loading="lazy" />
-              </div>
-              <div class="headshop-new-products__info">
-                <h3 class="headshop-new-products__name"><?= esc_html($name); ?></h3>
-                <div class="headshop-new-products__price"><?= wp_kses_post($price_html); ?></div>
-              </div>
-            </a>
-          <?php endforeach; ?>
+        <div class="headshop-products-carousel">
+          <button class="headshop-products-carousel__btn headshop-products-carousel__btn--prev" aria-label="Anterior">&#8592;</button>
+          <div class="headshop-new-products__grid headshop-products-carousel__track">
+            <?php foreach ($products as $product) :
+                $id         = $product->get_id();
+                $name       = $product->get_name();
+                $link       = get_permalink($id);
+                $img_id     = $product->get_image_id();
+                $img_url    = $img_id ? wp_get_attachment_image_url($img_id, 'woocommerce_thumbnail') : $placeholder;
+                $price_html = $product->get_price_html();
+            ?>
+              <a href="<?= esc_url($link); ?>" class="headshop-new-products__card">
+                <span class="headshop-new-products__badge">NOVO</span>
+                <div class="headshop-new-products__image-wrap">
+                  <img src="<?= esc_url($img_url); ?>" alt="<?= esc_attr($name); ?>" class="headshop-new-products__image" loading="lazy" />
+                </div>
+                <div class="headshop-new-products__info">
+                  <h3 class="headshop-new-products__name"><?= esc_html($name); ?></h3>
+                  <div class="headshop-new-products__price"><?= wp_kses_post($price_html); ?></div>
+                </div>
+              </a>
+            <?php endforeach; ?>
+          </div>
+          <button class="headshop-products-carousel__btn headshop-products-carousel__btn--next" aria-label="Próximo">&#8594;</button>
         </div>
         <div class="text-center mt-4">
           <a href="<?= esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="btn headshop-new-products__btn">Ver todos →</a>
