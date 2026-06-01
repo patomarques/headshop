@@ -22,12 +22,31 @@ document.addEventListener('DOMContentLoaded', function () {
         var next  = carousel.querySelector('.headshop-products-carousel__btn--next');
         if (!track) return;
 
-        function scrollBy(dir) {
-            track.scrollBy({ left: dir * track.offsetWidth * 0.8, behavior: 'smooth' });
+        function cardWidth() {
+            var card = track.firstElementChild;
+            return card ? card.offsetWidth + 24 : track.offsetWidth * 0.8;
         }
 
-        if (prev) prev.addEventListener('click', function () { scrollBy(-1); });
-        if (next) next.addEventListener('click', function () { scrollBy(1); });
+        function advance() {
+            var maxScroll = track.scrollWidth - track.clientWidth;
+            if (track.scrollLeft >= maxScroll - 1) {
+                track.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                track.scrollBy({ left: cardWidth(), behavior: 'smooth' });
+            }
+        }
+
+        var timer = setInterval(advance, 2000);
+
+        carousel.addEventListener('mouseenter', function () { clearInterval(timer); });
+        carousel.addEventListener('mouseleave', function () { timer = setInterval(advance, 2000); });
+
+        if (prev) prev.addEventListener('click', function () {
+            track.scrollBy({ left: -cardWidth(), behavior: 'smooth' });
+        });
+        if (next) next.addEventListener('click', function () {
+            track.scrollBy({ left: cardWidth(), behavior: 'smooth' });
+        });
     });
 });
 
