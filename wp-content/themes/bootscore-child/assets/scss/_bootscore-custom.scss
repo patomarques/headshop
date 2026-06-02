@@ -364,6 +364,23 @@
   line-height: 1;
 }
 
+@media (max-width: 991.98px) {
+  .headshop-search-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .headshop-user-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .headshop-cart__icon {
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+
 /* =====================================================================
    OFFCANVAS MOBILE MENU
    ===================================================================== */
