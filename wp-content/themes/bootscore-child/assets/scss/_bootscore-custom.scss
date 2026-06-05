@@ -1,40 +1,14 @@
-.headshop-footer__social-link img {
-  filter: brightness(0) invert(1) !important;
-  width: unset !important;
-  height: unset !important;
-}
-// Footer social icons: garantir tamanho igual
-// Footer: fundo preto
-.headshop-footer {
-  background: #000 !important;
-}
-
-// Footer social icons: WhatsApp maior
-.headshop-footer__social-link img[alt="WhatsApp"] {
-  width: 90px !important;
-  height: 90px !important;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-.headshop-footer__social-link img[alt="Instagram"] {
-  width: 70px !important;
-  height: 70px !important;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
 /* =====================================================================
-   CONTENT SPACING (ajuste para header fixo)
+   CONTENT SPACING (ajuste para header fixo — 2 rows no desktop)
    ===================================================================== */
 
 #content {
-  margin-top: 140px;
+  margin-top: 184px; // row1 ~140px + cats row ~44px
 }
 
 @media (max-width: 991.98px) {
   #content {
-    margin-top: 110px;
+    margin-top: 110px; // só row 1 no mobile/tablet
   }
 }
 
@@ -44,11 +18,32 @@
   }
 }
 
-// Remove breadcrumb background (cinza)
-.breadcrumb {
+// Breadcrumb — cores do design system
+.breadcrumb,
+.woocommerce-breadcrumb {
   background: none !important;
   background-color: transparent !important;
   box-shadow: none !important;
+  color: $text-body;
+  font-size: 0.9rem;
+
+  a {
+    color: $color-primary;
+    text-decoration: none;
+    transition: color 0.2s;
+
+    &:hover { color: mix(#000, $color-primary, 15%); }
+  }
+
+  .breadcrumb-item.active,
+  &-item.active {
+    color: $text-body;
+  }
+
+  .breadcrumb-item + .breadcrumb-item::before,
+  &-item + &-item::before {
+    color: rgba($text-body, 0.4);
+  }
 }
 /*!
  * Headshop custom styles — ported from wp-headshop, using Bootstrap 5
@@ -80,6 +75,7 @@
 
   &__row {
     min-height: 72px;
+    flex-wrap: nowrap;
     transition: min-height 0.4s ease;
   }
 
@@ -244,6 +240,311 @@
 }
 
 
+// Bar icon button
+.headshop-bars-btn {
+  font-size: 1.4rem;
+  padding: 4px 8px;
+  line-height: 1;
+
+  // Home transparente — branco
+  .headshop-header--home & {
+    color: #fff !important;
+  }
+
+  .headshop-header--scrolled & {
+    color: $header-text !important;
+  }
+}
+
+// Categories row (row 2, desktop only)
+.headshop-header__cats-row {
+  padding: 6px 0;
+}
+
+.headshop-cats-nav {
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+
+  > li {
+    position: relative;
+
+    > a {
+      display: block;
+      padding: 6px 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: $header-text;
+      text-decoration: none;
+      white-space: nowrap;
+      border-radius: 4px;
+      transition: color 0.2s, background 0.2s;
+
+      &:hover, &:focus {
+        color: $color-primary !important;
+        background: rgba($color-primary, 0.08);
+        text-decoration: none;
+      }
+    }
+
+    &:hover > .sub-menu,
+    &:focus-within > .sub-menu {
+      display: block;
+    }
+  }
+
+  .sub-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 200px;
+    background: $header-bg;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
+    z-index: 9999;
+    border-radius: 6px;
+
+    > li > a {
+      display: block;
+      padding: 0.5rem 1.25rem;
+      font-size: 0.9rem;
+      color: $header-text;
+      border-radius: 3px;
+      transition: background 0.2s, color 0.2s;
+      text-decoration: none;
+
+      &:hover, &:focus {
+        color: $color-primary !important;
+        background: rgba($color-primary, 0.08);
+      }
+    }
+  }
+
+  // Home transparente
+  .headshop-header--home & > li > a {
+    color: #fff;
+  }
+
+  // Scrolled — texto escuro
+  .headshop-header--scrolled & > li > a {
+    color: $header-text;
+  }
+}
+
+
+/* =====================================================================
+   FULLSCREEN NAV OVERLAY
+   ===================================================================== */
+
+.headshop-nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 99999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.is-open {
+    display: flex;
+    opacity: 1;
+  }
+
+  &__close {
+    position: absolute;
+    // alinhado ao mesmo espaço do ☰ no header (px-4 + container px-4)
+    top: 12px;
+    left: calc(1.5rem + 16px);
+    height: 72px; // mesmo min-height do headshop-header__row
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    opacity: 0.7;
+    font-size: 1.4rem;
+    padding: 4px 8px;
+    transition: opacity 0.2s ease;
+
+    &:hover { opacity: 1; }
+
+    @media (min-width: 768px) {
+      left: calc(3rem + 16px);
+    }
+  }
+
+  &__inner {
+    text-align: center;
+    width: 90%;
+    max-width: 600px;
+  }
+
+  &__menu {
+    li {
+      margin: 0.75rem 0;
+    }
+
+    a {
+      display: inline-block;
+      font-size: 2rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #fff;
+      text-decoration: none;
+      transition: color 0.2s ease, transform 0.2s ease;
+
+      &:hover, &:focus {
+        color: $color-primary;
+        transform: scale(1.05);
+        text-decoration: none;
+      }
+    }
+
+    // Categories (mobile only, smaller)
+    &--cats {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(#fff, 0.15);
+
+      a {
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: rgba(#fff, 0.75);
+
+        &:hover, &:focus {
+          color: $color-primary;
+        }
+      }
+    }
+  }
+
+  &__mobile-cats {
+    margin-top: 0;
+  }
+}
+
+body.nav-overlay-open {
+  overflow: hidden;
+}
+
+// Accordion items inside the nav overlay
+.headshop-overlay-item {
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__link {
+    flex: 1;
+    display: block;
+    padding: 14px 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover, &:focus {
+      color: $color-primary;
+      text-decoration: none;
+    }
+  }
+
+  &__toggle {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: rgba(#fff, 0.5);
+    padding: 8px 4px 8px 16px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    i {
+      display: block;
+      font-size: 0.85rem;
+      transition: transform 0.25s ease;
+    }
+
+    &[aria-expanded="true"] {
+      color: $color-primary;
+      i { transform: rotate(180deg); }
+    }
+
+    &:hover { color: $color-primary; }
+  }
+
+  &__sub {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+    padding-left: 0;
+    margin: 0;
+
+    li {
+      border-top: 1px solid rgba(#fff, 0.06);
+    }
+
+    a {
+      display: block;
+      padding: 10px 0 10px 1.25rem;
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(#fff, 0.65);
+      text-decoration: none;
+      transition: color 0.2s ease, padding-left 0.2s ease;
+
+      &:hover, &:focus {
+        color: $color-primary;
+        padding-left: 1.75rem;
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 767.98px) {
+  .headshop-overlay-item {
+    &__link { font-size: 1.2rem; }
+    &__sub a { font-size: 0.9rem; }
+  }
+}
+
+@media (max-width: 767.98px) {
+  .headshop-nav-overlay {
+    align-items: flex-start;
+    padding-top: 5rem;
+    overflow-y: auto;
+
+    &__inner {
+      width: 92%;
+      padding-bottom: 2rem;
+    }
+
+    &__menu a {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+
 // Action buttons (search, cart)
 .headshop-action-btn {
   background: transparent;
@@ -378,6 +679,10 @@
   .headshop-cart__icon {
     width: 20px !important;
     height: 20px !important;
+  }
+
+  .headshop-header .headshop-logo {
+    max-height: 64px;
   }
 }
 
@@ -858,9 +1163,14 @@ body.search-overlay-open {
   &__slide {
     width: 100%;
     height: 100%;
+    background-image: var(--img-desktop);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+
+    @media (max-width: 768px) {
+      background-image: var(--img-mobile, var(--img-desktop));
+    }
   }
 
   // Custom nav icons (matching the ‹ › style from wp-headshop)
@@ -1064,60 +1374,129 @@ body.search-overlay-open {
 .headshop-footer {
   background: $footer-bg;
   color: $footer-text;
+  font-size: 1.1rem;
+  border-top: 3px solid $dark-cyan;
 
   a {
     color: inherit;
-    text-decoration: underline;
+    text-decoration: none;
 
     &:hover {
       color: $color-primary;
     }
   }
 
-  &__title {
+  &__col-title {
+    font-size: 0.85rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: $sandy-brown;
+    margin-bottom: 1.1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba($dark-cyan, 0.35);
+  }
+
+  &__brand {
+    font-size: 1.5rem;
+    font-weight: 700;
     color: #fff;
-    font-size: 1.25rem;
+    margin-bottom: 0.2rem;
   }
 
   &__note {
-    margin-bottom: 0.75rem;
-    color: rgba(221, 221, 221, 0.85);
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
   }
 
-  &__contact li,
-  &__menu li {
-    margin-bottom: 0.45rem;
+  &__contact {
+    li {
+      margin-bottom: 0.55rem;
+      line-height: 1.6;
+      font-size: 1.1rem;
+      color: #fff;
+    }
+  }
+
+  &__menu {
+    li {
+      margin-bottom: 0.65rem;
+    }
+
+    a {
+      font-size: 1.1rem;
+      transition: color 0.2s;
+    }
+  }
+
+  &__social {
+    gap: 14px !important;
   }
 
   &__social-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 60px;
-    height: 60px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 
     &:hover {
-      transform: scale(1.05);
+      transform: scale(1.12);
+      opacity: 0.8;
     }
 
     img {
-      width: 60px;
-      height: 60px;
       display: block;
       object-fit: contain;
+      filter: brightness(0) invert(1);
+    }
+
+    &[aria-label="WhatsApp"] img {
+      width: 52px;
+      height: 52px;
+    }
+
+    &[aria-label="Instagram"] img {
+      width: 40px;
+      height: 40px;
     }
   }
 
   &__legal {
-    color: rgba(221, 221, 221, 0.8);
+    font-size: 0.85rem;
+    color: #fff;
   }
 
   &__legal-link {
     text-decoration: none !important;
+    color: #fff !important;
+
+    &:hover {
+      color: $color-primary !important;
+    }
+  }
+}
+
+.footer-dev-link {
+  position: fixed !important;
+  bottom: 28px !important;
+  right: 28px !important;
+  z-index: 990;
+  color: rgba(#fff, 0.45) !important;
+  text-decoration: none !important;
+  transition: color 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    color: $color-primary !important;
+    transform: scale(1.15);
+  }
+
+  span {
+    font-weight: 700;
+    font-size: 1rem !important;
+    line-height: 1;
   }
 }
 
@@ -1125,6 +1504,38 @@ body.search-overlay-open {
 /* =====================================================================
    RECENT PRODUCTS
    ===================================================================== */
+
+// "Ver todos" shared outline style
+%ver-todos-btn {
+  background: transparent;
+  color: $btn-primary-bg;
+  border: 2px solid $btn-primary-bg;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 11px 32px; // 1px less top/bottom para compensar border
+  border-radius: 6px;
+  transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    background: $btn-primary-bg;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba($btn-primary-bg, 0.35);
+    text-decoration: none;
+  }
+}
+
+%ver-todos-btn-secondary {
+  @extend %ver-todos-btn;
+  color: $btn-secondary-bg;
+  border-color: $btn-secondary-bg;
+
+  &:hover {
+    background: $btn-secondary-bg;
+    box-shadow: 0 6px 18px rgba($btn-secondary-bg, 0.35);
+  }
+}
 
 .headshop-recent-products {
   background: $section-light-bg;
@@ -1246,20 +1657,7 @@ body.search-overlay-open {
   }
 
   &__btn {
-    background: $btn-primary-bg;
-    color: #fff;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 12px 32px;
-    border-radius: 6px;
-    transition: background 0.3s ease, transform 0.2s ease;
-
-    &:hover {
-      background: $btn-primary-hover;
-      color: #fff;
-      transform: translateY(-2px);
-    }
+    @extend %ver-todos-btn;
   }
 }
 
@@ -1419,20 +1817,7 @@ body.search-overlay-open {
   }
 
   &__btn {
-    background: $btn-primary-bg;
-    color: #fff;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 12px 32px;
-    border-radius: 6px;
-    transition: background 0.3s ease, transform 0.2s ease;
-
-    &:hover {
-      background: $btn-primary-hover;
-      color: #fff;
-      transform: translateY(-2px);
-    }
+    @extend %ver-todos-btn;
   }
 }
 
@@ -1592,20 +1977,7 @@ body.search-overlay-open {
   }
 
   &__btn {
-    background: $btn-secondary-bg;
-    color: #fff;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 12px 32px;
-    border-radius: 6px;
-    transition: background 0.3s ease, transform 0.2s ease;
-
-    &:hover {
-      background: $btn-secondary-hover;
-      color: #fff;
-      transform: translateY(-2px);
-    }
+    @extend %ver-todos-btn-secondary;
   }
 }
 

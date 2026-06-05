@@ -67,6 +67,58 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 /* =================================================================
+   FULLSCREEN NAV OVERLAY (bar icon)
+   ================================================================= */
+(function () {
+    var btn      = document.getElementById('navBarsBtn');
+    var overlay  = document.getElementById('navBarsOverlay');
+    var closeBtn = document.getElementById('navBarsClose');
+    if (!btn || !overlay) return;
+
+    function open() {
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('nav-overlay-open');
+    }
+
+    function close() {
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('nav-overlay-open');
+    }
+
+    btn.addEventListener('click', function () {
+        overlay.classList.contains('is-open') ? close() : open();
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', close);
+
+    overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) close();
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && overlay.classList.contains('is-open')) close();
+    });
+
+    // Accordion: toggle subcategories on chevron click
+    overlay.addEventListener('click', function (e) {
+        var toggle = e.target.closest('.headshop-overlay-item__toggle');
+        if (!toggle) return;
+
+        var item = toggle.closest('.headshop-overlay-item--has-sub');
+        if (!item) return;
+
+        var sub     = item.querySelector('.headshop-overlay-item__sub');
+        var isOpen  = toggle.getAttribute('aria-expanded') === 'true';
+
+        toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+        sub.style.maxHeight = isOpen ? '0' : sub.scrollHeight + 'px';
+    });
+})();
+
+
+/* =================================================================
    HEADER SCROLL EFFECT
    - Home: fixo transparente → fixo branco após scroll > 80vh
    - Internas: sempre fixo branco

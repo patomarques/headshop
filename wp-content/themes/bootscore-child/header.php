@@ -1,8 +1,7 @@
 <?php
 /**
  * Custom header for Headshop — bootscore child
- * Layout: Nav left | Logo center | Cart+Search right
- * Transparent on homepage, solid on scroll
+ * Layout: Bar icon left | Logo center | Actions right | Categories row below
  *
  * @package Bootscore Child
  */
@@ -26,20 +25,16 @@ defined('ABSPATH') || exit;
 <div id="page" class="site">
 
   <header id="masthead" class="site-header headshop-header<?php if (is_front_page()) echo ' headshop-header--home'; ?> px-4 px-md-5">
-    <div class="container px-4">
+    <div class="container">
+
+      <!-- Row 1: Bar icon | Logo | Actions -->
       <div class="row align-items-center headshop-header__row">
 
-        <!-- Nav Left -->
-        <div class="col headshop-header__nav d-none d-lg-flex">
-          <?php
-          wp_nav_menu(array(
-            'theme_location' => 'main-menu',
-            'container'      => false,
-            'menu_class'     => 'headshop-nav list-unstyled d-flex align-items-center mb-0',
-            'fallback_cb'    => false,
-            'depth'          => 2,
-          ));
-          ?>
+        <!-- Bar icon (left) -->
+        <div class="col headshop-header__left d-flex align-items-center">
+          <button id="navBarsBtn" class="headshop-action-btn headshop-bars-btn" type="button" aria-label="Menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
         </div>
 
         <!-- Logo Center -->
@@ -103,52 +98,108 @@ defined('ABSPATH') || exit;
             </div>
           </div>
           <?php endif; ?>
-
-          <!-- Mobile toggler -->
-          <button class="btn headshop-action-btn d-lg-none ms-2 headshop-menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-label="Menu">
-            <i class="fa-solid fa-bars"></i>
-          </button>
         </div>
 
-      </div><!-- .row -->
-    </div><!-- .container-fluid -->
+      </div><!-- Row 1 -->
+
+      <!-- Row 2: Categories nav (desktop only) -->
+      <div class="row headshop-header__cats-row d-none d-lg-flex">
+        <div class="col">
+          <ul class="headshop-cats-nav list-unstyled d-flex align-items-center justify-content-center mb-0">
+
+            <!-- "Todas as Categorias" — primeiro item com submenu dinâmico -->
+            <?php
+            $all_cats = get_terms(array(
+              'taxonomy'   => 'product_cat',
+              'hide_empty' => true,
+              'parent'     => 0,
+              'exclude'    => array(get_option('default_product_cat')),
+              'orderby'    => 'name',
+              'order'      => 'ASC',
+            ));
+            if (!empty($all_cats) && !is_wp_error($all_cats)) :
+            ?>
+            <li class="menu-item menu-item-has-children headshop-cats-nav__all">
+              <a href="<?= esc_url(get_permalink(wc_get_page_id('shop'))); ?>">Todas as Categorias</a>
+              <ul class="sub-menu">
+                <?php foreach ($all_cats as $cat) : ?>
+                <li class="menu-item">
+                  <a href="<?= esc_url(get_term_link($cat)); ?>"><?= esc_html($cat->name); ?></a>
+                </li>
+                <?php endforeach; ?>
+              </ul>
+            </li>
+            <?php endif; ?>
+
+            <!-- Demais itens do main-menu -->
+            <?php
+            wp_nav_menu(array(
+              'theme_location' => 'main-menu',
+              'container'      => false,
+              'items_wrap'     => '%3$s',
+              'fallback_cb'    => false,
+              'depth'          => 2,
+            ));
+            ?>
+
+          </ul>
+        </div>
+      </div><!-- Row 2 -->
+
+    </div><!-- .container -->
   </header>
 
-  <!-- Mobile Offcanvas Menu -->
-  <div class="offcanvas offcanvas-end headshop-offcanvas" tabindex="-1" id="offcanvasMenu">
-    <div class="offcanvas-header headshop-offcanvas__header">
-      <a href="<?= esc_url(home_url('/')); ?>" class="headshop-offcanvas__logo-link" data-bs-dismiss="offcanvas">
-        <?php
-        $custom_logo_id = get_theme_mod('custom_logo');
-        if ($custom_logo_id) {
-          echo wp_get_attachment_image($custom_logo_id, 'full', false, array('class' => 'headshop-offcanvas__logo'));
-        } else {
-          $fallback = get_stylesheet_directory_uri() . '/assets/img/logo.jpg';
-          echo '<img src="' . esc_url($fallback) . '" alt="' . esc_attr(get_bloginfo('name')) . '" class="headshop-offcanvas__logo" />';
-        }
-        ?>
-      </a>
-      <button type="button" class="headshop-offcanvas__close" data-bs-dismiss="offcanvas" aria-label="Fechar">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
-    <div class="offcanvas-body headshop-offcanvas__body">
+  <!-- Fullscreen Nav Overlay -->
+  <div id="navBarsOverlay" class="headshop-nav-overlay" aria-hidden="true">
+    <button id="navBarsClose" class="headshop-nav-overlay__close" aria-label="Fechar menu">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <nav class="headshop-nav-overlay__inner">
       <?php
-      wp_nav_menu(array(
-        'theme_location' => 'main-menu',
-        'container'      => false,
-        'menu_class'     => 'headshop-offcanvas__nav',
-        'fallback_cb'    => false,
-        'depth'          => 2,
+      $overlay_cats = get_terms(array(
+        'taxonomy'   => 'product_cat',
+        'hide_empty' => true,
+        'parent'     => 0,
+        'exclude'    => array(get_option('default_product_cat')),
+        'orderby'    => 'name',
+        'order'      => 'ASC',
       ));
+      if (!empty($overlay_cats) && !is_wp_error($overlay_cats)) :
       ?>
-      <div class="headshop-offcanvas__social">
-        <a href="https://wa.me/5581996366201" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" class="headshop-offcanvas__social-link">
-          <img src="<?= esc_url(get_stylesheet_directory_uri()); ?>/assets/img/whatsapp.png" alt="WhatsApp" width="36" height="36" />
-        </a>
-        <a href="https://instagram.com/indicativaheadshop2" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="headshop-offcanvas__social-link">
-          <img src="<?= esc_url(get_stylesheet_directory_uri()); ?>/assets/img/instagram.png" alt="Instagram" width="36" height="36" />
-        </a>
-      </div>
-    </div>
+      <ul class="headshop-nav-overlay__menu list-unstyled mb-0">
+        <?php foreach ($overlay_cats as $cat) :
+          $sub_cats = get_terms(array(
+            'taxonomy'   => 'product_cat',
+            'hide_empty' => true,
+            'parent'     => $cat->term_id,
+            'orderby'    => 'name',
+            'order'      => 'ASC',
+          ));
+          $has_children = !empty($sub_cats) && !is_wp_error($sub_cats);
+        ?>
+        <li class="headshop-overlay-item<?= $has_children ? ' headshop-overlay-item--has-sub' : ''; ?>">
+          <div class="headshop-overlay-item__row">
+            <a class="headshop-overlay-item__link" href="<?= esc_url(get_term_link($cat)); ?>"><?= esc_html($cat->name); ?></a>
+            <?php if ($has_children) : ?>
+            <button type="button" class="headshop-overlay-item__toggle" aria-expanded="false" aria-label="Expandir <?= esc_attr($cat->name); ?>">
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </button>
+            <?php endif; ?>
+          </div>
+          <?php if ($has_children) : ?>
+          <ul class="headshop-overlay-item__sub list-unstyled">
+            <?php foreach ($sub_cats as $sub) : ?>
+            <li>
+              <a href="<?= esc_url(get_term_link($sub)); ?>"><?= esc_html($sub->name); ?></a>
+            </li>
+            <?php endforeach; ?>
+          </ul>
+          <?php endif; ?>
+        </li>
+        <?php endforeach; ?>
+      </ul>
+      <?php endif; ?>
+    </nav>
   </div>
+
