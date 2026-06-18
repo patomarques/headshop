@@ -38,11 +38,11 @@ $products = [
 ];
 
 foreach ($products as $product_id => $keywords) {
-    $title = get_the_title($product_id);
-    if (!$title) {
+    if (!get_post($product_id)) {
         echo "SKIP: product $product_id not found\n";
         continue;
     }
+    $title = get_the_title($product_id);
 
     // loremflickr redirects to a CC-licensed Flickr photo matching the keywords
     $url = "https://loremflickr.com/800/800/$keywords";
@@ -66,8 +66,12 @@ foreach ($products as $product_id => $keywords) {
         continue;
     }
 
-    set_post_thumbnail($product_id, $attachment_id);
-    echo "OK: '$title' (ID $product_id) → attachment $attachment_id\n";
+    $result = set_post_thumbnail($product_id, $attachment_id);
+    if (!$result) {
+        echo "ERROR setting thumbnail for '$title' (ID $product_id)\n";
+    } else {
+        echo "OK: '$title' (ID $product_id) → attachment $attachment_id\n";
+    }
 }
 
 echo "\nDone.\n";
