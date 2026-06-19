@@ -38,18 +38,41 @@ document.addEventListener('DOMContentLoaded', function () {
         var next  = carousel.querySelector('.headshop-products-carousel__btn--next');
         if (!track) return;
 
+        // Clone all items to enable seamless infinite loop
+        Array.from(track.children).forEach(function (item) {
+            track.appendChild(item.cloneNode(true));
+        });
+
         function cardWidth() {
             var card = track.firstElementChild;
             return card ? card.offsetWidth + 24 : track.offsetWidth * 0.8;
         }
 
+        // Instant position jump without animation (used for loop reset)
+        function jump(newLeft) {
+            track.style.scrollSnapType = 'none';
+            track.style.scrollBehavior = 'auto';
+            track.scrollLeft = newLeft;
+            requestAnimationFrame(function () {
+                track.style.scrollBehavior = '';
+                track.style.scrollSnapType = '';
+            });
+        }
+
+        // After smooth scroll settles, reset to equivalent position in originals if in clone zone
+        var scrollTimer;
+        track.addEventListener('scroll', function () {
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(function () {
+                var half = track.scrollWidth / 2;
+                if (track.scrollLeft >= half) {
+                    jump(track.scrollLeft - half);
+                }
+            }, 50);
+        });
+
         function advance() {
-            var maxScroll = track.scrollWidth - track.clientWidth;
-            if (track.scrollLeft >= maxScroll - 1) {
-                track.scrollTo({ left: 0, behavior: 'smooth' });
-            } else {
-                track.scrollBy({ left: cardWidth(), behavior: 'smooth' });
-            }
+            track.scrollBy({ left: cardWidth(), behavior: 'smooth' });
         }
 
         var timer = setInterval(advance, 2000);
@@ -58,8 +81,13 @@ document.addEventListener('DOMContentLoaded', function () {
         carousel.addEventListener('mouseleave', function () { timer = setInterval(advance, 2000); });
 
         if (prev) prev.addEventListener('click', function () {
+            // Near the start — jump to clone zone first so backward scroll loops seamlessly
+            if (track.scrollLeft < cardWidth()) {
+                jump(track.scrollLeft + track.scrollWidth / 2);
+            }
             track.scrollBy({ left: -cardWidth(), behavior: 'smooth' });
         });
+
         if (next) next.addEventListener('click', function () {
             track.scrollBy({ left: cardWidth(), behavior: 'smooth' });
         });
