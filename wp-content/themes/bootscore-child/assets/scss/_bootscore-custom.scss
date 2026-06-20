@@ -1155,6 +1155,10 @@ body.search-overlay-open {
   overflow: hidden;
   background: #000;
 
+  @media (max-width: 768px) {
+    height: 90vh;
+  }
+
   .carousel-inner,
   .carousel-item {
     height: 100%;
