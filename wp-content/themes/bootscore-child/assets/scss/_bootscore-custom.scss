@@ -1155,10 +1155,6 @@ body.search-overlay-open {
   overflow: hidden;
   background: #000;
 
-  @media (max-width: 768px) {
-    height: 90vh;
-  }
-
   .carousel-inner,
   .carousel-item {
     height: 100%;
@@ -1227,7 +1223,8 @@ body.search-overlay-open {
   }
 
   @media (max-width: 768px) {
-    height: 50vh;
+    height: 90vh;
+    height: 90svh;
 
     &__nav-icon {
       font-size: 2rem;
@@ -1235,7 +1232,8 @@ body.search-overlay-open {
   }
 
   @media (max-width: 480px) {
-    height: 40vh;
+    height: 90vh;
+    height: 90svh;
 
     &__nav-icon {
       font-size: 1.5rem;
