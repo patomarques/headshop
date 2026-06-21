@@ -46,7 +46,7 @@ function headshop_enqueue_assets() {
     // Compiled child main.css (Bootstrap + custom SCSS)
     $css_path = get_stylesheet_directory() . '/assets/css/main.css';
     $css_ver  = file_exists($css_path) ? date('YmdHi', filemtime($css_path)) : null;
-    wp_enqueue_style('headshop-main', get_stylesheet_directory_uri() . '/assets/css/main.css', array('parent-style'), $css_ver);
+    wp_enqueue_style('headshop-main', get_stylesheet_directory_uri() . '/assets/css/main.css', array('parent-style', 'headshop-google-fonts'), $css_ver);
 
     // Dashicons (for cart icons)
     wp_enqueue_style('dashicons');
