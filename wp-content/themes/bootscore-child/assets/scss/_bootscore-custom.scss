@@ -1483,19 +1483,31 @@ body.search-overlay-open {
   bottom: 28px !important;
   right: 28px !important;
   z-index: 990;
-  color: rgba(#fff, 0.45) !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border: 2px solid #c9a84c;
+  background: #fff;
+  color: #c9a84c !important;
   text-decoration: none !important;
-  transition: color 0.2s ease, transform 0.2s ease;
+  transform: rotate(45deg);
+  transition: background 0.2s ease, transform 0.2s ease;
 
   &:hover {
-    color: $color-primary !important;
-    transform: scale(1.15);
+    background: #c9a84c;
+    color: #fff !important;
+    transform: rotate(45deg) scale(1.1);
   }
 
   span {
+    display: block;
+    transform: rotate(-45deg);
     font-weight: 700;
-    font-size: 1rem !important;
+    font-size: 0.8rem !important;
     line-height: 1;
+    letter-spacing: -0.5px;
   }
 }
 
