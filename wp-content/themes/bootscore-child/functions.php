@@ -24,10 +24,24 @@ if (!defined('BOOTSCORE_SCSS_DISABLE_COMPILER')) {
 }
 add_filter('bootscore/scss/disable_compiler', '__return_true');
 
+// Google Fonts preconnect hints
+add_action('wp_head', function () {
+    echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
+    echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
+}, 1);
+
 add_action('wp_enqueue_scripts', 'headshop_enqueue_assets');
 function headshop_enqueue_assets() {
     // Parent style
     wp_enqueue_style('parent-style', get_template_directory_uri() . '/style.css');
+
+    // Google Fonts — Syne display
+    wp_enqueue_style(
+        'headshop-google-fonts',
+        'https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap',
+        array(),
+        null
+    );
 
     // Compiled child main.css (Bootstrap + custom SCSS)
     $css_path = get_stylesheet_directory() . '/assets/css/main.css';
@@ -53,7 +67,17 @@ function headshop_enqueue_assets() {
 
 
 /* =====================================================================
-   2. HIDE ADMIN BAR ON FRONT PAGE
+   2. REGISTER ADDITIONAL NAV MENUS
+   ===================================================================== */
+
+add_action('after_setup_theme', 'headshop_register_nav_menus');
+function headshop_register_nav_menus() {
+    register_nav_menu('menu-bars', 'Menu Bars (fullscreen overlay)');
+}
+
+
+/* =====================================================================
+   3. HIDE ADMIN BAR ON FRONT PAGE
    ===================================================================== */
 
 // Oculta a admin bar na parte pública para usuários logados (exceto admin)
@@ -121,6 +145,107 @@ function headshop_register_banner_cpt() {
 
 
 /* =====================================================================
+   5a. BANNER — METABOX IMAGEM MOBILE
+   ===================================================================== */
+
+add_action('add_meta_boxes', function () {
+    add_meta_box(
+        'banner_mobile_image',
+        'Imagem Mobile',
+        'headshop_banner_mobile_metabox',
+        'banner',
+        'side',
+        'default'
+    );
+});
+
+function headshop_banner_mobile_metabox($post) {
+    $mobile_id  = (int) get_post_meta($post->ID, '_banner_mobile_image', true);
+    $mobile_url = $mobile_id ? wp_get_attachment_image_url($mobile_id, 'medium') : '';
+    wp_nonce_field('headshop_banner_mobile_nonce', 'headshop_banner_mobile_nonce');
+    ?>
+    <div id="headshop-mobile-wrap">
+      <?php if ($mobile_url) : ?>
+        <img id="headshop-mobile-preview" src="<?= esc_url($mobile_url); ?>"
+             style="max-width:100%;height:auto;display:block;margin-bottom:8px;" />
+      <?php else : ?>
+        <img id="headshop-mobile-preview" src="" style="max-width:100%;height:auto;display:none;margin-bottom:8px;" />
+      <?php endif; ?>
+      <input type="hidden" id="headshop_banner_mobile_id" name="headshop_banner_mobile_id"
+             value="<?= esc_attr($mobile_id ?: ''); ?>" />
+      <button type="button" id="headshop-mobile-select" class="button button-secondary" style="width:100%;">
+        <?= $mobile_id ? 'Trocar imagem mobile' : 'Selecionar imagem mobile'; ?>
+      </button>
+      <button type="button" id="headshop-mobile-remove" class="button"
+              style="width:100%;margin-top:4px;color:#b32d2e;<?= $mobile_id ? '' : 'display:none;'; ?>">
+        Remover
+      </button>
+      <p class="description" style="margin-top:8px;font-size:11px;">
+        Se não definida, usa a imagem desktop.
+      </p>
+    </div>
+    <script>
+    jQuery(function ($) {
+        var frame;
+        var $preview = $('#headshop-mobile-preview');
+        var $input   = $('#headshop_banner_mobile_id');
+        var $select  = $('#headshop-mobile-select');
+        var $remove  = $('#headshop-mobile-remove');
+
+        $select.on('click', function () {
+            if (frame) { frame.open(); return; }
+            frame = wp.media({
+                title: 'Selecionar imagem mobile',
+                multiple: false,
+                library: { type: 'image' },
+                button:  { text: 'Usar esta imagem' }
+            });
+            frame.on('select', function () {
+                var att = frame.state().get('selection').first().toJSON();
+                $input.val(att.id);
+                $preview.attr('src', att.url).show();
+                $select.text('Trocar imagem mobile');
+                $remove.show();
+            });
+            frame.open();
+        });
+
+        $remove.on('click', function () {
+            $input.val('');
+            $preview.attr('src', '').hide();
+            $select.text('Selecionar imagem mobile');
+            $remove.hide();
+        });
+    });
+    </script>
+    <?php
+}
+
+add_action('save_post_banner', function ($post_id) {
+    if (!isset($_POST['headshop_banner_mobile_nonce'])) return;
+    if (!wp_verify_nonce($_POST['headshop_banner_mobile_nonce'], 'headshop_banner_mobile_nonce')) return;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_post', $post_id)) return;
+
+    $img_id = absint($_POST['headshop_banner_mobile_id'] ?? 0);
+    if ($img_id) {
+        update_post_meta($post_id, '_banner_mobile_image', $img_id);
+    } else {
+        delete_post_meta($post_id, '_banner_mobile_image');
+    }
+});
+
+// Enqueue wp.media no admin do banner
+add_action('admin_enqueue_scripts', function ($hook) {
+    global $post;
+    if (($hook === 'post-new.php' || $hook === 'post.php') &&
+        isset($post) && $post->post_type === 'banner') {
+        wp_enqueue_media();
+    }
+});
+
+
+/* =====================================================================
    5. BANNER SLIDER (Bootstrap Carousel)
    ===================================================================== */
 
@@ -140,11 +265,14 @@ function headshop_banner_slider() {
     $slides = array();
     while ($banners->have_posts()) {
         $banners->the_post();
-        $img_id  = get_post_thumbnail_id();
-        $img_url = $img_id ? wp_get_attachment_image_url($img_id, 'full') : '';
-        if ($img_url) {
-            $slides[] = $img_url;
-        }
+        $desktop_id  = get_post_thumbnail_id();
+        $desktop_url = $desktop_id ? wp_get_attachment_image_url($desktop_id, 'full') : '';
+        if (!$desktop_url) continue;
+
+        $mobile_id  = (int) get_post_meta(get_the_ID(), '_banner_mobile_image', true);
+        $mobile_url = $mobile_id ? wp_get_attachment_image_url($mobile_id, 'full') : $desktop_url;
+
+        $slides[] = array('desktop' => $desktop_url, 'mobile' => $mobile_url);
     }
     wp_reset_postdata();
 
@@ -153,16 +281,17 @@ function headshop_banner_slider() {
     <div id="bannerCarousel" class="carousel slide headshop-banner" data-bs-ride="carousel" data-bs-interval="5000">
       <!-- Indicators -->
       <div class="carousel-indicators">
-        <?php foreach ($slides as $i => $url) : ?>
+        <?php foreach ($slides as $i => $slide) : ?>
           <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="<?= $i; ?>"<?php if ($i === 0) echo ' class="active" aria-current="true"'; ?> aria-label="Slide <?= $i + 1; ?>"></button>
         <?php endforeach; ?>
       </div>
 
       <!-- Slides -->
       <div class="carousel-inner h-100">
-        <?php foreach ($slides as $i => $url) : ?>
+        <?php foreach ($slides as $i => $slide) : ?>
           <div class="carousel-item h-100<?php if ($i === 0) echo ' active'; ?>">
-            <div class="headshop-banner__slide" style="background-image: url('<?= esc_url($url); ?>');"></div>
+            <div class="headshop-banner__slide"
+                 style="--img-desktop:url('<?= esc_url($slide['desktop']); ?>');--img-mobile:url('<?= esc_url($slide['mobile']); ?>');"></div>
           </div>
         <?php endforeach; ?>
       </div>
@@ -701,7 +830,144 @@ function headshop_new_products() {
 
 
 /* =====================================================================
-   12. HIDE HOMEPAGE TITLE
+   12. IMPORTAR IMAGENS DE PRODUTOS (admin tool)
+   ===================================================================== */
+
+add_action('admin_menu', 'headshop_register_image_import_page');
+function headshop_register_image_import_page() {
+    add_submenu_page(
+        'woocommerce',
+        'Importar Imagens de Produtos',
+        'Importar Imagens',
+        'manage_woocommerce',
+        'headshop-import-images',
+        'headshop_image_import_page'
+    );
+}
+
+function headshop_image_import_page() {
+    if (!current_user_can('manage_woocommerce')) return;
+
+    require_once ABSPATH . 'wp-admin/includes/media.php';
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+
+    $results = array();
+
+    if (
+        isset($_POST['headshop_import_nonce']) &&
+        wp_verify_nonce($_POST['headshop_import_nonce'], 'headshop_import_images') &&
+        !empty($_POST['headshop_image_list'])
+    ) {
+        $lines = explode("\n", sanitize_textarea_field(wp_unslash($_POST['headshop_image_list'])));
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line) || strpos($line, '#') === 0) continue;
+
+            $parts = preg_split('/[\|,;\t]+/', $line, 2);
+            if (count($parts) < 2) {
+                $results[] = array('line' => $line, 'status' => 'error', 'msg' => 'Formato inválido — use: sku_ou_id|url');
+                continue;
+            }
+
+            $identifier = trim($parts[0]);
+            $img_url    = trim($parts[1]);
+
+            if (empty($identifier) || empty($img_url)) {
+                $results[] = array('line' => $line, 'status' => 'error', 'msg' => 'Identificador ou URL vazio');
+                continue;
+            }
+
+            // Resolve product
+            if (is_numeric($identifier)) {
+                $post = get_post(intval($identifier));
+                $product_id = ($post && $post->post_type === 'product') ? $post->ID : 0;
+            } else {
+                $product_id = wc_get_product_id_by_sku($identifier);
+            }
+
+            if (!$product_id) {
+                $results[] = array('line' => $identifier, 'status' => 'error', 'msg' => 'Produto não encontrado');
+                continue;
+            }
+
+            // Skip if already has image and overwrite not checked
+            if (empty($_POST['headshop_overwrite']) && has_post_thumbnail($product_id)) {
+                $results[] = array('line' => $identifier, 'status' => 'skip', 'msg' => 'Já possui imagem (ignorado)');
+                continue;
+            }
+
+            // Download and attach image
+            $attachment_id = media_sideload_image($img_url, $product_id, null, 'id');
+
+            if (is_wp_error($attachment_id)) {
+                $results[] = array('line' => $identifier, 'status' => 'error', 'msg' => $attachment_id->get_error_message());
+                continue;
+            }
+
+            set_post_thumbnail($product_id, $attachment_id);
+            $product_name = get_the_title($product_id);
+            $results[] = array('line' => $identifier, 'status' => 'ok', 'msg' => 'OK — ' . esc_html($product_name));
+        }
+    }
+    ?>
+    <div class="wrap">
+        <h1>Importar Imagens de Produtos</h1>
+        <p>Cole abaixo uma linha por produto no formato <code>sku_ou_id|url_da_imagem</code>. Linhas começando com <code>#</code> são ignoradas.</p>
+
+        <?php if (!empty($results)) : ?>
+        <div style="background:#f9f9f9;border:1px solid #ddd;border-radius:6px;padding:16px;margin-bottom:20px;max-height:300px;overflow-y:auto;">
+            <strong>Resultados:</strong>
+            <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+                <thead><tr style="background:#e8e8e8;">
+                    <th style="text-align:left;padding:6px 10px;">Produto</th>
+                    <th style="text-align:left;padding:6px 10px;">Status</th>
+                    <th style="text-align:left;padding:6px 10px;">Mensagem</th>
+                </tr></thead>
+                <tbody>
+                <?php foreach ($results as $r) :
+                    $color = $r['status'] === 'ok' ? '#4caf50' : ($r['status'] === 'skip' ? '#ff9800' : '#f44336');
+                ?>
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:6px 10px;"><?= esc_html($r['line']); ?></td>
+                    <td style="padding:6px 10px;color:<?= $color; ?>;font-weight:bold;"><?= esc_html(strtoupper($r['status'])); ?></td>
+                    <td style="padding:6px 10px;"><?= esc_html($r['msg']); ?></td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
+
+        <form method="post">
+            <?php wp_nonce_field('headshop_import_images', 'headshop_import_nonce'); ?>
+            <table class="form-table">
+                <tr>
+                    <th><label for="headshop_image_list">Lista de imagens</label></th>
+                    <td>
+                        <textarea id="headshop_image_list" name="headshop_image_list" rows="20" cols="80" class="large-text code"
+                            placeholder="# Exemplo:&#10;meu-sku-001|https://site.com/imagem1.jpg&#10;123|https://site.com/imagem2.png"><?= isset($_POST['headshop_image_list']) ? esc_textarea(wp_unslash($_POST['headshop_image_list'])) : ''; ?></textarea>
+                        <p class="description">Separadores aceitos: <code>|</code> (pipe), <code>,</code> (vírgula), <code>;</code> (ponto e vírgula) ou TAB.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="headshop_overwrite">Substituir imagem existente</label></th>
+                    <td>
+                        <input type="checkbox" id="headshop_overwrite" name="headshop_overwrite" value="1" />
+                        <label for="headshop_overwrite">Sobrescrever produtos que já possuem imagem</label>
+                    </td>
+                </tr>
+            </table>
+            <?php submit_button('Importar Imagens', 'primary large'); ?>
+        </form>
+    </div>
+    <?php
+}
+
+
+/* =====================================================================
+   13. HIDE HOMEPAGE TITLE
    ===================================================================== */
 
 add_filter('the_title', function ($title, $post_id) {
