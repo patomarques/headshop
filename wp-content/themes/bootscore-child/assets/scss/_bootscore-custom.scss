@@ -1350,15 +1350,12 @@ body.search-overlay-open {
   @media (max-width: 768px) {
     &__grid {
       grid-template-columns: 1fr;
-      grid-template-rows: repeat(5, 200px);
+      grid-template-rows: auto;
       gap: 15px;
     }
 
-    &__card:first-child,
-    &__card:nth-child(2),
-    &__card:nth-child(3),
-    &__card:nth-child(4),
-    &__card:nth-child(5) {
+    &__card {
+      aspect-ratio: 1 / 1;
       grid-column: 1 / 2;
       grid-row: auto;
     }
