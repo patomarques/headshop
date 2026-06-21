@@ -1711,27 +1711,12 @@ body.search-overlay-open {
    ===================================================================== */
 
 .headshop-sale-products {
-  background: $section-light-bg;
+  background: #fafaf8;
 
-  &__title {
-    font-size: 2rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: $color-dark;
-    position: relative;
-    padding-bottom: 15px;
-
-    &::after {
-      content: '';
-      display: block;
-      width: 60px;
-      height: 3px;
-      background: $sale-badge-bg;
-      margin: 12px auto 0;
-      border-radius: 2px;
-    }
-  }
+  // Cores do título section-title para esta seção
+  .headshop-section-title__eyebrow { color: $sale-badge-bg; }
+  .headshop-section-title__text    { color: $color-dark; }
+  .headshop-section-title__rule    { background: $color-dark; }
 
   &__grid {
     display: grid;
@@ -1844,10 +1829,6 @@ body.search-overlay-open {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
-
-  .headshop-sale-products__title {
-    font-size: 1.5rem;
-  }
 }
 
 @media (max-width: 480px) {
@@ -1871,27 +1852,13 @@ body.search-overlay-open {
    ===================================================================== */
 
 .headshop-new-products {
-  background: #fff;
+  background: $color-dark;
+  color: rgba(255, 255, 255, 0.85);
 
-  &__title {
-    font-size: 2rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: $color-dark;
-    position: relative;
-    padding-bottom: 15px;
-
-    &::after {
-      content: '';
-      display: block;
-      width: 60px;
-      height: 3px;
-      background: $color-secondary;
-      margin: 12px auto 0;
-      border-radius: 2px;
-    }
-  }
+  // Cores do título
+  .headshop-section-title__eyebrow { color: rgba(255, 255, 255, 0.45); }
+  .headshop-section-title__text    { color: $color-primary; }
+  .headshop-section-title__rule    { background: rgba(255, 255, 198, 0.3); }
 
   &__grid {
     display: grid;
@@ -1989,6 +1956,43 @@ body.search-overlay-open {
 
   &__btn {
     @extend %ver-todos-btn-secondary;
+    color: $color-primary;
+    border-color: $color-primary;
+
+    &:hover {
+      background: $color-primary;
+      color: $color-dark;
+      box-shadow: 0 6px 18px rgba($color-primary, 0.3);
+    }
+  }
+
+  // Cards adaptados ao fundo escuro
+  &__card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.85);
+    box-shadow: none;
+
+    &:hover {
+      box-shadow: 0 8px 24px rgba($color-primary, 0.15);
+      color: rgba(255, 255, 255, 0.85);
+    }
+  }
+
+  &__image-wrap { background: rgba(255, 255, 255, 0.04); }
+  &__name       { color: rgba(255, 255, 255, 0.8); }
+  &__price      { color: $color-primary; }
+
+  // Botões do carousel no fundo escuro
+  .headshop-products-carousel__btn {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+
+    &:hover {
+      background: $color-primary;
+      color: $color-dark;
+    }
   }
 }
 
@@ -2003,10 +2007,6 @@ body.search-overlay-open {
   .headshop-new-products__grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
-  }
-
-  .headshop-new-products__title {
-    font-size: 1.5rem;
   }
 }
 
@@ -2112,4 +2112,56 @@ body.front-page .entry-title {
 // Ensure no overflow
 html {
   overflow-x: hidden;
+}
+
+
+/* =====================================================================
+   SECTION TITLE — Editorial Urbano
+   ===================================================================== */
+
+.headshop-section-title {
+  margin-bottom: 28px;
+
+  &__eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  &__row {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+  }
+
+  &__text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  &__rule {
+    flex: 1;
+    height: 1.5px;
+    background: currentColor;
+    opacity: 0.25;
+    margin-bottom: 7px;
+  }
+}
+
+@media (max-width: 768px) {
+  .headshop-section-title {
+    &__text {
+      font-size: 1.6rem;
+    }
+  }
 }
