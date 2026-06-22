@@ -1,7 +1,7 @@
 <?php
 /**
- * Custom footer for Headshop — bootscore child
- * Layout: 3 columns — About | Links | Social
+ * Custom footer for Headshop — Editorial Urbano redesign
+ * Layout: horizontal — Brand | Info groups | Social chips | Bottom bar
  *
  * @package Bootscore Child
  */
@@ -12,55 +12,78 @@ defined('ABSPATH') || exit;
 <?php do_action('bootscore_before_footer'); ?>
 
 <footer id="footer" class="headshop-footer">
-  <div class="container py-5">
-    <div class="row g-5">
+  <div class="headshop-footer__top-rule"></div>
 
-      <!-- About -->
-      <div class="col-12 col-md-5">
-        <p class="headshop-footer__col-title">Sobre</p>
-        <p class="headshop-footer__brand"><?php bloginfo('name'); ?></p>
-        <p class="headshop-footer__note">7 anos de loja</p>
-        <ul class="list-unstyled headshop-footer__contact mb-0">
-          <li>Delivery grátis à partir de R$20 (até 5km)</li>
-          <li>Func.: Seg. à Sex. 9:30 às 19hs / Sáb. 9:30 às 16hs</li>
-          <li>Telefone: <a href="tel:+5581996366201">(81) 99636-6201</a></li>
-          <li>Endereço: Rua Tupy, 147 — Salgado, Caruaru — 55016-080</li>
-        </ul>
+  <div class="container" style="max-width:1400px;">
+    <div class="headshop-footer__main">
+
+      <!-- Brand -->
+      <div class="headshop-footer__brand-col">
+        <div class="headshop-footer__brand-name"><?php bloginfo('name'); ?></div>
+        <div class="headshop-footer__brand-sub">Caruaru &middot; 7 anos</div>
       </div>
 
-      <!-- Links -->
-      <div class="col-6 col-md-3">
-        <p class="headshop-footer__col-title">Links</p>
-        <ul class="list-unstyled headshop-footer__menu mb-0">
-          <li><a href="<?= esc_url(site_url('/sobre')); ?>">Sobre</a></li>
-          <li><a href="<?= esc_url(get_privacy_policy_url()); ?>">Política de Privacidade</a></li>
-          <li><a href="<?= esc_url(site_url('/entrega-segura')); ?>">Entrega Segura</a></li>
-        </ul>
-      </div>
-
-      <!-- Social -->
-      <div class="col-6 col-md-4">
-        <p class="headshop-footer__col-title">Redes Sociais</p>
-        <div class="d-flex headshop-footer__social">
-          <a href="https://wa.me/5581996366201" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" class="headshop-footer__social-link">
-            <img src="<?= esc_url(get_stylesheet_directory_uri()); ?>/assets/img/whatsapp.png" alt="WhatsApp" width="40" height="40" />
-          </a>
-          <a href="https://instagram.com/indicativaheadshop2" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="headshop-footer__social-link">
-            <img src="<?= esc_url(get_stylesheet_directory_uri()); ?>/assets/img/instagram.png" alt="Instagram" width="40" height="40" />
-          </a>
+      <!-- Info groups -->
+      <div class="headshop-footer__info-cols">
+        <div class="headshop-footer__info-group">
+          <div class="headshop-footer__info-title">Horário</div>
+          <span class="headshop-footer__info-line">Seg&ndash;Sex 9:30&ndash;19h</span>
+          <span class="headshop-footer__info-line">Sáb 9:30&ndash;16h</span>
+        </div>
+        <div class="headshop-footer__info-group">
+          <div class="headshop-footer__info-title">Endereço</div>
+          <span class="headshop-footer__info-line">Rua Tupy, 147 &mdash; Salgado</span>
+          <span class="headshop-footer__info-line">Caruaru &mdash; PE &middot; 55016-080</span>
+          <span class="headshop-footer__info-line">
+            <a href="tel:+5581996366201">(81) 99636-6201</a>
+          </span>
+          <span class="headshop-footer__info-line">Delivery grátis a partir de R$20 (até 5km)</span>
+        </div>
+        <div class="headshop-footer__info-group">
+          <div class="headshop-footer__info-title">Links</div>
+          <span class="headshop-footer__info-line"><a href="<?= esc_url(site_url('/sobre')); ?>">Sobre</a></span>
+          <span class="headshop-footer__info-line"><a href="<?= esc_url(get_privacy_policy_url()); ?>">Política de Privacidade</a></span>
+          <span class="headshop-footer__info-line"><a href="<?= esc_url(site_url('/entrega-segura')); ?>">Entrega Segura</a></span>
         </div>
       </div>
 
-    </div><!-- .row -->
+      <!-- Social chips -->
+      <div class="headshop-footer__social-col">
+        <span class="headshop-footer__social-label">Redes</span>
+        <a href="https://wa.me/5581996366201"
+           target="_blank" rel="noopener noreferrer"
+           class="headshop-footer__social-chip headshop-footer__social-chip--whatsapp"
+           aria-label="WhatsApp">
+          <img src="<?= esc_url(get_stylesheet_directory_uri()); ?>/assets/img/whatsapp.png" alt="" width="16" height="16" />
+          WhatsApp
+        </a>
+        <a href="https://instagram.com/indicativaheadshop2"
+           target="_blank" rel="noopener noreferrer"
+           class="headshop-footer__social-chip headshop-footer__social-chip--instagram"
+           aria-label="Instagram">
+          <img src="<?= esc_url(get_stylesheet_directory_uri()); ?>/assets/img/instagram.png" alt="" width="16" height="16" />
+          Instagram
+        </a>
+      </div>
+
+    </div><!-- .headshop-footer__main -->
   </div><!-- .container -->
 
-  <div class="container">
-    <div class="text-center py-3 border-top" style="border-color: rgba(84,134,135,0.25) !important;">
-      <p class="headshop-footer__legal mb-0">
-        <a href="/" class="headshop-footer__legal-link">Indicativa Headshop</a> &copy; <?= date('Y'); ?>
-      </p>
+  <!-- Bottom bar -->
+  <div class="headshop-footer__bar">
+    <div class="container headshop-footer__bar-inner" style="max-width:1400px;">
+      <span class="headshop-footer__bar-text">
+        <a href="/" class="headshop-footer__bar-link">Indicativa Headshop</a>
+        &copy; <?= date('Y'); ?>
+      </span>
+      <span class="headshop-footer__bar-text">
+        <a href="<?= esc_url(get_privacy_policy_url()); ?>" class="headshop-footer__bar-link">Política</a>
+        &nbsp;&middot;&nbsp;
+        <a href="<?= esc_url(site_url('/entrega-segura')); ?>" class="headshop-footer__bar-link">Entrega</a>
+      </span>
     </div>
   </div>
+
 </footer>
 
 <!-- Floating dev signature -->
