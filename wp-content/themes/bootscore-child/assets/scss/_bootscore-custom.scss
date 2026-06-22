@@ -1371,109 +1371,180 @@ body.search-overlay-open {
    ===================================================================== */
 
 .headshop-footer {
-  background: $footer-bg;
-  color: $footer-text;
-  font-size: 1.1rem;
-  border-top: 3px solid $dark-cyan;
+  background: #fafaf8;
+  color: $color-dark;
+  font-size: 1rem;
+  border-top: none;
 
   a {
     color: inherit;
     text-decoration: none;
 
-    &:hover {
-      color: $color-primary;
-    }
+    &:hover { color: $color-primary; }
   }
 
-  &__col-title {
-    font-size: 0.85rem;
-    font-weight: 700;
+  &__top-rule {
+    height: 3px;
+    background: $color-dark;
+  }
+
+  &__main {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 48px;
+    align-items: start;
+    padding: 36px 0;
+  }
+
+  &__brand-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    color: $color-dark;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: $sandy-brown;
-    margin-bottom: 1.1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid rgba($dark-cyan, 0.35);
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin-bottom: 6px;
   }
 
-  &__brand {
-    font-size: 1.5rem;
+  &__brand-sub {
+    font-size: 0.6rem;
     font-weight: 700;
-    color: #fff;
-    margin-bottom: 0.2rem;
-  }
-
-  &__note {
-    font-size: 1rem;
-    color: #fff;
-    margin-bottom: 1.1rem;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    color: $color-primary;
   }
 
-  &__contact {
-    li {
-      margin-bottom: 0.55rem;
-      line-height: 1.6;
-      font-size: 1.1rem;
-      color: #fff;
-    }
+  &__info-cols {
+    display: flex;
+    gap: 40px;
+    padding-top: 4px;
+    flex-wrap: wrap;
   }
 
-  &__menu {
-    li {
-      margin-bottom: 0.65rem;
-    }
+  &__info-title {
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: $color-dark;
+    opacity: 0.4;
+    margin-bottom: 8px;
+  }
+
+  &__info-line {
+    display: block;
+    font-size: 0.7rem;
+    color: $text-muted;
+    margin-bottom: 4px;
+    line-height: 1.5;
 
     a {
-      font-size: 1.1rem;
-      transition: color 0.2s;
+      color: inherit;
+
+      &:hover { color: $color-primary; }
     }
   }
 
-  &__social {
-    gap: 14px !important;
+  &__social-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    padding-top: 4px;
   }
 
-  &__social-link {
+  &__social-label {
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: $color-dark;
+    opacity: 0.35;
+  }
+
+  &__social-chip {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-
-    &:hover {
-      transform: scale(1.12);
-      opacity: 0.8;
-    }
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    transition: opacity 0.2s;
 
     img {
-      display: block;
+      width: 16px;
+      height: 16px;
       object-fit: contain;
-      filter: brightness(0) invert(1);
     }
 
-    &[aria-label="WhatsApp"] img {
-      width: 52px;
-      height: 52px;
+    &--whatsapp {
+      background: $color-dark;
+      color: #fff;
+
+      img { filter: brightness(0) invert(1); }
+
+      &:hover { color: #fff; opacity: 0.8; }
     }
 
-    &[aria-label="Instagram"] img {
-      width: 40px;
-      height: 40px;
+    &--instagram {
+      background: transparent;
+      color: $color-dark;
+      border: 1.5px solid $color-dark;
+
+      img { filter: brightness(0); }
+
+      &:hover { color: $color-dark; opacity: 0.7; }
     }
   }
 
-  &__legal {
-    font-size: 0.85rem;
-    color: #fff;
+  &__bar {
+    background: $color-dark;
+    padding: 10px 0;
   }
 
-  &__legal-link {
+  &__bar-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__bar-text {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: 0.06em;
+  }
+
+  &__bar-link {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.25);
     text-decoration: none !important;
-    color: #fff !important;
 
-    &:hover {
-      color: $color-primary !important;
+    &:hover { color: rgba(255, 255, 255, 0.55); }
+  }
+}
+
+@media (max-width: 768px) {
+  .headshop-footer {
+    &__main {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      padding: 28px 0;
+    }
+
+    &__social-col {
+      align-items: flex-start;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    &__info-cols {
+      flex-direction: column;
+      gap: 20px;
     }
   }
 }
