@@ -731,7 +731,13 @@ function headshop_sale_products() {
     ?>
     <section class="headshop-sale-products py-5">
       <div class="container" style="max-width:1400px;">
-        <h2 class="headshop-sale-products__title text-center mb-4">PRODUTOS EM OFERTA</h2>
+        <div class="headshop-section-title">
+          <span class="headshop-section-title__eyebrow">— Destaques da semana</span>
+          <div class="headshop-section-title__row">
+            <h2 class="headshop-section-title__text">EM OFERTA</h2>
+            <div class="headshop-section-title__rule"></div>
+          </div>
+        </div>
         <div class="headshop-products-carousel">
           <button class="headshop-products-carousel__btn headshop-products-carousel__btn--prev" aria-label="Anterior">&#8592;</button>
           <div class="headshop-sale-products__grid headshop-products-carousel__track">
@@ -794,7 +800,13 @@ function headshop_new_products() {
     ?>
     <section class="headshop-new-products py-5">
       <div class="container" style="max-width:1400px;">
-        <h2 class="headshop-new-products__title text-center mb-4">PRODUTOS NOVOS</h2>
+        <div class="headshop-section-title">
+          <span class="headshop-section-title__eyebrow">— Acabou de chegar</span>
+          <div class="headshop-section-title__row">
+            <h2 class="headshop-section-title__text">NOVIDADES</h2>
+            <div class="headshop-section-title__rule"></div>
+          </div>
+        </div>
         <div class="headshop-products-carousel">
           <button class="headshop-products-carousel__btn headshop-products-carousel__btn--prev" aria-label="Anterior">&#8592;</button>
           <div class="headshop-new-products__grid headshop-products-carousel__track">
