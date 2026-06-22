@@ -1371,7 +1371,7 @@ body.search-overlay-open {
    ===================================================================== */
 
 .headshop-footer {
-  background: #fafaf8;
+  background: $section-light-bg;
   color: $color-dark;
   font-size: 1rem;
   border-top: none;
@@ -1782,7 +1782,7 @@ body.search-overlay-open {
    ===================================================================== */
 
 .headshop-sale-products {
-  background: #fafaf8;
+  background: $section-light-bg;
 
   // Cores do título section-title para esta seção
   .headshop-section-title__eyebrow { color: $sale-badge-bg; }
@@ -1929,7 +1929,7 @@ body.search-overlay-open {
   // Cores do título
   .headshop-section-title__eyebrow { color: rgba(255, 255, 255, 0.45); }
   .headshop-section-title__text    { color: $color-primary; }
-  .headshop-section-title__rule    { background: rgba(255, 255, 198, 0.3); }
+  .headshop-section-title__rule    { background: rgba(255, 255, 198, 0.3); opacity: 1; }
 
   &__grid {
     display: grid;
