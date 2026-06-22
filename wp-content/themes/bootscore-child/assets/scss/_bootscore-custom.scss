@@ -1716,7 +1716,7 @@ body.search-overlay-open {
   // Cores do título section-title para esta seção
   .headshop-section-title__eyebrow { color: $sale-badge-bg; }
   .headshop-section-title__text    { color: $color-dark; }
-  .headshop-section-title__rule    { background: $color-dark; }
+  .headshop-section-title__rule    { background: $color-dark; opacity: 0.4; }
 
   &__grid {
     display: grid;
@@ -1869,20 +1869,21 @@ body.search-overlay-open {
   &__card {
     display: flex;
     flex-direction: column;
-    background: $header-bg;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     overflow: hidden;
     text-decoration: none;
-    color: $color-dark;
+    color: rgba(255, 255, 255, 0.85);
     position: relative;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: none;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
       transform: translateY(-6px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 8px 24px rgba($color-primary, 0.15);
       text-decoration: none;
-      color: $color-dark;
+      color: rgba(255, 255, 255, 0.85);
     }
   }
 
@@ -1955,7 +1956,7 @@ body.search-overlay-open {
   }
 
   &__btn {
-    @extend %ver-todos-btn-secondary;
+    @extend %ver-todos-btn;
     color: $color-primary;
     border-color: $color-primary;
 
@@ -1963,19 +1964,6 @@ body.search-overlay-open {
       background: $color-primary;
       color: $color-dark;
       box-shadow: 0 6px 18px rgba($color-primary, 0.3);
-    }
-  }
-
-  // Cards adaptados ao fundo escuro
-  &__card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.85);
-    box-shadow: none;
-
-    &:hover {
-      box-shadow: 0 8px 24px rgba($color-primary, 0.15);
-      color: rgba(255, 255, 255, 0.85);
     }
   }
 
