@@ -1,7 +1,7 @@
 <?php
 /**
  * Custom footer for Headshop — Editorial Urbano redesign
- * Layout: horizontal — Brand | Info groups | Social chips | Bottom bar
+ * Layout: 3 colunas — Marca+Info | Links | Redes
  *
  * @package Bootscore Child
  */
@@ -17,37 +17,35 @@ defined('ABSPATH') || exit;
   <div class="container" style="max-width:1400px;">
     <div class="headshop-footer__main">
 
-      <!-- Brand -->
+      <!-- Coluna 1: Marca + Horário + Endereço -->
       <div class="headshop-footer__brand-col">
-        <div class="headshop-footer__brand-name"><?php bloginfo('name'); ?></div>
-        <div class="headshop-footer__brand-sub">Caruaru &middot; 7 anos</div>
-      </div>
+        <div class="headshop-footer__brand-name">Indicativa<br>Headshop</div>
+        <div class="headshop-footer__brand-sub">Caruaru &middot; <?= date('Y') - 2019; ?> anos</div>
 
-      <!-- Info groups -->
-      <div class="headshop-footer__info-cols">
         <div class="headshop-footer__info-group">
           <div class="headshop-footer__info-title">Horário</div>
           <span class="headshop-footer__info-line">Seg&ndash;Sex 9:30&ndash;19h</span>
           <span class="headshop-footer__info-line">Sáb 9:30&ndash;16h</span>
         </div>
+
         <div class="headshop-footer__info-group">
           <div class="headshop-footer__info-title">Endereço</div>
           <span class="headshop-footer__info-line">Rua Tupy, 147 &mdash; Salgado</span>
           <span class="headshop-footer__info-line">Caruaru &mdash; PE &middot; 55016-080</span>
-          <span class="headshop-footer__info-line">
-            <a href="tel:+5581996366201">(81) 99636-6201</a>
-          </span>
+          <span class="headshop-footer__info-line"><a href="tel:+5581996366201">(81) 99636-6201</a></span>
           <span class="headshop-footer__info-line">Delivery grátis a partir de R$20 (até 5km)</span>
-        </div>
-        <div class="headshop-footer__info-group">
-          <div class="headshop-footer__info-title">Links</div>
-          <span class="headshop-footer__info-line"><a href="<?= esc_url(site_url('/sobre')); ?>">Sobre</a></span>
-          <span class="headshop-footer__info-line"><a href="<?= esc_url(get_privacy_policy_url()); ?>">Política de Privacidade</a></span>
-          <span class="headshop-footer__info-line"><a href="<?= esc_url(site_url('/entrega-segura')); ?>">Entrega Segura</a></span>
         </div>
       </div>
 
-      <!-- Social chips -->
+      <!-- Coluna 2: Links -->
+      <div class="headshop-footer__links-col">
+        <div class="headshop-footer__info-title">Links</div>
+        <span class="headshop-footer__info-line"><a href="<?= esc_url(site_url('/sobre')); ?>">Sobre</a></span>
+        <span class="headshop-footer__info-line"><a href="<?= esc_url(get_privacy_policy_url()); ?>">Política de Privacidade</a></span>
+        <span class="headshop-footer__info-line"><a href="<?= esc_url(site_url('/entrega-segura')); ?>">Entrega Segura</a></span>
+      </div>
+
+      <!-- Coluna 3: Redes sociais -->
       <div class="headshop-footer__social-col">
         <span class="headshop-footer__social-label">Redes</span>
         <a href="https://wa.me/5581996366201"
