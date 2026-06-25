@@ -1582,6 +1582,7 @@ body.search-overlay-open {
   transform: rotate(45deg);
   transition: border-color 0.2s ease, color 0.2s ease;
   flex-shrink: 0;
+  margin: 10px;
 
   &:hover {
     border-color: #c9a84c;
