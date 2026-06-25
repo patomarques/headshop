@@ -37,31 +37,30 @@ defined('ABSPATH') || exit;
         </div>
       </div>
 
-      <!-- Coluna 2: Links -->
+      <!-- Coluna 2: Links + Redes -->
       <div class="headshop-footer__links-col">
         <div class="headshop-footer__info-title">Links</div>
         <span class="headshop-footer__info-line"><a href="<?= esc_url(site_url('/sobre')); ?>">Sobre</a></span>
         <span class="headshop-footer__info-line"><a href="<?= esc_url(get_privacy_policy_url()); ?>">Política de Privacidade</a></span>
         <span class="headshop-footer__info-line"><a href="<?= esc_url(site_url('/entrega-segura')); ?>">Entrega Segura</a></span>
-      </div>
 
-      <!-- Coluna 3: Redes sociais -->
-      <div class="headshop-footer__social-col">
-        <span class="headshop-footer__social-label">Redes</span>
-        <a href="https://wa.me/5581996366201"
-           target="_blank" rel="noopener noreferrer"
-           class="headshop-footer__social-chip headshop-footer__social-chip--whatsapp"
-           aria-label="WhatsApp">
-          <img src="<?= esc_url(get_stylesheet_directory_uri()); ?>/assets/img/whatsapp.png" alt="" width="16" height="16" />
-          WhatsApp
-        </a>
-        <a href="https://instagram.com/indicativaheadshop2"
-           target="_blank" rel="noopener noreferrer"
-           class="headshop-footer__social-chip headshop-footer__social-chip--instagram"
-           aria-label="Instagram">
-          <img src="<?= esc_url(get_stylesheet_directory_uri()); ?>/assets/img/instagram.png" alt="" width="16" height="16" />
-          Instagram
-        </a>
+        <div class="headshop-footer__social-col">
+          <span class="headshop-footer__social-label">Redes</span>
+          <a href="https://wa.me/5581996366201"
+             target="_blank" rel="noopener noreferrer"
+             class="headshop-footer__social-chip headshop-footer__social-chip--whatsapp"
+             aria-label="WhatsApp">
+            <img src="<?= esc_url(get_stylesheet_directory_uri()); ?>/assets/img/whatsapp.png" alt="" width="16" height="16" />
+            WhatsApp
+          </a>
+          <a href="https://instagram.com/indicativaheadshop2"
+             target="_blank" rel="noopener noreferrer"
+             class="headshop-footer__social-chip headshop-footer__social-chip--instagram"
+             aria-label="Instagram">
+            <img src="<?= esc_url(get_stylesheet_directory_uri()); ?>/assets/img/instagram.png" alt="" width="16" height="16" />
+            Instagram
+          </a>
+        </div>
       </div>
 
     </div><!-- .headshop-footer__main -->
