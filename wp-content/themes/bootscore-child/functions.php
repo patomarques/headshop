@@ -171,26 +171,28 @@ function headshop_banner_text_metabox($post) {
     $title    = get_post_meta($post->ID, '_banner_text_title', true);
     $subtitle = get_post_meta($post->ID, '_banner_text_subtitle', true);
     wp_nonce_field('headshop_banner_text_nonce', 'headshop_banner_text_nonce');
+
+    $editor_settings = array(
+        'media_buttons' => false,
+        'quicktags'     => false,
+        'tinymce'       => array(
+            'toolbar1' => 'bold,italic,underline,strikethrough,|,alignleft,aligncenter,alignright,|,removeformat',
+            'toolbar2' => '',
+        ),
+    );
     ?>
-    <table class="form-table" style="margin:0;">
-      <tr>
-        <th style="width:120px;padding:8px 0;"><label for="banner_text_title">Título</label></th>
-        <td style="padding:8px 0;">
-          <input type="text" id="banner_text_title" name="banner_text_title"
-                 value="<?= esc_attr($title); ?>" class="widefat"
-                 placeholder="Ex: Novidades da semana" />
-        </td>
-      </tr>
-      <tr>
-        <th style="padding:8px 0;"><label for="banner_text_subtitle">Subtítulo</label></th>
-        <td style="padding:8px 0;">
-          <input type="text" id="banner_text_subtitle" name="banner_text_subtitle"
-                 value="<?= esc_attr($subtitle); ?>" class="widefat"
-                 placeholder="Ex: Confira os lançamentos" />
-          <p class="description" style="margin-top:4px;">Deixe em branco para não exibir texto.</p>
-        </td>
-      </tr>
-    </table>
+    <p style="font-weight:600;margin-bottom:4px;">Título</p>
+    <?php wp_editor($title, 'banner_text_title', array_merge($editor_settings, array(
+        'textarea_name' => 'banner_text_title',
+        'textarea_rows' => 3,
+    ))); ?>
+
+    <p style="font-weight:600;margin:16px 0 4px;">Subtítulo</p>
+    <?php wp_editor($subtitle, 'banner_text_subtitle', array_merge($editor_settings, array(
+        'textarea_name' => 'banner_text_subtitle',
+        'textarea_rows' => 3,
+    ))); ?>
+    <p class="description" style="margin-top:8px;">Deixe em branco para não exibir texto sobre o banner.</p>
     <?php
 }
 
@@ -274,8 +276,8 @@ add_action('save_post_banner', function ($post_id) {
     // Text overlay
     if (isset($_POST['headshop_banner_text_nonce']) &&
         wp_verify_nonce($_POST['headshop_banner_text_nonce'], 'headshop_banner_text_nonce')) {
-        $title    = sanitize_text_field($_POST['banner_text_title'] ?? '');
-        $subtitle = sanitize_text_field($_POST['banner_text_subtitle'] ?? '');
+        $title    = wp_kses_post(wp_unslash($_POST['banner_text_title'] ?? ''));
+        $subtitle = wp_kses_post(wp_unslash($_POST['banner_text_subtitle'] ?? ''));
         update_post_meta($post_id, '_banner_text_title', $title);
         update_post_meta($post_id, '_banner_text_subtitle', $subtitle);
     }
@@ -345,9 +347,9 @@ function headshop_banner_slider() {
                  style="--img-desktop:url('<?= esc_url($slide['desktop']); ?>');--img-mobile:url('<?= esc_url($slide['mobile']); ?>');">
               <?php if (!empty($slide['title'])) : ?>
               <div class="headshop-banner__caption">
-                <h2 class="headshop-banner__caption-title"><?= esc_html($slide['title']); ?></h2>
+                <div class="headshop-banner__caption-title"><?= wp_kses_post($slide['title']); ?></div>
                 <?php if (!empty($slide['subtitle'])) : ?>
-                <p class="headshop-banner__caption-sub"><?= esc_html($slide['subtitle']); ?></p>
+                <div class="headshop-banner__caption-sub"><?= wp_kses_post($slide['subtitle']); ?></div>
                 <?php endif; ?>
               </div>
               <?php endif; ?>

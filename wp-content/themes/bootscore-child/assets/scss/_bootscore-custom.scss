@@ -1201,6 +1201,8 @@ body.search-overlay-open {
     letter-spacing: 0.03em;
     line-height: 1.05;
     margin: 0;
+
+    p { margin: 0; }
   }
 
   &__caption-sub {
@@ -1208,6 +1210,8 @@ body.search-overlay-open {
     margin: 8px 0 0;
     opacity: 0.88;
     font-weight: 400;
+
+    p { margin: 0; }
   }
 
   // Custom nav icons (matching the ‹ › style from wp-headshop)
