@@ -1522,28 +1522,31 @@ body.search-overlay-open {
   }
 
   &__bar {
-    background: $color-dark;
-    padding: 10px 0;
+    background: #fff;
+    border-top: 1px solid rgba($color-dark, 0.1);
+    padding: 14px 0;
   }
 
   &__bar-inner {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
   }
 
   &__bar-text {
-    font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.3);
-    letter-spacing: 0.06em;
+    font-size: 0.8rem;
+    color: $color-dark;
+    letter-spacing: 0.04em;
+    text-align: center;
   }
 
   &__bar-link {
-    font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.25);
-    text-decoration: none !important;
+    font-size: 0.8rem;
+    color: $color-dark;
+    text-decoration: underline !important;
+    text-underline-offset: 3px;
 
-    &:hover { color: rgba(255, 255, 255, 0.55); }
+    &:hover { color: $color-primary; }
   }
 }
 
