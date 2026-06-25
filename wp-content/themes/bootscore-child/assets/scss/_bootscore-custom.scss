@@ -261,6 +261,14 @@
   padding: 6px 0;
 }
 
+// Separação visual logo → cats-nav apenas no header estático (não --home, não --scrolled)
+.headshop-header:not(.headshop-header--home):not(.headshop-header--scrolled) {
+  .headshop-header__cats-row {
+    padding-top: 14px;
+    border-top: 1px solid rgba($color-dark, 0.08);
+  }
+}
+
 .headshop-cats-nav {
   gap: 0;
   flex-wrap: wrap;
@@ -1151,7 +1159,7 @@ body.search-overlay-open {
 
 .headshop-banner {
   width: 100%;
-  height: 85vh;
+  height: 90vh;
   overflow: hidden;
   background: #000;
 
