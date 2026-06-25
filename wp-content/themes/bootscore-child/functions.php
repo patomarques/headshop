@@ -35,10 +35,10 @@ function headshop_enqueue_assets() {
     // Parent style
     wp_enqueue_style('parent-style', get_template_directory_uri() . '/style.css');
 
-    // Google Fonts — Syne display
+    // Google Fonts — Syne display + Oswald banner
     wp_enqueue_style(
         'headshop-google-fonts',
-        'https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap',
+        'https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Oswald:wght@400;600;700&display=swap',
         array(),
         null
     );
