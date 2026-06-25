@@ -1543,8 +1543,7 @@ body.search-overlay-open {
   &__bar-link {
     font-size: 0.8rem;
     color: $color-dark;
-    text-decoration: underline !important;
-    text-underline-offset: 3px;
+    text-decoration: none !important;
 
     &:hover { color: $color-primary; }
   }
