@@ -1570,21 +1570,18 @@ body.search-overlay-open {
 }
 
 .footer-dev-link {
-  position: fixed !important;
-  bottom: 28px !important;
-  right: 28px !important;
-  z-index: 990;
-  display: flex !important;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 2px solid #111;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid #111;
   background: transparent;
   color: #111 !important;
   text-decoration: none !important;
   transform: rotate(45deg);
   transition: border-color 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
 
   &:hover {
     border-color: #c9a84c;

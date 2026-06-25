@@ -72,16 +72,14 @@ defined('ABSPATH') || exit;
       <span class="headshop-footer__bar-text">
         <a href="<?= esc_url(home_url('/')); ?>" class="headshop-footer__bar-link">Indicativa Headshop</a> &copy; <?= wp_date('Y'); ?>
       </span>
+      <a href="https://webdev.recife.br/" class="footer-dev-link" target="_blank" rel="noopener"
+         data-bs-toggle="tooltip" data-bs-placement="top" title="Desenvolvido por Web Dev Studio">
+        <span aria-label="Desenvolvido por Web Dev Studio">&lt;/&gt;</span>
+      </a>
     </div>
   </div>
 
 </footer>
-
-<!-- Floating dev signature -->
-<a href="https://webdev.recife.br/" class="footer-dev-link" target="_blank" rel="noopener"
-   data-bs-toggle="tooltip" data-bs-placement="top" title="Desenvolvido por Web Dev Studio">
-  <span aria-label="Desenvolvido por Web Dev Studio">&lt;/&gt;</span>
-</a>
 
 </div><!-- #page -->
 
