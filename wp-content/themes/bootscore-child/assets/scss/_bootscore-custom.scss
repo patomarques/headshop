@@ -1528,9 +1528,15 @@ body.search-overlay-open {
   }
 
   &__bar-inner {
+    position: relative;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+
+    .footer-dev-link {
+      position: absolute;
+      right: 0;
+    }
   }
 
   &__bar-text {
