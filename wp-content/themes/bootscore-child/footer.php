@@ -70,7 +70,7 @@ defined('ABSPATH') || exit;
   <div class="headshop-footer__bar">
     <div class="container headshop-footer__bar-inner" style="max-width:1400px;">
       <span class="headshop-footer__bar-text">
-        Indicativa Headshop &copy; <?= wp_date('Y'); ?>
+        <a href="<?= esc_url(home_url('/')); ?>" class="headshop-footer__bar-link">Indicativa Headshop</a> &copy; <?= wp_date('Y'); ?>
       </span>
     </div>
   </div>
