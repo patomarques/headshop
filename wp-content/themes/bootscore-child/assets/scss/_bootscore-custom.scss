@@ -1199,10 +1199,11 @@ body.search-overlay-open {
     font-size: clamp(1.5rem, 3.5vw, 2.8rem);
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    line-height: 1.05;
+    line-height: 1.15;
     margin: 0;
 
-    p { margin: 0; }
+    p { margin: 0; line-height: inherit; }
+    p + p { margin-top: 0.2em; }
   }
 
   &__caption-sub {
@@ -1210,8 +1211,10 @@ body.search-overlay-open {
     margin: 8px 0 0;
     opacity: 0.88;
     font-weight: 400;
+    line-height: 1.5;
 
     p { margin: 0; }
+    p + p { margin-top: 0.4em; }
   }
 
   // Custom nav icons (matching the ‹ › style from wp-headshop)
