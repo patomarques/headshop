@@ -1504,11 +1504,11 @@ body.search-overlay-open {
 
     &--whatsapp {
       background: $color-dark;
-      color: #fff;
+      color: #fff !important;
 
       img { filter: brightness(0) invert(1); }
 
-      &:hover { color: #fff; opacity: 0.8; }
+      &:hover { color: #fff !important; opacity: 0.8; }
     }
 
     &--instagram {
@@ -1558,8 +1558,7 @@ body.search-overlay-open {
     }
 
     &__social-col {
-      flex-direction: row;
-      flex-wrap: wrap;
+      flex-direction: column;
     }
 
     &__info-cols {
