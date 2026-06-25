@@ -1184,17 +1184,19 @@ body.search-overlay-open {
 
   &__caption {
     position: absolute;
-    bottom: 12%;
+    top: 50%;
     left: 6%;
     right: 6%;
+    transform: translateY(-50%);
     color: #fff;
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+    text-align: center;
   }
 
   &__caption-title {
     font-family: 'Syne', sans-serif;
     font-weight: 800;
-    font-size: clamp(2rem, 5vw, 4rem);
+    font-size: clamp(1.5rem, 3.5vw, 2.8rem);
     text-transform: uppercase;
     letter-spacing: 0.03em;
     line-height: 1.05;
@@ -1202,8 +1204,8 @@ body.search-overlay-open {
   }
 
   &__caption-sub {
-    font-size: clamp(0.9rem, 2vw, 1.2rem);
-    margin: 10px 0 0;
+    font-size: clamp(0.8rem, 1.5vw, 1rem);
+    margin: 8px 0 0;
     opacity: 0.88;
     font-weight: 400;
   }
