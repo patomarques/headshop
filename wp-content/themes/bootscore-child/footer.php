@@ -33,7 +33,6 @@ defined('ABSPATH') || exit;
           <span class="headshop-footer__info-line">Rua Tupy, 147 &mdash; Salgado</span>
           <span class="headshop-footer__info-line">Caruaru &mdash; PE &middot; 55016-080</span>
           <span class="headshop-footer__info-line"><a href="tel:+5581996366201">(81) 99636-6201</a></span>
-          <span class="headshop-footer__info-line">Delivery grátis a partir de R$20 (até 5km)</span>
         </div>
       </div>
 

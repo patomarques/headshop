@@ -157,7 +157,42 @@ add_action('add_meta_boxes', function () {
         'side',
         'default'
     );
+    add_meta_box(
+        'banner_text_overlay',
+        'Texto sobre a imagem',
+        'headshop_banner_text_metabox',
+        'banner',
+        'normal',
+        'high'
+    );
 });
+
+function headshop_banner_text_metabox($post) {
+    $title    = get_post_meta($post->ID, '_banner_text_title', true);
+    $subtitle = get_post_meta($post->ID, '_banner_text_subtitle', true);
+    wp_nonce_field('headshop_banner_text_nonce', 'headshop_banner_text_nonce');
+    ?>
+    <table class="form-table" style="margin:0;">
+      <tr>
+        <th style="width:120px;padding:8px 0;"><label for="banner_text_title">Título</label></th>
+        <td style="padding:8px 0;">
+          <input type="text" id="banner_text_title" name="banner_text_title"
+                 value="<?= esc_attr($title); ?>" class="widefat"
+                 placeholder="Ex: Novidades da semana" />
+        </td>
+      </tr>
+      <tr>
+        <th style="padding:8px 0;"><label for="banner_text_subtitle">Subtítulo</label></th>
+        <td style="padding:8px 0;">
+          <input type="text" id="banner_text_subtitle" name="banner_text_subtitle"
+                 value="<?= esc_attr($subtitle); ?>" class="widefat"
+                 placeholder="Ex: Confira os lançamentos" />
+          <p class="description" style="margin-top:4px;">Deixe em branco para não exibir texto.</p>
+        </td>
+      </tr>
+    </table>
+    <?php
+}
 
 function headshop_banner_mobile_metabox($post) {
     $mobile_id  = (int) get_post_meta($post->ID, '_banner_mobile_image', true);
@@ -222,16 +257,27 @@ function headshop_banner_mobile_metabox($post) {
 }
 
 add_action('save_post_banner', function ($post_id) {
-    if (!isset($_POST['headshop_banner_mobile_nonce'])) return;
-    if (!wp_verify_nonce($_POST['headshop_banner_mobile_nonce'], 'headshop_banner_mobile_nonce')) return;
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     if (!current_user_can('edit_post', $post_id)) return;
 
-    $img_id = absint($_POST['headshop_banner_mobile_id'] ?? 0);
-    if ($img_id) {
-        update_post_meta($post_id, '_banner_mobile_image', $img_id);
-    } else {
-        delete_post_meta($post_id, '_banner_mobile_image');
+    // Mobile image
+    if (isset($_POST['headshop_banner_mobile_nonce']) &&
+        wp_verify_nonce($_POST['headshop_banner_mobile_nonce'], 'headshop_banner_mobile_nonce')) {
+        $img_id = absint($_POST['headshop_banner_mobile_id'] ?? 0);
+        if ($img_id) {
+            update_post_meta($post_id, '_banner_mobile_image', $img_id);
+        } else {
+            delete_post_meta($post_id, '_banner_mobile_image');
+        }
+    }
+
+    // Text overlay
+    if (isset($_POST['headshop_banner_text_nonce']) &&
+        wp_verify_nonce($_POST['headshop_banner_text_nonce'], 'headshop_banner_text_nonce')) {
+        $title    = sanitize_text_field($_POST['banner_text_title'] ?? '');
+        $subtitle = sanitize_text_field($_POST['banner_text_subtitle'] ?? '');
+        update_post_meta($post_id, '_banner_text_title', $title);
+        update_post_meta($post_id, '_banner_text_subtitle', $subtitle);
     }
 });
 
@@ -272,7 +318,12 @@ function headshop_banner_slider() {
         $mobile_id  = (int) get_post_meta(get_the_ID(), '_banner_mobile_image', true);
         $mobile_url = $mobile_id ? wp_get_attachment_image_url($mobile_id, 'full') : $desktop_url;
 
-        $slides[] = array('desktop' => $desktop_url, 'mobile' => $mobile_url);
+        $slides[] = array(
+            'desktop'  => $desktop_url,
+            'mobile'   => $mobile_url,
+            'title'    => get_post_meta(get_the_ID(), '_banner_text_title', true),
+            'subtitle' => get_post_meta(get_the_ID(), '_banner_text_subtitle', true),
+        );
     }
     wp_reset_postdata();
 
@@ -291,7 +342,16 @@ function headshop_banner_slider() {
         <?php foreach ($slides as $i => $slide) : ?>
           <div class="carousel-item h-100<?php if ($i === 0) echo ' active'; ?>">
             <div class="headshop-banner__slide"
-                 style="--img-desktop:url('<?= esc_url($slide['desktop']); ?>');--img-mobile:url('<?= esc_url($slide['mobile']); ?>');"></div>
+                 style="--img-desktop:url('<?= esc_url($slide['desktop']); ?>');--img-mobile:url('<?= esc_url($slide['mobile']); ?>');">
+              <?php if (!empty($slide['title'])) : ?>
+              <div class="headshop-banner__caption">
+                <h2 class="headshop-banner__caption-title"><?= esc_html($slide['title']); ?></h2>
+                <?php if (!empty($slide['subtitle'])) : ?>
+                <p class="headshop-banner__caption-sub"><?= esc_html($slide['subtitle']); ?></p>
+                <?php endif; ?>
+              </div>
+              <?php endif; ?>
+            </div>
           </div>
         <?php endforeach; ?>
       </div>

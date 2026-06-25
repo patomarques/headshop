@@ -1175,10 +1175,37 @@ body.search-overlay-open {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    position: relative;
 
     @media (max-width: 768px) {
       background-image: var(--img-mobile, var(--img-desktop));
     }
+  }
+
+  &__caption {
+    position: absolute;
+    bottom: 12%;
+    left: 6%;
+    right: 6%;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+  }
+
+  &__caption-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 5vw, 4rem);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    line-height: 1.05;
+    margin: 0;
+  }
+
+  &__caption-sub {
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    margin: 10px 0 0;
+    opacity: 0.88;
+    font-weight: 400;
   }
 
   // Custom nav icons (matching the ‹ › style from wp-headshop)
