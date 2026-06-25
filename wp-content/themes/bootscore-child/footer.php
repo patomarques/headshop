@@ -72,10 +72,6 @@ defined('ABSPATH') || exit;
     <div class="container headshop-footer__bar-inner" style="max-width:1400px;">
       <span class="headshop-footer__bar-text">
         Indicativa Headshop &copy; <?= wp_date('Y'); ?>
-        &nbsp;&middot;&nbsp;
-        <a href="<?= esc_url(get_privacy_policy_url()); ?>" class="headshop-footer__bar-link">Política</a>
-        &nbsp;&middot;&nbsp;
-        <a href="<?= esc_url(site_url('/entrega-segura')); ?>" class="headshop-footer__bar-link">Entrega</a>
       </span>
     </div>
   </div>
