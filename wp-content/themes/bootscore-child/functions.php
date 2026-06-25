@@ -347,9 +347,9 @@ function headshop_banner_slider() {
                  style="--img-desktop:url('<?= esc_url($slide['desktop']); ?>');--img-mobile:url('<?= esc_url($slide['mobile']); ?>');">
               <?php if (!empty($slide['title'])) : ?>
               <div class="headshop-banner__caption">
-                <div class="headshop-banner__caption-title"><?= wp_kses_post($slide['title']); ?></div>
+                <div class="headshop-banner__caption-title"><?= wp_kses_post(wpautop($slide['title'])); ?></div>
                 <?php if (!empty($slide['subtitle'])) : ?>
-                <div class="headshop-banner__caption-sub"><?= wp_kses_post($slide['subtitle']); ?></div>
+                <div class="headshop-banner__caption-sub"><?= wp_kses_post(wpautop($slide['subtitle'])); ?></div>
                 <?php endif; ?>
               </div>
               <?php endif; ?>
