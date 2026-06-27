@@ -1438,8 +1438,8 @@ body.search-overlay-open {
 
   &__main {
     display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 48px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
     align-items: start;
     padding: 36px 0;
   }
@@ -1464,10 +1464,8 @@ body.search-overlay-open {
     margin-bottom: 20px;
   }
 
-  &__brand-col {
-    .headshop-footer__info-group + .headshop-footer__info-group {
-      margin-top: 12px;
-    }
+  &__info-col {
+    padding-top: 4px;
   }
 
   &__info-cols {
@@ -1478,12 +1476,12 @@ body.search-overlay-open {
   }
 
   &__info-title {
-    font-size: 0.55rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: $color-dark;
-    opacity: 0.4;
+    opacity: 0.5;
     margin-bottom: 8px;
   }
 
@@ -1505,7 +1503,7 @@ body.search-overlay-open {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 10px;
     padding-top: 4px;
     margin-top: 16px;
   }
@@ -1519,42 +1517,31 @@ body.search-overlay-open {
     opacity: 0.35;
   }
 
-  &__social-chip {
+  &__social-btns {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  &__social-btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    justify-content: center;
     text-decoration: none !important;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, transform 0.2s;
 
     img {
-      width: 16px;
-      height: 16px;
+      width: 28px;
+      height: 28px;
       object-fit: contain;
+      filter: brightness(0);
+      opacity: 0.7;
+      transition: opacity 0.2s, transform 0.2s;
     }
 
-    &--whatsapp {
-      background: $color-dark;
-      color: #fff !important;
-
-      img { filter: brightness(0) invert(1); }
-
-      &:hover { color: #fff !important; opacity: 0.8; }
-    }
-
-    &--instagram {
-      background: transparent;
-      color: $color-dark;
-      border: 1.5px solid $color-dark;
-
-      img { filter: brightness(0); }
-
-      &:hover { color: $color-dark; opacity: 0.7; }
+    &:hover img {
+      opacity: 1;
+      transform: translateY(-2px);
     }
   }
 
@@ -1591,21 +1578,22 @@ body.search-overlay-open {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 991px) {
+  .headshop-footer {
+    &__main {
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      padding: 32px 0;
+    }
+  }
+}
+
+@media (max-width: 575px) {
   .headshop-footer {
     &__main {
       grid-template-columns: 1fr;
       gap: 24px;
       padding: 28px 0;
-    }
-
-    &__social-col {
-      flex-direction: column;
-    }
-
-    &__info-cols {
-      flex-direction: column;
-      gap: 20px;
     }
   }
 }
@@ -1982,13 +1970,12 @@ body.search-overlay-open {
    ===================================================================== */
 
 .headshop-new-products {
-  background: $color-dark;
-  color: rgba(255, 255, 255, 0.85);
+  background: $section-light-bg;
 
   // Cores do título
-  .headshop-section-title__eyebrow { color: rgba(255, 255, 255, 0.45); }
-  .headshop-section-title__text    { color: $color-primary; }
-  .headshop-section-title__rule    { background: rgba(255, 255, 198, 0.3); opacity: 1; }
+  .headshop-section-title__eyebrow { color: $color-secondary; }
+  .headshop-section-title__text    { color: $color-dark; }
+  .headshop-section-title__rule    { background: $color-dark; opacity: 0.4; }
 
   &__grid {
     display: grid;
@@ -1999,21 +1986,20 @@ body.search-overlay-open {
   &__card {
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: $header-bg;
     border-radius: 12px;
     overflow: hidden;
     text-decoration: none;
-    color: rgba(255, 255, 255, 0.85);
+    color: $color-dark;
     position: relative;
-    box-shadow: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
       transform: translateY(-6px);
-      box-shadow: 0 8px 24px rgba($color-primary, 0.15);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
       text-decoration: none;
-      color: rgba(255, 255, 255, 0.85);
+      color: $color-dark;
     }
   }
 
@@ -2097,21 +2083,9 @@ body.search-overlay-open {
     }
   }
 
-  &__image-wrap { background: rgba(255, 255, 255, 0.04); }
-  &__name       { color: rgba(255, 255, 255, 0.8); }
+  &__image-wrap { background: #f0f0f0; }
+  &__name       { color: $color-dark; }
   &__price      { color: $color-primary; }
-
-  // Botões do carousel no fundo escuro
-  .headshop-products-carousel__btn {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: #fff;
-
-    &:hover {
-      background: $color-primary;
-      color: $color-dark;
-    }
-  }
 }
 
 @media (max-width: 1024px) {

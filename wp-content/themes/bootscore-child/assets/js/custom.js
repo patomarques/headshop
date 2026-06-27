@@ -1,9 +1,9 @@
-// Ativa tooltip Bootstrap no link do autor na footer
+// Ativa tooltips Bootstrap na footer
 document.addEventListener('DOMContentLoaded', function() {
-    var tooltipTrigger = document.querySelector('.footer-dev-link[data-bs-toggle="tooltip"]');
-    if (tooltipTrigger && window.bootstrap && bootstrap.Tooltip) {
-        new bootstrap.Tooltip(tooltipTrigger);
-    }
+    if (!window.bootstrap || !bootstrap.Tooltip) return;
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
+        new bootstrap.Tooltip(el);
+    });
 });
 // Remove .bg-body-tertiary from .wp-breadcrumb if present
 document.addEventListener('DOMContentLoaded', function() {
