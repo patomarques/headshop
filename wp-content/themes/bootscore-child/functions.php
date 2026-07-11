@@ -66,6 +66,304 @@ function headshop_enqueue_assets() {
 }
 
 
+add_filter('body_class', function ($classes) {
+    if (function_exists('is_cart') && is_cart() && class_exists('WooCommerce') && WC()->cart->is_empty()) {
+        $classes[] = 'cart-is-empty';
+    }
+    return $classes;
+});
+
+// Force pt-BR for WooCommerce strings that may not translate via .mo
+add_filter('gettext', function ($translation, $text, $domain) {
+    if (!in_array($domain, ['woocommerce', 'woocommerce-gateway-stripe', 'bootscore'], true)) return $translation;
+    static $map = null;
+    if ($map === null) {
+        $map = [
+            // bootscore (theme breadcrumb)
+            'Home'                                   => 'Início',
+            'Return to shop'                        => 'Voltar para a loja',
+            'Calculate shipping'                    => 'Calcular envio',
+            'Update cart'                           => 'Atualizar carrinho',
+            'Apply coupon'                          => 'Aplicar cupom',
+            'Proceed to checkout'                   => 'Finalizar compra',
+            'Place order'                           => 'Finalizar pedido',
+            'Order notes'                           => 'Observações do pedido',
+            'Ship to a different address?'          => 'Entregar em outro endereço?',
+            'Billing details'                       => 'Dados de cobrança',
+            'Your order'                            => 'Seu pedido',
+            'Have a coupon?'                        => 'Tem um cupom?',
+            'Click here to enter your coupon code'  => 'Clique aqui para inserir seu cupom',
+            'Cart totals'                           => 'Total do carrinho',
+            'Free!'                                 => 'Grátis!',
+            // woocommerce-gateway-stripe
+            '%1$sTest mode:%2$s use the test VISA card 4242424242424242 with any expiry date and CVC. Other payment methods may redirect to a Stripe test page to authorize payment. More test card numbers are listed %3$shere%4$s.'
+                => '%1$sModo de teste:%2$s use o cartão VISA de teste 4242424242424242 com qualquer data de validade e CVC. Outros métodos de pagamento podem redirecionar para uma página de teste da Stripe para autorizar o pagamento. Mais números de cartão de teste estão listados %3$saqui%4$s.',
+        ];
+    }
+    return $map[$text] ?? $translation;
+}, 10, 3);
+
+// Force pt-BR for WooCommerce Cart/Checkout block strings (React/JS i18n).
+// These render client-side via wp.i18n, not PHP gettext, and the bundled
+// pt_BR language pack for these blocks is missing/mismatched for this
+// WooCommerce version, so the gettext filter above can't reach them.
+add_filter('pre_load_script_translations', function ($translations, $file, $handle, $domain) {
+    if ($domain !== 'woocommerce') return $translations;
+
+    $overrides = [
+        'Estimated total'                         => 'Total estimado',
+        'Shipping will be calculated at checkout' => 'O frete será calculado na finalização da compra',
+        'Proceed to Checkout'                     => 'Finalizar compra',
+        // Checkout block
+        'Order summary'                                        => 'Resumo do pedido',
+        'Contact information'                                  => 'Informações de contato',
+        'Contact Information'                                  => 'Informações de contato',
+        'You are currently checking out as a guest.'           => 'Você está finalizando a compra como visitante.',
+        'Shipping address'                                     => 'Endereço de entrega',
+        'Use same address for billing'                         => 'Usar o mesmo endereço para cobrança',
+        'Shipping options'                                     => 'Opções de entrega',
+        'Payment options'                                      => 'Opções de pagamento',
+        'Add a note to your order'                             => 'Adicionar uma observação ao pedido',
+        'Terms and Conditions'                                 => 'Termos e Condições',
+        'Privacy Policy'                                       => 'Política de Privacidade',
+        'By proceeding with your purchase you agree to our %1$s and %2$s' => 'Ao continuar com sua compra, você concorda com nossos %1$s e nossa %2$s',
+        'Return to Cart'                                       => 'Voltar para o carrinho',
+        'Place Order'                                          => 'Finalizar pedido',
+        // Coupons, totals, loading states, validation & error messages
+        ' Express Checkout'                                    => ' Checkout Expresso',
+        '%1$d items in cart'                                   => '%1$d itens no carrinho',
+        '%1$d items in cart, total price of %2$s'              => '%1$d itens no carrinho, preço total de %2$s',
+        '%1$s (%2$d unit)'                                     => '%1$s (%2$d unidade)',
+        '%1$s (%2$d units)'                                    => '%1$s (%2$d unidades)',
+        '%1$s ending in %2$s (expires %3$s)'                   => '%1$s terminando em %2$s (expira em %3$s)',
+        '%1$s must match the pattern %2$s'                     => '%1$s deve corresponder ao padrão %2$s',
+        '%d item'                                               => '%d item',
+        '%d items'                                              => '%d itens',
+        '%d shipping option was found'                         => '%d opção de entrega encontrada',
+        '%d shipping option was found.'                        => '%d opção de entrega encontrada.',
+        '%d shipping options were found'                       => '%d opções de entrega encontradas',
+        '%d shipping options were found.'                      => '%d opções de entrega encontradas.',
+        '%s is invalid'                                        => '%s é inválido',
+        '(%s customer reviews)'                                => '(%s avaliações de clientes)',
+        '+ Add %s'                                              => '+ Adicionar %s',
+        '<price/> x <packageCount/> packages'                  => '<price/> x <packageCount/> pacotes',
+        'Add coupons'                                           => 'Adicionar cupons',
+        'Applying coupon…'                                     => 'Aplicando cupom…',
+        'Checkout error'                                        => 'Erro no checkout',
+        "Checkout is not available whilst your cart is empty—please take a look through our store and come back when you're ready to place an order."
+            => 'O checkout não está disponível enquanto seu carrinho estiver vazio — dê uma olhada em nossa loja e volte quando estiver pronto para fazer o pedido.',
+        'Click here to log in.'                                => 'Clique aqui para entrar.',
+        'Coupon code "%s" has been applied to your cart.'      => 'O cupom "%s" foi aplicado ao seu carrinho.',
+        'Coupon code "%s" has been removed from your cart.'    => 'O cupom "%s" foi removido do seu carrinho.',
+        'Edit your cart'                                        => 'Editar seu carrinho',
+        'Enter code'                                            => 'Digite o código',
+        'Finish checkout'                                       => 'Finalizar checkout',
+        'Including'                                             => 'Incluindo',
+        'Including %s'                                          => 'Incluindo %s',
+        'Including <TaxAmount/> in taxes'                      => 'Incluindo <TaxAmount/> em impostos',
+        'Loading express payment area…'                        => 'Carregando área de pagamento expresso…',
+        'Loading express payment method…'                      => 'Carregando método de pagamento expresso…',
+        'Loading payment options… '                            => 'Carregando opções de pagamento… ',
+        'Loading price… '                                      => 'Carregando preço… ',
+        'Loading products in cart…'                            => 'Carregando produtos no carrinho…',
+        'Loading shipping options…'                            => 'Carregando opções de entrega…',
+        'Loading shipping rates…'                              => 'Carregando taxas de entrega…',
+        'Multiple shipments must have the same pickup location' => 'Múltiplos envios devem ter o mesmo local de retirada',
+        'No registered Payment Methods'                        => 'Nenhum método de pagamento registrado',
+        'Only express payment methods are available for this order. Please select one to continue.'
+            => 'Apenas métodos de pagamento expresso estão disponíveis para este pedido. Selecione um para continuar.',
+        'Or continue below'                                     => 'Ou continue abaixo',
+        'Other available payment methods'                      => 'Outros métodos de pagamento disponíveis',
+        'Please edit your cart and try again.'                 => 'Edite seu carrinho e tente novamente.',
+        'Please enter a valid postcode'                        => 'Digite um CEP válido',
+        'Please fix the following errors before continuing'    => 'Corrija os seguintes erros antes de continuar',
+        'Please select a %s'                                   => 'Selecione um %s',
+        'Please select a valid option'                         => 'Selecione uma opção válida',
+        'Please select your country'                           => 'Selecione seu país',
+        'Processing express checkout'                          => 'Processando checkout expresso',
+        'Rated %1$s out of 5 based on %2$s customer ratings'   => 'Avaliado em %1$s de 5 com base em %2$s avaliações de clientes',
+        'Remove "%s"'                                           => 'Remover "%s"',
+        'Remove coupon "%s"'                                    => 'Remover cupom "%s"',
+        'Removing coupon…'                                     => 'Removendo cupom…',
+        'Save payment information to my account for future purchases.' => 'Salvar informações de pagamento na minha conta para compras futuras.',
+        'Saved token for %s'                                   => 'Token salvo para %s',
+        'Select a %s'                                           => 'Selecione um %s',
+        'Shipping option searched for %d package.'             => 'Opção de entrega pesquisada para %d pacote.',
+        'Shipping options searched for %d packages.'           => 'Opções de entrega pesquisadas para %d pacotes.',
+        'Shopping cart.'                                        => 'Carrinho de compras.',
+        'Show %s more'                                          => 'Mostrar mais %s',
+        'Show %s more option'                                  => 'Mostrar mais %s opção',
+        'Show %s more options'                                 => 'Mostrar mais %s opções',
+        'Show less options'                                     => 'Mostrar menos opções',
+        "Something went wrong when placing the order. Check your account's order history or your email for order updates before retrying."
+            => 'Algo deu errado ao finalizar o pedido. Verifique o histórico de pedidos da sua conta ou seu e-mail para atualizações antes de tentar novamente.',
+        'Something went wrong when placing the order. Check your email for order updates before retrying.'
+            => 'Algo deu errado ao finalizar o pedido. Verifique seu e-mail para atualizações antes de tentar novamente.',
+        'Sorry, we do not allow orders from the selected country' => 'Desculpe, não aceitamos pedidos do país selecionado',
+        'Sorry, we do not ship orders to the selected country'  => 'Desculpe, não enviamos pedidos para o país selecionado',
+        'Taxes:'                                                => 'Impostos:',
+        'The checkout has encountered an unexpected error. <button>Try reloading the page</button>. If the error persists, please get in touch with us so we can assist.'
+            => 'O checkout encontrou um erro inesperado. <button>Tente recarregar a página</button>. Se o erro persistir, entre em contato conosco para que possamos ajudar.',
+        'There are no payment methods available. Please contact us for help placing your order.'
+            => 'Não há métodos de pagamento disponíveis. Entre em contato conosco para ajudar a finalizar seu pedido.',
+        'There is a problem with your cart'                    => 'Há um problema com seu carrinho',
+        'There was a problem checking out. Please try again. If the problem persists, please get in touch with us so we can assist.'
+            => 'Houve um problema ao finalizar a compra. Tente novamente. Se o problema persistir, entre em contato conosco para que possamos ajudar.',
+        'There was a problem with your payment option.'       => 'Houve um problema com sua opção de pagamento.',
+        'There was a problem with your shipping option.'      => 'Houve um problema com sua opção de entrega.',
+        "There was an error with this payment method. Please verify it's configured correctly."
+            => 'Houve um erro com este método de pagamento. Verifique se ele está configurado corretamente.',
+        'Total price for <quantity/> <productName/> item: <price/>'  => 'Preço total para <quantity/> item de <productName/>: <price/>',
+        'Total price for <quantity/> <productName/> items: <price/>' => 'Preço total para <quantity/> itens de <productName/>: <price/>',
+        'Totals will be recalculated when a valid shipping method is selected.' => 'Os totais serão recalculados quando um método de entrega válido for selecionado.',
+        'Use another payment method.'                          => 'Usar outro método de pagamento.',
+        'We are experiencing difficulties with this payment method. Please contact us for assistance.'
+            => 'Estamos com dificuldades com este método de pagamento. Entre em contato conosco para obter assistência.',
+        // Shipping/delivery, totals, cart line items, addresses, account, reviews, errors
+        '"%s" was removed from your cart.'                     => '"%s" foi removido do seu carrinho.',
+        '%1$d item in cart'                                    => '%1$d item no carrinho',
+        '%1$d item in cart, total price of %2$s'               => '%1$d item no carrinho, preço total de %2$s',
+        '%1$s ending in %2$s'                                  => '%1$s terminando em %2$s',
+        '%d in cart'                                           => '%d no carrinho',
+        '%s (optional)'                                        => '%s (opcional)',
+        '%s has been removed from your cart.'                  => '%s foi removido do seu carrinho.',
+        '(%s customer review)'                                 => '(%s avaliação de cliente)',
+        '<price/> x <packageCount/> package'                   => '<price/> x <packageCount/> pacote',
+        'Add to cart'                                           => 'Adicionar ao carrinho',
+        'Additional order information'                         => 'Informações adicionais do pedido',
+        'Apply'                                                 => 'Aplicar',
+        'Available on backorder'                               => 'Disponível sob encomenda',
+        'Billing address'                                       => 'Endereço de cobrança',
+        'Billing and shipping address'                         => 'Endereço de cobrança e entrega',
+        'Browse store'                                          => 'Explorar loja',
+        'Buy product'                                           => 'Comprar produto',
+        'Calculated at checkout'                               => 'Calculado no checkout',
+        'Cart'                                                  => 'Carrinho',
+        'Checkout'                                              => 'Checkout',
+        'Close'                                                 => 'Fechar',
+        'Color'                                                 => 'Cor',
+        'Coupon: %s'                                            => 'Cupom: %s',
+        'Coupons'                                               => 'Cupons',
+        'Create a password'                                    => 'Criar uma senha',
+        'Create an account with %s'                            => 'Criar uma conta com %s',
+        'Delivery'                                              => 'Entrega',
+        'Details'                                               => 'Detalhes',
+        'Discount'                                              => 'Desconto',
+        'Discount:'                                             => 'Desconto:',
+        'Discounted price:'                                    => 'Preço com desconto:',
+        'Dismiss this notice'                                  => 'Dispensar este aviso',
+        'Edit'                                                  => 'Editar',
+        'Edit billing address'                                 => 'Editar endereço de cobrança',
+        'Edit shipping address'                                => 'Editar endereço de entrega',
+        'Enter a shipping address to view shipping options.'  => 'Digite um endereço de entrega para ver as opções de frete.',
+        'Enter address to calculate'                           => 'Digite o endereço para calcular',
+        'Enter the billing and shipping address that matches your payment method.'
+            => 'Digite o endereço de cobrança e entrega que corresponde ao seu método de pagamento.',
+        'Error:'                                                => 'Erro:',
+        'Fee'                                                   => 'Taxa',
+        'Fees:'                                                 => 'Taxas:',
+        'Flat rate shipping'                                   => 'Frete com taxa fixa',
+        'Free'                                                  => 'Grátis',
+        'Free shipping'                                         => 'Frete grátis',
+        'Increase quantity of %s'                              => 'Aumentar quantidade de %s',
+        'Link to %s'                                            => 'Link para %s',
+        'Loading…'                                             => 'Carregando…',
+        'Local pickup'                                          => 'Retirada local',
+        'Log in'                                                => 'Entrar',
+        'No Reviews'                                            => 'Sem avaliações',
+        'No available delivery option'                         => 'Nenhuma opção de entrega disponível',
+        'No shipping options are available for this address. Please verify the address is correct or try a different address.'
+            => 'Não há opções de entrega disponíveis para este endereço. Verifique se o endereço está correto ou tente outro endereço.',
+        'Notes about your order, e.g. special notes for delivery.' => 'Observações sobre seu pedido, ex.: observações especiais sobre entrega.',
+        'Notes about your order.'                              => 'Observações sobre seu pedido.',
+        'Oops!'                                                 => 'Ops!',
+        'Or'                                                    => 'Ou',
+        'Password strength'                                    => 'Força da senha',
+        'Password strength: %1$s (%2$d characters long)'      => 'Força da senha: %1$s (%2$d caracteres)',
+        'Pickup'                                                => 'Retirada',
+        'Pickup locations'                                     => 'Locais de retirada',
+        'Please check this box if you want to proceed.'       => 'Marque esta caixa se quiser continuar.',
+        'Please create a stronger password'                   => 'Crie uma senha mais forte',
+        'Please enter a valid %s'                              => 'Digite um %s válido',
+        'Please enter a valid email address'                  => 'Digite um endereço de e-mail válido',
+        'Please enter a valid password'                       => 'Digite uma senha válida',
+        'Please read and accept the terms and conditions.'   => 'Leia e aceite os termos e condições.',
+        'Previous price:'                                      => 'Preço anterior:',
+        'Price between %1$s and %2$s'                          => 'Preço entre %1$s e %2$s',
+        'Product'                                               => 'Produto',
+        'Product on sale'                                       => 'Produto em promoção',
+        'Products in cart'                                      => 'Produtos no carrinho',
+        'Quantity increased to %s.'                            => 'Quantidade aumentada para %s.',
+        'Quantity of %s in your cart.'                         => 'Quantidade de %s no seu carrinho.',
+        'Quantity reduced to %s.'                              => 'Quantidade reduzida para %s.',
+        'Rated %1$s out of 5 based on %2$s customer rating'   => 'Avaliado em %1$s de 5 com base em %2$s avaliação de cliente',
+        'Rated %f out of 5'                                    => 'Avaliado em %f de 5',
+        'Read less'                                             => 'Ler menos',
+        'Read more'                                             => 'Ler mais',
+        'Reduce quantity of %s'                                => 'Reduzir quantidade de %s',
+        'Reload the page'                                       => 'Recarregar a página',
+        'Remove'                                                => 'Remover',
+        'Remove %s from cart'                                  => 'Remover %s do carrinho',
+        'Retry'                                                 => 'Tentar novamente',
+        'Sale'                                                  => 'Promoção',
+        'Save %s'                                               => 'Economize %s',
+        'Ship'                                                  => 'Enviar',
+        'Shipping'                                              => 'Frete',
+        'Shipping options are not available'                   => 'Opções de entrega não disponíveis',
+        'Shipping:'                                             => 'Frete:',
+        'Show less'                                             => 'Mostrar menos',
+        'Size'                                                  => 'Tamanho',
+        'Something went wrong. Please contact us for assistance.' => 'Algo deu errado. Entre em contato conosco para obter assistência.',
+        'Something went wrong. Please contact us to get assistance.' => 'Algo deu errado. Entre em contato conosco para obter assistência.',
+        'Sorry, this order requires a shipping option.'       => 'Desculpe, este pedido requer uma opção de entrega.',
+        'Step'                                                  => 'Etapa',
+        'Strong'                                                => 'Forte',
+        'Subtotal'                                              => 'Subtotal',
+        'Subtotal:'                                             => 'Subtotal:',
+        'Taxes'                                                 => 'Impostos',
+        'The cart has encountered an unexpected error. If the error persists, please get in touch with us for help.'
+            => 'O carrinho encontrou um erro inesperado. Se o erro persistir, entre em contato conosco para obter ajuda.',
+        'The quantity of "%1$s" was changed to %2$s.'         => 'A quantidade de "%1$s" foi alterada para %2$s.',
+        'The response is not a valid JSON response.'          => 'A resposta não é uma resposta JSON válida.',
+        'There was an error loading the content.'             => 'Houve um erro ao carregar o conteúdo.',
+        'Too weak'                                              => 'Muito fraca',
+        'Total'                                                 => 'Total',
+        'Unable to get cart data from the API.'               => 'Não foi possível obter os dados do carrinho da API.',
+        'Very strong'                                           => 'Muito forte',
+        'Weak'                                                  => 'Fraca',
+        'You must accept our %1$s and %2$s to continue with your purchase.'
+            => 'Você deve aceitar nossos %1$s e nossa %2$s para continuar com sua compra.',
+        'You must be logged in to checkout.'                  => 'Você precisa estar conectado para finalizar a compra.',
+        'Your cart is currently empty!'                        => 'Seu carrinho está vazio no momento!',
+        'calculated with an address'                           => 'calculado com um endereço',
+        'free'                                                  => 'grátis',
+        'from <price />'                                        => 'a partir de <price />',
+    ];
+
+    $data = ($file && is_readable($file)) ? json_decode(file_get_contents($file), true) : null;
+    if (!is_array($data)) {
+        $data = [
+            'domain'      => 'messages',
+            'locale_data' => [
+                'messages' => [
+                    '' => [
+                        'domain'       => 'messages',
+                        'lang'         => 'pt_BR',
+                        'plural-forms' => 'nplurals=2; plural=(n > 1);',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    foreach ($overrides as $text => $translation) {
+        $data['locale_data']['messages'][$text] = [$translation];
+    }
+
+    return wp_json_encode($data);
+}, 10, 4);
+
+
 /* =====================================================================
    2. REGISTER ADDITIONAL NAV MENUS
    ===================================================================== */
@@ -176,8 +474,9 @@ function headshop_banner_text_metabox($post) {
         'media_buttons' => false,
         'quicktags'     => false,
         'tinymce'       => array(
-            'toolbar1' => 'bold,italic,underline,strikethrough,|,alignleft,aligncenter,alignright,|,removeformat',
-            'toolbar2' => '',
+            'toolbar1'       => 'fontsizeselect,|,bold,italic,underline,strikethrough,|,alignleft,aligncenter,alignright,|,removeformat',
+            'toolbar2'       => '',
+            'fontsize_formats' => '12px 14px 16px 18px 20px 24px 28px 32px 40px 48px 56px 64px',
         ),
     );
     ?>
@@ -347,10 +646,12 @@ function headshop_banner_slider() {
                  style="--img-desktop:url('<?= esc_url($slide['desktop']); ?>');--img-mobile:url('<?= esc_url($slide['mobile']); ?>');">
               <?php if (!empty($slide['title'])) : ?>
               <div class="headshop-banner__caption">
-                <div class="headshop-banner__caption-title"><?= wp_kses_post(wpautop($slide['title'])); ?></div>
-                <?php if (!empty($slide['subtitle'])) : ?>
-                <div class="headshop-banner__caption-sub"><?= wp_kses_post(wpautop($slide['subtitle'])); ?></div>
-                <?php endif; ?>
+                <div class="container">
+                  <div class="headshop-banner__caption-title"><?= wp_kses_post(wpautop($slide['title'])); ?></div>
+                  <?php if (!empty($slide['subtitle'])) : ?>
+                  <div class="headshop-banner__caption-sub"><?= wp_kses_post(wpautop($slide['subtitle'])); ?></div>
+                  <?php endif; ?>
+                </div>
               </div>
               <?php endif; ?>
             </div>
@@ -663,7 +964,7 @@ function headshop_render_cart_dropdown() {
         echo '  </div>';
         echo '  <div class="text-end ms-2">';
         echo '    <div class="small text-muted">' . intval($qty) . '×</div>';
-        echo '    <button type="button" class="btn btn-link p-0 mt-2 small text-muted cart-remove" data-cart-item-key="' . esc_attr($key) . '">Remover</button>';
+        echo '    <button type="button" class="cart-remove cart-remove--icon" data-cart-item-key="' . esc_attr($key) . '" aria-label="Remover item"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>';
         echo '  </div>';
         echo '</div>';
     }
@@ -712,6 +1013,48 @@ function headshop_cart_remove_ajax() {
 }
 add_action('wp_ajax_headshop_cart_remove', 'headshop_cart_remove_ajax');
 add_action('wp_ajax_nopriv_headshop_cart_remove', 'headshop_cart_remove_ajax');
+
+// AJAX refresh dropdown (sync after WC events)
+function headshop_cart_refresh_ajax() {
+    check_ajax_referer('headshop_cart', '_ajax_nonce');
+    if (!class_exists('WooCommerce') || !WC()->cart) {
+        wp_send_json_error(array('message' => 'WooCommerce indisponível'));
+    }
+    WC()->cart->calculate_totals();
+    ob_start();
+    headshop_render_cart_dropdown();
+    $html = ob_get_clean();
+    wp_send_json_success(array(
+        'count' => WC()->cart->get_cart_contents_count(),
+        'html'  => $html,
+    ));
+}
+add_action('wp_ajax_headshop_cart_refresh',        'headshop_cart_refresh_ajax');
+add_action('wp_ajax_nopriv_headshop_cart_refresh', 'headshop_cart_refresh_ajax');
+
+function headshop_ajax_add_to_cart() {
+    check_ajax_referer('headshop_cart', '_ajax_nonce');
+
+    $product_id = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
+    $quantity   = isset($_POST['quantity'])   ? absint($_POST['quantity'])   : 1;
+
+    if (!$product_id) {
+        wp_send_json_error(['message' => 'Produto inválido.']);
+    }
+
+    $key = WC()->cart->add_to_cart($product_id, $quantity);
+
+    if ($key) {
+        wp_send_json_success([
+            'count'   => WC()->cart->get_cart_contents_count(),
+            'message' => esc_html(get_the_title($product_id)) . ' adicionado ao carrinho!',
+        ]);
+    } else {
+        wp_send_json_error(['message' => 'Não foi possível adicionar. Verifique o estoque.']);
+    }
+}
+add_action('wp_ajax_headshop_add_to_cart',        'headshop_ajax_add_to_cart');
+add_action('wp_ajax_nopriv_headshop_add_to_cart', 'headshop_ajax_add_to_cart');
 
 
 /* =====================================================================
@@ -814,20 +1157,27 @@ function headshop_sale_products() {
                 $sale       = (float) $product->get_sale_price();
                 $discount   = $regular > 0 ? round((1 - $sale / $regular) * 100) : 0;
             ?>
-              <a href="<?= esc_url($link); ?>" class="headshop-sale-products__card">
+              <div class="headshop-sale-products__card">
                 <?php if ($discount > 0) : ?>
                   <span class="headshop-sale-products__badge">-<?= (int) $discount; ?>%</span>
                 <?php else : ?>
                   <span class="headshop-sale-products__badge">OFERTA</span>
                 <?php endif; ?>
-                <div class="headshop-sale-products__image-wrap">
-                  <img src="<?= esc_url($img_url); ?>" alt="<?= esc_attr($name); ?>" class="headshop-sale-products__image" loading="lazy" />
-                </div>
+                <a href="<?= esc_url($link); ?>" class="headshop-sale-products__image-link">
+                  <div class="headshop-sale-products__image-wrap">
+                    <img src="<?= esc_url($img_url); ?>" alt="<?= esc_attr($name); ?>" class="headshop-sale-products__image" loading="lazy" />
+                  </div>
+                </a>
                 <div class="headshop-sale-products__info">
                   <h3 class="headshop-sale-products__name"><?= esc_html($name); ?></h3>
                   <div class="headshop-sale-products__price"><?= wp_kses_post($price_html); ?></div>
+                  <a href="<?= esc_url($product->add_to_cart_url()); ?>"
+                     class="headshop-carousel__add-btn add_to_cart_button ajax_add_to_cart"
+                     data-product_id="<?= esc_attr($id); ?>"
+                     data-quantity="1"
+                     rel="nofollow">Adicionar</a>
                 </div>
-              </a>
+              </div>
             <?php endforeach; ?>
           </div>
           <button class="headshop-products-carousel__btn headshop-products-carousel__btn--next" aria-label="Próximo">&#8594;</button>
@@ -880,16 +1230,23 @@ function headshop_new_products() {
                 $img_url    = $img_id ? wp_get_attachment_image_url($img_id, 'woocommerce_thumbnail') : $placeholder;
                 $price_html = $product->get_price_html();
             ?>
-              <a href="<?= esc_url($link); ?>" class="headshop-new-products__card">
+              <div class="headshop-new-products__card">
                 <span class="headshop-new-products__badge">NOVO</span>
-                <div class="headshop-new-products__image-wrap">
-                  <img src="<?= esc_url($img_url); ?>" alt="<?= esc_attr($name); ?>" class="headshop-new-products__image" loading="lazy" />
-                </div>
+                <a href="<?= esc_url($link); ?>" class="headshop-new-products__image-link">
+                  <div class="headshop-new-products__image-wrap">
+                    <img src="<?= esc_url($img_url); ?>" alt="<?= esc_attr($name); ?>" class="headshop-new-products__image" loading="lazy" />
+                  </div>
+                </a>
                 <div class="headshop-new-products__info">
                   <h3 class="headshop-new-products__name"><?= esc_html($name); ?></h3>
                   <div class="headshop-new-products__price"><?= wp_kses_post($price_html); ?></div>
+                  <a href="<?= esc_url($product->add_to_cart_url()); ?>"
+                     class="headshop-carousel__add-btn add_to_cart_button ajax_add_to_cart"
+                     data-product_id="<?= esc_attr($id); ?>"
+                     data-quantity="1"
+                     rel="nofollow">Adicionar</a>
                 </div>
-              </a>
+              </div>
             <?php endforeach; ?>
           </div>
           <button class="headshop-products-carousel__btn headshop-products-carousel__btn--next" aria-label="Próximo">&#8594;</button>
@@ -904,7 +1261,169 @@ function headshop_new_products() {
 
 
 /* =====================================================================
-   12. IMPORTAR IMAGENS DE PRODUTOS (admin tool)
+   12. MOST VIEWED PRODUCTS — view counter + section
+   ===================================================================== */
+
+add_action('template_redirect', function () {
+    if (!is_singular('product')) return;
+    $id = get_the_ID();
+    if (!$id) return;
+    $count = (int) get_post_meta($id, 'post_views_count', true);
+    update_post_meta($id, 'post_views_count', $count + 1);
+});
+
+function headshop_most_viewed_products() {
+    if (!is_front_page() || !class_exists('WooCommerce')) return;
+
+    $query = new WP_Query(array(
+        'post_type'      => 'product',
+        'post_status'    => 'publish',
+        'posts_per_page' => 8,
+        'meta_key'       => 'post_views_count',
+        'orderby'        => 'meta_value_num',
+        'order'          => 'DESC',
+        'tax_query'      => array(array(
+            'taxonomy' => 'product_visibility',
+            'field'    => 'name',
+            'terms'    => array('exclude-from-catalog'),
+            'operator' => 'NOT IN',
+        )),
+    ));
+
+    if (!$query->have_posts()) {
+        $query = new WP_Query(array(
+            'post_type'      => 'product',
+            'post_status'    => 'publish',
+            'posts_per_page' => 8,
+            'orderby'        => 'rand',
+        ));
+    }
+
+    if (!$query->have_posts()) return;
+
+    $placeholder = wc_placeholder_img_src('woocommerce_thumbnail');
+    ?>
+    <section class="headshop-viewed-products py-5">
+      <div class="container" style="max-width:1400px;">
+        <div class="headshop-section-title">
+          <span class="headshop-section-title__eyebrow">— Os favoritos do momento</span>
+          <div class="headshop-section-title__row">
+            <h2 class="headshop-section-title__text">MAIS VISTOS</h2>
+            <div class="headshop-section-title__rule"></div>
+          </div>
+        </div>
+        <div class="headshop-products-carousel">
+          <button class="headshop-products-carousel__btn headshop-products-carousel__btn--prev" aria-label="Anterior">&#8592;</button>
+          <div class="headshop-viewed-products__grid headshop-products-carousel__track">
+            <?php while ($query->have_posts()) : $query->the_post();
+                $product    = wc_get_product(get_the_ID());
+                if (!$product) continue;
+                $id         = $product->get_id();
+                $name       = $product->get_name();
+                $link       = get_permalink($id);
+                $img_id     = $product->get_image_id();
+                $img_url    = $img_id ? wp_get_attachment_image_url($img_id, 'woocommerce_thumbnail') : $placeholder;
+                $price_html = $product->get_price_html();
+            ?>
+              <div class="headshop-viewed-products__card">
+                <a href="<?= esc_url($link); ?>" class="headshop-viewed-products__image-link">
+                  <div class="headshop-viewed-products__image-wrap">
+                    <img src="<?= esc_url($img_url); ?>" alt="<?= esc_attr($name); ?>" class="headshop-viewed-products__image" loading="lazy" />
+                  </div>
+                </a>
+                <div class="headshop-viewed-products__info">
+                  <h3 class="headshop-viewed-products__name"><?= esc_html($name); ?></h3>
+                  <div class="headshop-viewed-products__price"><?= wp_kses_post($price_html); ?></div>
+                  <a href="<?= esc_url($product->add_to_cart_url()); ?>"
+                     class="headshop-carousel__add-btn add_to_cart_button ajax_add_to_cart"
+                     data-product_id="<?= esc_attr($id); ?>"
+                     data-quantity="1"
+                     rel="nofollow">Adicionar</a>
+                </div>
+              </div>
+            <?php endwhile; wp_reset_postdata(); ?>
+          </div>
+          <button class="headshop-products-carousel__btn headshop-products-carousel__btn--next" aria-label="Próximo">&#8594;</button>
+        </div>
+        <div class="text-center mt-4">
+          <a href="<?= esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="btn headshop-viewed-products__btn">Ver todos →</a>
+        </div>
+      </div>
+    </section>
+    <?php
+}
+
+
+/* =====================================================================
+   13. MOST PURCHASED PRODUCTS — section
+   ===================================================================== */
+
+function headshop_most_purchased_products() {
+    if (!is_front_page() || !class_exists('WooCommerce')) return;
+
+    $products = wc_get_products(array(
+        'status'     => 'publish',
+        'limit'      => 8,
+        'orderby'    => 'popularity',
+        'order'      => 'DESC',
+        'visibility' => 'visible',
+    ));
+
+    if (empty($products)) return;
+
+    $placeholder = wc_placeholder_img_src('woocommerce_thumbnail');
+    ?>
+    <section class="headshop-purchased-products py-5">
+      <div class="container" style="max-width:1400px;">
+        <div class="headshop-section-title">
+          <span class="headshop-section-title__eyebrow">— O que todo mundo está levando</span>
+          <div class="headshop-section-title__row">
+            <h2 class="headshop-section-title__text">+ PROCURADOS</h2>
+            <div class="headshop-section-title__rule"></div>
+          </div>
+        </div>
+        <div class="headshop-products-carousel">
+          <button class="headshop-products-carousel__btn headshop-products-carousel__btn--prev" aria-label="Anterior">&#8592;</button>
+          <div class="headshop-purchased-products__grid headshop-products-carousel__track">
+            <?php foreach ($products as $product) :
+                $id         = $product->get_id();
+                $name       = $product->get_name();
+                $link       = get_permalink($id);
+                $img_id     = $product->get_image_id();
+                $img_url    = $img_id ? wp_get_attachment_image_url($img_id, 'woocommerce_thumbnail') : $placeholder;
+                $price_html = $product->get_price_html();
+            ?>
+              <div class="headshop-purchased-products__card">
+                <a href="<?= esc_url($link); ?>" class="headshop-purchased-products__image-link">
+                  <div class="headshop-purchased-products__image-wrap">
+                    <img src="<?= esc_url($img_url); ?>" alt="<?= esc_attr($name); ?>" class="headshop-purchased-products__image" loading="lazy" />
+                  </div>
+                </a>
+                <div class="headshop-purchased-products__info">
+                  <h3 class="headshop-purchased-products__name"><?= esc_html($name); ?></h3>
+                  <div class="headshop-purchased-products__price"><?= wp_kses_post($price_html); ?></div>
+                  <a href="<?= esc_url($product->add_to_cart_url()); ?>"
+                     class="headshop-carousel__add-btn add_to_cart_button ajax_add_to_cart"
+                     data-product_id="<?= esc_attr($id); ?>"
+                     data-quantity="1"
+                     rel="nofollow">Adicionar</a>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+          <button class="headshop-products-carousel__btn headshop-products-carousel__btn--next" aria-label="Próximo">&#8594;</button>
+        </div>
+        <div class="text-center mt-4">
+          <a href="<?= esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="btn headshop-purchased-products__btn">Ver todos →</a>
+        </div>
+      </div>
+    </section>
+    <?php
+}
+
+
+/* =====================================================================
+   14. IMPORTAR IMAGENS DE PRODUTOS (admin tool)
    ===================================================================== */
 
 add_action('admin_menu', 'headshop_register_image_import_page');
@@ -1048,6 +1567,21 @@ add_filter('the_title', function ($title, $post_id) {
     if (is_admin()) return $title;
     if ((is_front_page() || is_home()) && in_the_loop()) return '';
     return $title;
+}, 10, 2);
+
+/* =====================================================================
+   WOOCOMMERCE — LOOP BUTTON TEXT
+   ===================================================================== */
+
+// "Ler mais" → "Adicionar" / "Adicionar ao carrinho" → "Adicionar"
+add_filter('woocommerce_product_add_to_cart_text', function ($text, $product) {
+    $map = array(
+        __('Read more', 'woocommerce')        => 'Adicionar',
+        __('Add to cart', 'woocommerce')      => 'Adicionar',
+        __('Select options', 'woocommerce')   => 'Adicionar',
+        __('View products', 'woocommerce')    => 'Adicionar',
+    );
+    return isset($map[$text]) ? $map[$text] : $text;
 }, 10, 2);
 
 // Strip default WC homepage sections
