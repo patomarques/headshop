@@ -61,6 +61,7 @@ function headshop_enqueue_assets() {
         wp_localize_script('headshop-custom', 'headshopAjax', array(
             'url'   => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('headshop_cart'),
+            'debug' => (bool) (defined('WP_DEBUG') && WP_DEBUG),
         ));
     }
 }
@@ -102,6 +103,12 @@ add_filter('gettext', function ($translation, $text, $domain) {
     }
     return $map[$text] ?? $translation;
 }, 10, 3);
+
+// Remove the "Order notes" field from checkout (classic checkout).
+add_filter('woocommerce_checkout_fields', function ($fields) {
+    unset($fields['order']['order_comments']);
+    return $fields;
+});
 
 // Force pt-BR for WooCommerce Cart/Checkout block strings (React/JS i18n).
 // These render client-side via wp.i18n, not PHP gettext, and the bundled
