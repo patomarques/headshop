@@ -1,0 +1,39 @@
+@use 'sass:color';
+@use '../abstracts/variables' as *;
+
+.btn,
+button,
+input[type="submit"],
+input[type="button"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $radius-sm;
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: $transition-base;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: $color-primary;
+  color: $color-white;
+
+  &:hover {
+    background-color: color.adjust($color-primary, $lightness: -8%);
+    color: $color-white;
+  }
+}
+
+.btn-secondary {
+  background-color: $color-secondary;
+  color: $color-white;
+
+  &:hover {
+    background-color: color.adjust($color-secondary, $lightness: -8%);
+    color: $color-white;
+  }
+}

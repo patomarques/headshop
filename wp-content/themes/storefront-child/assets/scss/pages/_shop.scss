@@ -1,0 +1,107 @@
+@use '../abstracts/variables' as *;
+
+ul.products {
+  padding-left: 0;
+}
+
+// Remove Storefront's Font Awesome home icon injected via ::before
+.woocommerce-breadcrumb a:first-of-type::before {
+  display: none !important;
+}
+
+// ── Breadcrumb band ───────────────────────────────────────────────────────────
+.storefront-breadcrumb {
+  background: $color-light;
+  border-bottom: 1px solid $color-border;
+
+  .col-full {
+    padding-top: $spacing-sm;
+    padding-bottom: $spacing-sm;
+  }
+
+  .woocommerce-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+    font-size: $font-size-sm;
+    color: $color-muted;
+    margin: 0;
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      color: $color-muted;
+      line-height: 1;
+
+      svg { display: block; }
+
+      &:hover { color: $color-dark; }
+    }
+
+    .breadcrumb-sep {
+      color: $color-border;
+      font-size: 1rem;
+      line-height: 1;
+      user-select: none;
+    }
+  }
+}
+
+// ── Archive title ─────────────────────────────────────────────────────────────
+.woocommerce-products-header {
+  padding: $spacing-md 0 0;
+  margin-bottom: 0;
+
+  .woocommerce-products-header__title,
+  h1.page-title {
+    font-family: $font-family-body;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $color-dark;
+    margin: 0 0 $spacing-sm;
+  }
+}
+
+// ── Empty cart ────────────────────────────────────────────────────────────────
+.woocommerce-cart .cart-empty {
+  color: #000;
+  font-size: 1.2rem;
+}
+
+// ── Sort toolbar ──────────────────────────────────────────────────────────────
+.storefront-sorting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm 0;
+  margin-bottom: $spacing-md;
+  border-bottom: 1px solid $color-border;
+
+  &::before,
+  &::after { display: none; }
+
+  .woocommerce-ordering {
+    order: 2;
+    margin: 0;
+
+    select.orderby {
+      font-size: $font-size-sm;
+      padding: $spacing-xs $spacing-sm;
+      border: 1px solid $color-border;
+      border-radius: $radius-sm;
+      color: $color-dark;
+      background: $color-white;
+      cursor: pointer;
+
+      &:focus { outline: none; border-color: $color-primary; }
+    }
+  }
+
+  .woocommerce-result-count {
+    order: 1;
+    font-size: $font-size-sm;
+    color: $color-muted;
+    margin: 0;
+  }
+}

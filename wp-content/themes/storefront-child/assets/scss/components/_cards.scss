@@ -1,0 +1,22 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.card {
+  @include card-base;
+
+  .card-img-top {
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .card-body {
+    padding: $spacing-md;
+  }
+
+  .card-title {
+    font-size: $font-size-base;
+    font-weight: $font-weight-bold;
+    margin-bottom: $spacing-sm;
+    color: $color-dark;
+  }
+}

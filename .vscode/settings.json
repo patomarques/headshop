@@ -19,5 +19,6 @@
     "/wp-content/themes/*/assets/sass/**",
     "/wp-content/themes/*/assets/scss/**",
     "/wp-content/**/node_modules/**"
-  ]
+  ],
+  "claudeCode.allowDangerouslySkipPermissions": true
 }

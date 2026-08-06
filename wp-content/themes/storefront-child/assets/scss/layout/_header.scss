@@ -1,0 +1,588 @@
+@use 'sass:color';
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+#masthead {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: $color-white;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid $color-border;
+}
+
+// ── Single header row ─────────────────────────────────────────────────────────
+.header-main-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-sm 0;
+  min-height: 68px;
+}
+
+.site-header {
+  padding: 0 !important;
+}
+
+// ── Logo ──────────────────────────────────────────────────────────────────────
+.site-logo {
+  flex: 0 0 auto;
+
+  img {
+    max-height: 42px;
+    width: auto;
+    display: block;
+  }
+}
+
+.site-logo-text {
+  font-size: 1.35rem;
+  font-weight: $font-weight-bold;
+  color: $color-dark;
+  white-space: nowrap;
+}
+
+// ── Nav bar: full-width row below header-main ─────────────────────────────────
+.header-nav-bar {
+  width: 100%;
+  background: $color-dark;
+
+  // ── Top-level menu ──────────────────────────────────────────────────────────
+  .header-menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    > li {
+      position: relative;
+
+      > a {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        padding: $spacing-sm $spacing-md;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: $font-size-sm;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: color 0.2s ease, background 0.2s ease;
+
+        &:hover {
+          color: $color-white;
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      &.menu-item-has-children > a::after {
+        content: '▾';
+        font-size: 0.75em;
+        opacity: 0.7;
+        margin-left: auto;
+      }
+
+      &.current-menu-item > a,
+      &.current_page_item > a {
+        color: $color-white;
+        background: rgba(255, 255, 255, 0.15);
+      }
+    }
+  }
+
+  // ── Dropdown submenus ───────────────────────────────────────────────────────
+  .sub-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-top: 2px solid $color-primary;
+    border-radius: 0 0 $radius-sm $radius-sm;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    z-index: 1001;
+    list-style: none;
+    margin: 0;
+    padding: $spacing-xs 0;
+
+    li {
+      position: relative;
+
+      a {
+        display: block;
+        padding: $spacing-sm $spacing-md;
+        color: $color-dark;
+        font-size: $font-size-sm;
+        transition: color 0.2s ease, background 0.2s ease;
+        white-space: nowrap;
+
+        &:hover {
+          color: $color-primary;
+          background: $color-light;
+        }
+      }
+
+      // Third level: offset to the right
+      &.menu-item-has-children > a::after {
+        content: '›';
+        float: right;
+        opacity: 0.5;
+      }
+
+      .sub-menu {
+        top: 0;
+        left: 100%;
+        border-top: 1px solid $color-border;
+        border-top-color: $color-primary;
+      }
+
+      &:hover > .sub-menu {
+        display: block;
+      }
+    }
+  }
+
+  .header-menu > li:hover > .sub-menu {
+    display: block;
+  }
+
+  .nav-drawer-header,
+  .sub-menu-toggle {
+    display: none;
+  }
+
+  // ── Mobile offcanvas drawer ──────────────────────────────────────────────────
+  @include respond-to(md) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 85vw;
+    max-width: 320px;
+    z-index: 1200;
+    background: $color-white;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    will-change: transform;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition:
+      transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0s linear 0.32s;
+    box-shadow: 6px 0 30px rgba(0, 0, 0, 0.18);
+
+    &.is-open {
+      transform: translateX(0);
+      visibility: visible;
+      transition:
+        transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0s linear 0s;
+    }
+
+    .nav-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: $spacing-sm $spacing-md;
+      background: $color-dark;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .nav-drawer-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      padding: $spacing-xs;
+      border-radius: $radius-sm;
+      transition: color 0.2s ease, background 0.2s ease;
+
+      svg {
+        width: 22px;
+        height: 22px;
+      }
+
+      &:hover {
+        color: $color-white;
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .col-full {
+      width: 100%;
+      max-width: none;
+      padding: 0;
+    }
+
+    .header-menu {
+      flex-direction: column;
+      padding: $spacing-xs 0;
+      margin: 0;
+
+      > li {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        border-bottom: 1px solid $color-border;
+
+        > a {
+          flex: 1;
+          min-width: 0;
+          padding: $spacing-md $spacing-lg;
+          color: $color-dark;
+          font-size: $font-size-base;
+          font-weight: 600;
+          background: none;
+          white-space: normal;
+
+          &:hover {
+            color: $color-primary;
+            background: $color-light;
+          }
+
+          &::after {
+            display: none;
+          }
+        }
+
+        &.current-menu-item > a,
+        &.current_page_item > a {
+          color: $color-primary;
+          background: none;
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+
+    .sub-menu-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 52px;
+      align-self: stretch;
+      background: none;
+      border: none;
+      border-left: 1px solid $color-border;
+      color: $color-muted;
+      cursor: pointer;
+      transition: color 0.2s ease, background 0.2s ease;
+
+      svg {
+        width: 18px;
+        height: 18px;
+        transition: transform 0.25s ease;
+      }
+
+      &.is-active svg {
+        transform: rotate(180deg);
+      }
+
+      &:hover {
+        background: $color-light;
+        color: $color-dark;
+      }
+    }
+
+    .sub-menu {
+      display: none;
+      position: static;
+      box-shadow: none;
+      border: none;
+      border-top: 1px solid $color-border;
+      border-radius: 0;
+      background: $color-light;
+      padding: $spacing-xs 0;
+      flex: 0 0 100%;
+
+      &.is-open {
+        display: block;
+      }
+
+      li {
+        a {
+          display: block;
+          padding: $spacing-sm $spacing-xl;
+          color: $color-secondary;
+          font-size: $font-size-sm;
+          white-space: normal;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+          &:hover {
+            color: $color-primary;
+            background: rgba(0, 0, 0, 0.03);
+          }
+        }
+
+        &:last-child a {
+          border-bottom: none;
+        }
+
+        .sub-menu {
+          padding-left: $spacing-md;
+          background: $color-white;
+        }
+      }
+    }
+  }
+}
+
+// ── Actions (always right-aligned) ───────────────────────────────────────────
+.header-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  margin-left: auto;
+}
+
+// ── Icon buttons: nested under #masthead to beat Storefront's button{bg:#43454b}
+#masthead {
+  .header-icon-btn,
+  .header-cart-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: $color-secondary;
+    background-color: transparent;
+    border: none;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    padding: 0;
+
+    svg { display: block; width: 22px; height: 22px; flex-shrink: 0; }
+
+    &:hover {
+      color: $color-primary;
+      background-color: transparent;
+    }
+  }
+
+  // ── User / login icon — scaled up to compensate for slim Heroicons outline ─
+  .header-user-btn {
+    svg { width: 24px; height: 24px; }
+
+    .user-logged-dot {
+      position: absolute;
+      bottom: 7px;
+      right: 7px;
+      width: 7px;
+      height: 7px;
+      background: $color-success;
+      border-radius: 50%;
+      border: 1.5px solid $color-white;
+    }
+
+    &.is-logged-in {
+      color: $color-dark;
+    }
+  }
+
+  // ── Search toggle icon swap ─────────────────────────────────────────────────
+  .header-icon-btn {
+    .icon-close { display: none; }
+
+    &[aria-expanded="true"] {
+      color: $color-primary;
+      .icon-search { display: none; }
+      .icon-close  { display: block; }
+    }
+  }
+
+  // ── Cart badge ──────────────────────────────────────────────────────────────
+  .header-cart-link .cart-count {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
+    background: $color-primary;
+    color: $color-white;
+    font-size: 0.6rem;
+    font-weight: $font-weight-bold;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    line-height: 1;
+
+    &:empty { display: none; }
+  }
+
+  // ── Hamburger (mobile only) ─────────────────────────────────────────────────
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    padding: $spacing-xs;
+    color: $color-secondary;
+    background-color: transparent;
+    border: 1.5px solid $color-border;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    .nav-toggle-bar {
+      display: block;
+      width: 18px;
+      height: 2px;
+      background: currentColor;
+      border-radius: 2px;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    &.is-active {
+      color: $color-primary;
+      border-color: $color-primary;
+      outline: none;
+
+      .nav-toggle-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+      .nav-toggle-bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
+      .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    }
+
+    @include respond-to(md) {
+      display: flex;
+    }
+  }
+} // end #masthead icon buttons
+
+// ── Search panel (absolute dropdown, 33vw, right-aligned) ────────────────────
+.header-search-panel {
+  position: absolute;
+  right: 0;
+  width: 33vw;
+  background: $color-white;
+  border: 1px solid $color-border;
+  border-top: none;
+  border-radius: 0 0 $radius-md $radius-md;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  padding: $spacing-sm $spacing-md;
+  z-index: 998;
+
+  &[hidden] { display: none !important; }
+
+  form,
+  .header-search-form,
+  .woocommerce-product-search {
+    display: flex;
+  }
+
+  input[type="search"],
+  .search-field {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border: 1.5px solid $color-border;
+    border-right: none;
+    border-radius: $radius-sm 0 0 $radius-sm;
+    font-size: $font-size-base;
+    background: $color-light;
+    color: $color-dark;
+    transition: border-color 0.2s ease, background 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+      background: $color-white;
+      outline: none;
+    }
+
+    &::placeholder { color: $color-muted; }
+  }
+
+  button[type="submit"] {
+    flex: 0 0 auto;
+    padding: 0 $spacing-md;
+    background: $color-secondary;
+    border: none;
+    border-radius: 0 $radius-sm $radius-sm 0;
+    color: $color-white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+
+    &:hover { background: $color-dark; }
+  }
+
+  @include respond-to(md) {
+    width: 100%;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    padding: $spacing-sm $spacing-lg;
+  }
+}
+
+.announcement-bar {
+  background: $color-dark;
+  color: $color-white;
+  text-align: center;
+  font-size: 0.8rem;
+  padding: 9px $spacing-md;
+  position: relative;
+  font-family: $font-family-body;
+
+  a {
+    color: $color-white;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover { opacity: 0.8; }
+  }
+
+  .announcement-close {
+    position: absolute;
+    right: $spacing-md;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: $color-white;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0.7;
+    padding: 0;
+    line-height: 1;
+
+    &:hover { opacity: 1; }
+  }
+}
+
+.nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.32s ease;
+
+  &.is-visible {
+    display: block;
+  }
+
+  &.is-active {
+    opacity: 1;
+  }
+}

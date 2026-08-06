@@ -9,13 +9,14 @@ $dusty-mauve:  #b0413e;
 $cream:        #ffffc7;
 $dark-cyan:    #548687;
 $deep-mocha:   #473335;
+$dark-olive:   #3B4A2D;
 
 // =====================================================================
 // Semantic aliases — map brand colours to functional roles
 // =====================================================================
 
-// Primary action / accent colour → warm sandy-brown
-$color-primary:     $sandy-brown;
+// Primary action / accent colour → dark olive green
+$color-primary:     $dark-olive;
 
 // Secondary / complementary → dark-cyan (cool contrast)
 $color-secondary:   $dark-cyan;
@@ -38,27 +39,27 @@ $header-bg:         #ffffff;
 $header-text:       $deep-mocha;
 
 // Footer
-$footer-bg:         $deep-mocha;
-$footer-text:       #dddddd;
+$footer-bg:         #000000;
+$footer-text:       #ffffff;
 
 // Text
 $text-body:         $deep-mocha;
 $text-muted:        #8c7173;   // lighter mocha
 
 // Links / hover
-$link-color:        $sandy-brown;
-$link-hover-color:  mix(#000, $sandy-brown, 12%);
+$link-color:        $dark-olive;
+$link-hover-color:  mix(#000, $dark-olive, 12%);
 
 // Buttons — primary action
-$btn-primary-bg:    $sandy-brown;
-$btn-primary-hover: mix(#000, $sandy-brown, 10%);
+$btn-primary-bg:    $dark-olive;
+$btn-primary-hover: mix(#000, $dark-olive, 10%);
 
 // Buttons — secondary / outline
 $btn-secondary-bg:    $dark-cyan;
 $btn-secondary-hover: mix(#000, $dark-cyan, 10%);
 
 // Accent elements (underlines, highlights)
-$accent-color:      $sandy-brown;
+$accent-color:      $dark-olive;
 $accent-alt:        $dark-cyan;
 
 // Cart / badges
@@ -66,9 +67,12 @@ $cart-accent:       $dark-cyan;
 $cart-accent-hover: mix(#000, $dark-cyan, 8%);
 $sale-badge-bg:     $dusty-mauve;
 
+// Sale / promotional price — lighter green
+$color-sale:        #5C9E3F;
+
 // Search overlay
 $search-accent:       $dark-cyan;
 $search-accent-hover: mix(#000, $dark-cyan, 10%);
 
 // Section backgrounds
-$section-light-bg:  #ffffff;
+$section-light-bg:  #f0efed;

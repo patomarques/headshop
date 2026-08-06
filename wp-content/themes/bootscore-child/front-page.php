@@ -23,6 +23,12 @@ get_header();
   <!-- New Products Section -->
   <?php headshop_new_products(); ?>
 
+  <!-- Most Viewed Products Section -->
+  <?php headshop_most_viewed_products(); ?>
+
+  <!-- Most Purchased Products Section -->
+  <?php headshop_most_purchased_products(); ?>
+
   <!-- Page content (if any) -->
   <?php if (have_posts()) : while (have_posts()) : the_post(); ?>
     <?php

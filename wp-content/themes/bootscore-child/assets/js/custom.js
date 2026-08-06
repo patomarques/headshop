@@ -1,9 +1,9 @@
-// Ativa tooltip Bootstrap no link do autor na footer
+// Ativa tooltips Bootstrap na footer
 document.addEventListener('DOMContentLoaded', function() {
-    var tooltipTrigger = document.querySelector('.footer-dev-link[data-bs-toggle="tooltip"]');
-    if (tooltipTrigger && window.bootstrap && bootstrap.Tooltip) {
-        new bootstrap.Tooltip(tooltipTrigger);
-    }
+    if (!window.bootstrap || !bootstrap.Tooltip) return;
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
+        new bootstrap.Tooltip(el);
+    });
 });
 // Remove .bg-body-tertiary from .wp-breadcrumb if present
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,6 +12,217 @@ document.addEventListener('DOMContentLoaded', function() {
         breadcrumb.classList.remove('bg-body-tertiary');
     }
 });
+/* =================================================================
+   ADD TO CART — carousel cards
+   ================================================================= */
+(function () {
+    function showToast(message, isError) {
+        var toast = document.createElement('div');
+        toast.className = 'headshop-toast' + (isError ? ' headshop-toast--error' : '');
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () { toast.classList.add('headshop-toast--visible'); });
+        });
+
+        setTimeout(function () {
+            toast.classList.remove('headshop-toast--visible');
+            setTimeout(function () { toast.remove(); }, 300);
+        }, 3000);
+    }
+
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('.headshop-carousel__add-btn');
+        if (!btn) return;
+        if (typeof headshopAjax === 'undefined') return;
+
+        e.preventDefault();
+
+        var productId = btn.getAttribute('data-product_id');
+        if (!productId) return;
+
+        btn.classList.add('loading');
+
+        var body = new URLSearchParams();
+        body.append('action',      'headshop_add_to_cart');
+        body.append('_ajax_nonce', headshopAjax.nonce);
+        body.append('product_id',  productId);
+        body.append('quantity',    '1');
+
+        fetch(headshopAjax.url, {
+            method:      'POST',
+            headers:     { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            body:        body.toString(),
+            credentials: 'same-origin',
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+            btn.classList.remove('loading');
+
+            if (res && res.success) {
+                showToast(res.data.message || 'Adicionado ao carrinho!', false);
+
+                var countEl = document.querySelector('.headshop-cart__count');
+                if (countEl && res.data.count !== undefined) {
+                    countEl.textContent = String(res.data.count);
+                }
+            } else {
+                var msg = (res && res.data && res.data.message) ? res.data.message : 'Erro ao adicionar ao carrinho.';
+                showToast(msg, true);
+            }
+        })
+        .catch(function () {
+            btn.classList.remove('loading');
+            showToast('Erro de conexão. Tente novamente.', true);
+        });
+    });
+})();
+
+
+/* =================================================================
+   PRODUCTS CAROUSEL
+   ================================================================= */
+document.addEventListener('DOMContentLoaded', function () {
+    var mobileSearchBtn = document.getElementById('mobileSearchBtn');
+    if (mobileSearchBtn) {
+        mobileSearchBtn.addEventListener('click', function () {
+            var offcanvasEl = document.getElementById('offcanvasMenu');
+            if (offcanvasEl && window.bootstrap) {
+                bootstrap.Offcanvas.getInstance(offcanvasEl)?.hide();
+            }
+            setTimeout(function () {
+                var searchBtn = document.getElementById('searchToggleBtn');
+                if (searchBtn) searchBtn.click();
+            }, 320);
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.headshop-products-carousel').forEach(function (carousel) {
+        var track = carousel.querySelector('.headshop-products-carousel__track');
+        var prev  = carousel.querySelector('.headshop-products-carousel__btn--prev');
+        var next  = carousel.querySelector('.headshop-products-carousel__btn--next');
+        if (!track) return;
+
+        // Clone all items to enable seamless infinite loop
+        Array.from(track.children).forEach(function (item) {
+            track.appendChild(item.cloneNode(true));
+        });
+
+        function cardWidth() {
+            var card = track.firstElementChild;
+            return card ? card.offsetWidth + 24 : track.offsetWidth * 0.8;
+        }
+
+        // Instant position jump without animation (used for loop reset)
+        function jump(newLeft) {
+            track.style.scrollSnapType = 'none';
+            track.style.scrollBehavior = 'auto';
+            track.scrollLeft = newLeft;
+            requestAnimationFrame(function () {
+                track.style.scrollBehavior = '';
+                track.style.scrollSnapType = '';
+            });
+        }
+
+        // Eased scroll animation (duration in ms)
+        function smoothScroll(delta, duration) {
+            var start     = track.scrollLeft;
+            var target    = start + delta;
+            var startTime = null;
+
+            function ease(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
+
+            function step(now) {
+                if (!startTime) startTime = now;
+                var t = Math.min(1, (now - startTime) / duration);
+                track.scrollLeft = start + (target - start) * ease(t);
+                if (t < 1) requestAnimationFrame(step);
+            }
+
+            requestAnimationFrame(step);
+        }
+
+        // After smooth scroll settles, reset to equivalent position in originals if in clone zone
+        var scrollTimer;
+        track.addEventListener('scroll', function () {
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(function () {
+                var half = track.scrollWidth / 2;
+                if (track.scrollLeft >= half) {
+                    jump(track.scrollLeft - half);
+                }
+            }, 50);
+        });
+
+        function advance() {
+            smoothScroll(cardWidth(), 900);
+        }
+
+        var timer = setInterval(advance, 4000);
+
+        carousel.addEventListener('mouseenter', function () { clearInterval(timer); });
+        carousel.addEventListener('mouseleave', function () { timer = setInterval(advance, 4000); });
+
+        if (prev) prev.addEventListener('click', function () {
+            if (track.scrollLeft < cardWidth()) {
+                jump(track.scrollLeft + track.scrollWidth / 2);
+            }
+            smoothScroll(-cardWidth(), 700);
+        });
+
+        if (next) next.addEventListener('click', function () {
+            smoothScroll(cardWidth(), 700);
+        });
+    });
+});
+
+/* =================================================================
+   FULLSCREEN NAV OVERLAY (bar icon)
+   ================================================================= */
+(function () {
+    var btn      = document.getElementById('navBarsBtn');
+    var overlay  = document.getElementById('navBarsOverlay');
+    var closeBtn = document.getElementById('navBarsClose');
+    if (!btn || !overlay) return;
+
+    function open() {
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('nav-overlay-open');
+    }
+
+    function close() {
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('nav-overlay-open');
+    }
+
+    btn.addEventListener('click', function () {
+        overlay.classList.contains('is-open') ? close() : open();
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', close);
+
+    // Accordion: toggle subcategories on chevron click
+    overlay.addEventListener('click', function (e) {
+        var toggle = e.target.closest('.headshop-overlay-item__toggle');
+        if (!toggle) return;
+
+        var item = toggle.closest('.headshop-overlay-item--has-sub');
+        if (!item) return;
+
+        var sub     = item.querySelector('.headshop-overlay-item__sub');
+        var isOpen  = toggle.getAttribute('aria-expanded') === 'true';
+
+        toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+        sub.style.maxHeight = isOpen ? '0' : sub.scrollHeight + 'px';
+    });
+})();
+
+
 /* =================================================================
    HEADER SCROLL EFFECT
    - Home: fixo transparente → fixo branco após scroll > 80vh
@@ -133,19 +344,35 @@ jQuery(function () {
             });
         }
 
-        if (link) {
-            link.addEventListener('click', function (e) {
-                e.preventDefault();
-                if (dd) dd.style.display = (dd.style.display === 'none' || dd.style.display === '') ? 'block' : 'none';
+        // Hover só para mouse (pointerType evita disparar em touch)
+        cart.addEventListener('pointerenter', function (e) {
+            if (e.pointerType === 'mouse') show();
+        });
+        cart.addEventListener('pointerleave', function (e) {
+            if (e.pointerType === 'mouse') scheduleHide();
+        });
+        if (dd) {
+            dd.addEventListener('pointerenter', function (e) {
+                if (e.pointerType === 'mouse') show();
+            });
+            dd.addEventListener('pointerleave', function (e) {
+                if (e.pointerType === 'mouse') scheduleHide();
             });
         }
 
-        cart.addEventListener('mouseenter', show);
-        cart.addEventListener('mouseleave', scheduleHide);
-        if (dd) {
-            dd.addEventListener('mouseenter', show);
-            dd.addEventListener('mouseleave', scheduleHide);
+        if (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                show();
+            });
         }
+
+        // Fechar ao clicar fora
+        document.addEventListener('click', function (e) {
+            if (dd && dd.style.display === 'block' && !cart.contains(e.target)) {
+                hide();
+            }
+        });
 
         // AJAX remove
         if (dd && typeof headshopAjax !== 'undefined') {
@@ -185,5 +412,200 @@ jQuery(function () {
             });
         }
     })();
+
+
+    /* =================================================================
+       CHECKOUT — CEP autocomplete (ViaCEP)
+       ================================================================= */
+    (function () {
+        function digitsOnly(v) { return (v || '').replace(/\D/g, ''); }
+
+        function fillAddress(prefix, data) {
+            var fields = {
+                address_1:    data.logradouro,
+                neighborhood: data.bairro,
+                city:         data.localidade,
+            };
+            Object.keys(fields).forEach(function (suffix) {
+                var $el = jQuery('#' + prefix + '_' + suffix);
+                if ($el.length && fields[suffix]) {
+                    $el.val(fields[suffix]).trigger('change');
+                }
+            });
+
+            var $state = jQuery('#' + prefix + '_state');
+            if ($state.length && data.uf) {
+                $state.val(data.uf).trigger('change');
+            }
+
+            var $number = jQuery('#' + prefix + '_number');
+            if ($number.length && !$number.val()) $number.trigger('focus');
+        }
+
+        function lookupCep(prefix) {
+            var $cep = jQuery('#' + prefix + '_postcode');
+            if (!$cep.length) return;
+
+            var cep = digitsOnly($cep.val());
+            if (cep.length !== 8) return;
+
+            $cep.addClass('headshop-cep-loading');
+
+            fetch('https://viacep.com.br/ws/' + cep + '/json/')
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (!data.erro) fillAddress(prefix, data);
+                })
+                .catch(function () {})
+                .then(function () { $cep.removeClass('headshop-cep-loading'); });
+        }
+
+        // Native blur/focus don't bubble, so a delegated jQuery "blur" handler
+        // never fires here — trigger the lookup as soon as 8 digits are typed instead.
+        jQuery(document).on('input', '#billing_postcode, #shipping_postcode', function () {
+            if (digitsOnly(this.value).length === 8) {
+                lookupCep(this.id.replace('_postcode', ''));
+            }
+        });
+    })();
+
+
+    /* =================================================================
+       CART — shipping calculator CEP autocomplete (ViaCEP)
+       The form only shows the CEP field (see _bootscore-custom.scss);
+       country/state/city stay in the DOM so their values still post
+       with the calculator's AJAX request. This masks the field as
+       00000-000 (digits only, 8 digits max) and, once complete, fills
+       state/city from ViaCEP and submits automatically.
+       ================================================================= */
+    (function () {
+        function digitsOnly(v) { return (v || '').replace(/\D/g, ''); }
+
+        function maskCep(v) {
+            var digits = digitsOnly(v).slice(0, 8);
+            return digits.length > 5 ? digits.slice(0, 5) + '-' + digits.slice(5) : digits;
+        }
+
+        function fillCalculator(data) {
+            var $state = jQuery('#calc_shipping_state');
+            if ($state.length && data.uf) $state.val(data.uf).trigger('change');
+
+            var $city = jQuery('#calc_shipping_city');
+            if ($city.length && data.localidade) $city.val(data.localidade).trigger('change');
+        }
+
+        // Numeric keyboard on mobile + hard stop at "00000-000" length.
+        jQuery(function () {
+            jQuery('#calc_shipping_postcode').attr({
+                inputmode: 'numeric',
+                autocomplete: 'postal-code',
+                maxlength: 9,
+            });
+        });
+
+        jQuery(document).on('input', '#calc_shipping_postcode', function () {
+            var $cep = jQuery(this);
+            var caretFromEnd = this.value.length - this.selectionEnd;
+
+            $cep.val(maskCep(this.value));
+
+            // Restore caret position relative to the end, since masking
+            // can insert/remove the "-" ahead of where the user is typing.
+            var pos = this.value.length - caretFromEnd;
+            this.setSelectionRange(pos, pos);
+
+            var cep = digitsOnly(this.value);
+            if (cep.length !== 8) return;
+
+            $cep.addClass('headshop-cep-loading');
+
+            fetch('https://viacep.com.br/ws/' + cep + '/json/')
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.erro) return;
+                    fillCalculator(data);
+                    jQuery('form.woocommerce-shipping-calculator').trigger('submit');
+                })
+                .catch(function () {})
+                .then(function () { $cep.removeClass('headshop-cep-loading'); });
+        });
+    })();
+
+
+    /* =================================================================
+       CART — shipping calculator: info icon next to the CEP label.
+       Hover (desktop) or tap/click (the icon is focusable) reveals a
+       tooltip explaining what the field does, replacing the removed
+       "Enter your address to view shipping options." helper text.
+       ================================================================= */
+    jQuery(function () {
+        var $label = jQuery('label[for="calc_shipping_postcode"]');
+        if (!$label.length || $label.find('.headshop-info-icon').length) return;
+
+        jQuery(
+            '<span class="headshop-info-icon" tabindex="0" role="button" aria-label="Mais informações sobre este campo">' +
+                '?' +
+                '<span class="headshop-info-icon__tooltip" role="tooltip">' +
+                    'Digite seu CEP para ver as opções de entrega disponíveis.' +
+                '</span>' +
+            '</span>'
+        ).appendTo($label);
+    });
+
+
+    /* =================================================================
+       CHECKOUT — fill fictitious data (testing helper)
+       Only active when WP_DEBUG is on (see headshopAjax.debug).
+       ================================================================= */
+    if (typeof headshopAjax !== 'undefined' && headshopAjax.debug) {
+        (function () {
+            var form = document.querySelector('form.woocommerce-checkout');
+            if (!form) return;
+
+            var TEST_DATA = {
+                billing_first_name:  'João',
+                billing_last_name:   'da Silva',
+                billing_persontype:  '1', // Pessoa Física
+                billing_cpf:         '529.982.247-25', // CPF de teste com dígitos válidos
+                // Endereço dentro de Pernambuco — a loja só entrega nesse estado,
+                // um CEP de fora não mostra opção de frete no checkout (não é bug).
+                billing_postcode:    '55016-080', // dispara o autocomplete de CEP
+                billing_address_1:   'Rua Tupy',
+                billing_number:      '147',
+                billing_neighborhood: 'Salgado',
+                billing_city:        'Caruaru',
+                billing_state:       'PE',
+                billing_phone:       '(11) 99999-0000',
+                billing_email:       'teste@example.com',
+                // Cartão de teste (sandbox) — ajuste se o gateway usar outro número de teste
+                asaas_cc_name:              'JOAO DA SILVA',
+                asaas_cc_number:            '4111 1111 1111 1111',
+                asaas_cc_expiration_month:  '12',
+                asaas_cc_expiration_year:   '2030',
+                asaas_cc_security_code:     '123',
+            };
+
+            function fillField(name, value) {
+                var el = form.querySelector('[name="' + name + '"]');
+                if (!el) return;
+                el.value = value;
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                jQuery(el).trigger('change');
+            }
+
+            function fillAll() {
+                Object.keys(TEST_DATA).forEach(function (name) {
+                    fillField(name, TEST_DATA[name]);
+                });
+            }
+
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = 'Preencher dados de teste';
+            btn.className = 'headshop-debug-fill-btn';
+            btn.addEventListener('click', fillAll);
+            document.body.appendChild(btn);
+        })();
+    }
 
 }); // jQuery End
