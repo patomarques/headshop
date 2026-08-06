@@ -1,3 +1,4 @@
+
 # Development Settings
 
 ## Commit Messages
@@ -16,3 +17,8 @@
 
 ## Main Theme
 - Main theme: `p bootscore-child (headshop)`.
+
+## HTML Comments
+- Do not use inline HTML comments to label or describe blocks (e.g., `<!-- Coluna 1: Marca -->`).
+- Structure and intent must be communicated through class names alone.
+- Exception: closing tag references on deeply nested closers are also unnecessary — prefer flat, readable markup.

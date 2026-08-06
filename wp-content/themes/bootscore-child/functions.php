@@ -84,6 +84,7 @@ add_filter('gettext', function ($translation, $text, $domain) {
             'Home'                                   => 'Início',
             'Return to shop'                        => 'Voltar para a loja',
             'Calculate shipping'                    => 'Calcular envio',
+            'Postcode / ZIP:'                       => 'Consultar CEP',
             'Update cart'                           => 'Atualizar carrinho',
             'Apply coupon'                          => 'Aplicar cupom',
             'Proceed to checkout'                   => 'Finalizar compra',
@@ -108,6 +109,12 @@ add_filter('gettext', function ($translation, $text, $domain) {
 add_filter('woocommerce_checkout_fields', function ($fields) {
     unset($fields['order']['order_comments']);
     return $fields;
+});
+
+// Rename the shipping package heading ("Remessa 1") shown above the
+// shipping method options in cart/checkout order review.
+add_filter('woocommerce_shipping_package_name', function () {
+    return __('Forma de Entrega', 'woocommerce');
 });
 
 // Force pt-BR for WooCommerce Cart/Checkout block strings (React/JS i18n).
@@ -1599,3 +1606,121 @@ add_filter('the_content', function ($content) {
     $regex   = implode('|', $escaped);
     return preg_replace('/<h[1-6][^>]*>\s*(?:' . $regex . ')\s*<\/h[1-6]>.*?(?=(?:<h[1-6][^>]*>)|$)/is', '', $content);
 }, 20);
+
+/* =====================================================================
+   14. DISTANCE-BASED SHIPPING
+   Free within the configured radius above a minimum order value, flat
+   rate within the radius below it, price-per-km beyond the radius.
+   ===================================================================== */
+
+require_once get_stylesheet_directory() . '/inc/class-headshop-shipping-distance.php';
+
+add_filter('woocommerce_shipping_methods', function ($methods) {
+    $methods['headshop_distance_shipping'] = 'Headshop_Shipping_Distance';
+    return $methods;
+});
+
+// One-time setup: add the method to the "Caruaru" zone and disable the
+// old unconditional flat rate it replaces. Guarded by an option flag so
+// it only runs once (admin can freely reconfigure/remove afterwards).
+add_action('init', function () {
+    if (get_option('headshop_distance_shipping_installed')) {
+        return;
+    }
+    if (!class_exists('WC_Shipping_Zones')) {
+        return;
+    }
+
+    foreach (WC_Shipping_Zones::get_zones() as $zone_data) {
+        $zone = new WC_Shipping_Zone($zone_data['id']);
+
+        $has_distance_method = false;
+        foreach ($zone->get_shipping_methods() as $method) {
+            if ('flat_rate' === $method->id) {
+                $zone->delete_shipping_method($method->instance_id);
+            }
+            if ('headshop_distance_shipping' === $method->id) {
+                $has_distance_method = true;
+            }
+        }
+
+        if (!$has_distance_method) {
+            $zone->add_shipping_method('headshop_distance_shipping');
+        }
+    }
+
+    update_option('headshop_distance_shipping_installed', 1);
+});
+
+// Cart shipping calculator is CEP-only now (see main.css/custom.js) — the
+// stock "Enter your address to view shipping options." prompt no longer
+// applies; an info icon next to the field explains it instead.
+add_filter('woocommerce_shipping_may_be_available_html', '__return_empty_string');
+
+// One-time setup: add "Retirada no local" (WooCommerce's built-in
+// local_pickup method) to every zone, free of charge, so customers can
+// pick up in-store as an alternative to delivery.
+//
+// Note: WooCommerce also has a newer "Pickup Location" feature
+// (pickup_location), but that one only registers when the Checkout
+// *block* is in use (see ShippingController::register_local_pickup in
+// the WooCommerce plugin) — this store's checkout is the classic
+// [woocommerce_checkout] shortcode, so local_pickup is the method that
+// actually works here.
+add_action('init', function () {
+    if (get_option('headshop_local_pickup_installed')) {
+        return;
+    }
+    if (!class_exists('WC_Shipping_Zones')) {
+        return;
+    }
+
+    foreach (WC_Shipping_Zones::get_zones() as $zone_data) {
+        $zone = new WC_Shipping_Zone($zone_data['id']);
+
+        $has_local_pickup = false;
+        foreach ($zone->get_shipping_methods() as $method) {
+            if ('local_pickup' === $method->id) {
+                $has_local_pickup = true;
+            }
+        }
+
+        if (!$has_local_pickup) {
+            $instance_id = $zone->add_shipping_method('local_pickup');
+            if ($instance_id) {
+                update_option('woocommerce_local_pickup_' . $instance_id . '_settings', [
+                    'title'      => 'Retirada no local',
+                    'tax_status' => 'taxable',
+                    'cost'       => '',
+                ]);
+            }
+        }
+    }
+
+    update_option('headshop_local_pickup_installed', 1);
+});
+
+/* =====================================================================
+   15. ASAAS CREDIT CARD — guard against corrupted "split_wallet" setting
+   Two stacked bugs in the woo-asaas plugin's split-payment feature:
+   1. Its sanitizer (Split_Settings_Service::sanitize_split_wallet_field)
+      can save this setting as an empty string instead of an array when
+      no split wallet rows are configured, and its consumer
+      (Split_Checkout_Hook::split_payment_data) only guards against
+      null — a string value fatals on array_map() during checkout.
+   2. Even a valid *empty* array reaches Split_Gateway_Log_Service::log(),
+      which throws "Settings cannot be empty." instead of treating "no
+      split configured" as a no-op.
+   Both were breaking every credit card order ("Houve um erro ao
+   processar sua compra..."). split_payment_data() already has a working
+   early-return for null, so route anything that isn't a *non-empty*
+   array through that instead of introducing a new code path — fixed
+   here (not in the plugin) since wp-content/plugins is gitignored and
+   overwritten on updates.
+   ===================================================================== */
+add_filter('woocommerce_asaas_payment_data', function ($payment_data, $wc_order, $gateway) {
+    if (isset($gateway->settings['split_wallet']) && empty($gateway->settings['split_wallet'])) {
+        $gateway->settings['split_wallet'] = null;
+    }
+    return $payment_data;
+}, 5, 3);

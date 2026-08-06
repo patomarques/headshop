@@ -1,0 +1,110 @@
+@use '../abstracts/variables' as *;
+
+.site-footer {
+  background-color: $color-dark;
+  color: $color-white;
+  font-size: 1rem;
+  padding: $spacing-xl 0 $spacing-lg;
+  margin-top: $spacing-xl;
+
+  a {
+    color: $color-white;
+    font-size: 1rem;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+
+  .footer-heading {
+    font-size: 1rem;
+    font-weight: $font-weight-bold;
+    color: $color-white;
+    margin-bottom: $spacing-md;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .footer-description {
+    font-size: 1rem;
+    color: $color-white;
+    line-height: $line-height-base;
+  }
+
+  .footer-row {
+    padding-top: $spacing-section;
+    padding-bottom: $spacing-section;
+    row-gap: $spacing-lg;
+  }
+
+  .footer-social {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-top: $spacing-md;
+  }
+
+  .footer-social-link {
+    display: inline-flex;
+    align-items: center;
+    color: $color-white !important;
+
+    &:hover {
+      color: $color-primary !important;
+    }
+  }
+
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      margin-bottom: $spacing-sm;
+    }
+
+    a {
+      font-size: 1rem;
+      color: $color-white !important;
+
+      &:hover {
+        color: $color-primary !important;
+      }
+    }
+  }
+
+  .footer-payment-logos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    align-items: center;
+    margin-top: $spacing-sm;
+
+    img {
+      height: 28px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      opacity: 0.85;
+    }
+
+    .payment-svg {
+      display: inline-flex;
+      align-items: center;
+
+      svg {
+        height: 28px;
+        width: auto;
+        fill: $color-white;
+      }
+    }
+  }
+
+  .footer-bottom {
+    text-align: center;
+    font-size: 1rem;
+    color: $color-white;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: $spacing-md;
+    margin-top: $spacing-lg;
+  }
+}

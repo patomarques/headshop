@@ -1,0 +1,229 @@
+@use 'sass:color';
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.login-page-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: $spacing-xl $spacing-md;
+  min-height: 60vh;
+  background: $color-light;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: $color-white;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  padding: $spacing-xl $spacing-lg;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+
+  &__logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: $spacing-lg;
+
+    img {
+      max-height: 48px;
+      width: auto;
+    }
+  }
+}
+
+// ── Notices ──────────────────────────────────────────────────────────────────
+.login-notice {
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-md;
+
+  &--error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+  }
+}
+
+// ── Social login ──────────────────────────────────────────────────────────────
+.social-login {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  width: 100%;
+  padding: 0.65rem $spacing-md;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+
+  svg {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &--google {
+    background: $color-white;
+    border: 1.5px solid $color-border;
+    color: $color-dark;
+
+    &:hover {
+      background: $color-light;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      color: $color-dark;
+    }
+  }
+}
+
+// ── "OU" divider ──────────────────────────────────────────────────────────────
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  color: $color-muted;
+  font-size: $font-size-sm;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: $color-border;
+  }
+
+  span {
+    white-space: nowrap;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+}
+
+// ── Form fields ───────────────────────────────────────────────────────────────
+.login-field {
+  margin-bottom: $spacing-md;
+
+  label {
+    display: block;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: $color-dark;
+    margin-bottom: $spacing-xs;
+  }
+}
+
+.login-input {
+  width: 100%;
+  padding: 0.65rem $spacing-md;
+  border: 1.5px solid $color-border;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  color: $color-dark;
+  background: $color-white;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &::placeholder { color: $color-muted; }
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+  }
+}
+
+// ── Password field with eye toggle ────────────────────────────────────────────
+.login-password-wrap {
+  position: relative;
+
+  .login-input { padding-right: 2.75rem; }
+}
+
+.login-pw-toggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: $color-muted;
+  display: flex;
+  align-items: center;
+
+  &:hover { color: $color-secondary; }
+
+  .eye-hide { display: none; }
+
+  &.pw-visible {
+    .eye-show { display: none; }
+    .eye-hide { display: block; }
+  }
+}
+
+// ── Submit button ─────────────────────────────────────────────────────────────
+.login-submit-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem $spacing-md;
+  margin-top: $spacing-md;
+  background: $color-success;
+  color: $color-white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+
+  &:hover {
+    background: color.adjust(#198754, $lightness: -6%);
+  }
+
+  &:active { transform: scale(0.98); }
+}
+
+// ── Footer links ──────────────────────────────────────────────────────────────
+.login-footer-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: $spacing-md;
+  font-size: $font-size-sm;
+
+  a {
+    color: $color-secondary;
+    transition: color 0.2s ease;
+
+    &:hover { color: $color-primary; }
+  }
+}
+
+// ── WooCommerce notice override inside login card ─────────────────────────────
+.login-page-wrap {
+  .woocommerce-error,
+  .woocommerce-message,
+  .woocommerce-info {
+    max-width: 420px;
+    width: 100%;
+    margin-bottom: $spacing-md;
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@include respond-to(sm) {
+  .login-card {
+    padding: $spacing-lg $spacing-md;
+    border-radius: $radius-md;
+  }
+}

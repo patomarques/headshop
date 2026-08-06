@@ -471,6 +471,89 @@ jQuery(function () {
 
 
     /* =================================================================
+       CART — shipping calculator CEP autocomplete (ViaCEP)
+       The form only shows the CEP field (see _bootscore-custom.scss);
+       country/state/city stay in the DOM so their values still post
+       with the calculator's AJAX request. This masks the field as
+       00000-000 (digits only, 8 digits max) and, once complete, fills
+       state/city from ViaCEP and submits automatically.
+       ================================================================= */
+    (function () {
+        function digitsOnly(v) { return (v || '').replace(/\D/g, ''); }
+
+        function maskCep(v) {
+            var digits = digitsOnly(v).slice(0, 8);
+            return digits.length > 5 ? digits.slice(0, 5) + '-' + digits.slice(5) : digits;
+        }
+
+        function fillCalculator(data) {
+            var $state = jQuery('#calc_shipping_state');
+            if ($state.length && data.uf) $state.val(data.uf).trigger('change');
+
+            var $city = jQuery('#calc_shipping_city');
+            if ($city.length && data.localidade) $city.val(data.localidade).trigger('change');
+        }
+
+        // Numeric keyboard on mobile + hard stop at "00000-000" length.
+        jQuery(function () {
+            jQuery('#calc_shipping_postcode').attr({
+                inputmode: 'numeric',
+                autocomplete: 'postal-code',
+                maxlength: 9,
+            });
+        });
+
+        jQuery(document).on('input', '#calc_shipping_postcode', function () {
+            var $cep = jQuery(this);
+            var caretFromEnd = this.value.length - this.selectionEnd;
+
+            $cep.val(maskCep(this.value));
+
+            // Restore caret position relative to the end, since masking
+            // can insert/remove the "-" ahead of where the user is typing.
+            var pos = this.value.length - caretFromEnd;
+            this.setSelectionRange(pos, pos);
+
+            var cep = digitsOnly(this.value);
+            if (cep.length !== 8) return;
+
+            $cep.addClass('headshop-cep-loading');
+
+            fetch('https://viacep.com.br/ws/' + cep + '/json/')
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.erro) return;
+                    fillCalculator(data);
+                    jQuery('form.woocommerce-shipping-calculator').trigger('submit');
+                })
+                .catch(function () {})
+                .then(function () { $cep.removeClass('headshop-cep-loading'); });
+        });
+    })();
+
+
+    /* =================================================================
+       CART — shipping calculator: info icon next to the CEP label.
+       Hover (desktop) or tap/click (the icon is focusable) reveals a
+       tooltip explaining what the field does, replacing the removed
+       "Enter your address to view shipping options." helper text.
+       ================================================================= */
+    jQuery(function () {
+        var $label = jQuery('label[for="calc_shipping_postcode"]');
+        if (!$label.length || $label.find('.headshop-info-icon').length) return;
+
+        jQuery(
+            '<span class="headshop-info-icon" tabindex="0" role="button" aria-label="Mais informações sobre este campo">' +
+                '?' +
+                '<span class="headshop-info-icon__tooltip" role="tooltip">' +
+                    'Digite seu CEP para ver as opções de entrega disponíveis.' +
+                '</span>' +
+            '</span>'
+        ).appendTo($label);
+    });
+
+
+    /* =================================================================
        CHECKOUT — fill fictitious data (testing helper)
        Only active when WP_DEBUG is on (see headshopAjax.debug).
        ================================================================= */

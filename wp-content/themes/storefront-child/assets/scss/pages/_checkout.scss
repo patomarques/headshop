@@ -1,0 +1,685 @@
+@use 'sass:color';
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// ── CSS safety layer: hide checkout form for guests ───────────────────────────
+body:not(.logged-in) .checkout.woocommerce-checkout {
+  display: none !important;
+}
+
+// ── Identification gate ───────────────────────────────────────────────────────
+.checkout-id-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: $spacing-xl $spacing-md;
+}
+
+.checkout-id-title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  margin-bottom: $spacing-xl;
+}
+
+.checkout-id-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: $color-white;
+}
+
+.checkout-id-panel {
+  padding: $spacing-xl $spacing-lg;
+
+  &:first-child {
+    border-right: 1px solid $color-border;
+  }
+}
+
+.checkout-id-panel__heading {
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  color: $color-dark;
+  margin-bottom: $spacing-lg;
+}
+
+// Left panel – new account form
+.checkout-id-new-form {
+  .checkout-id-field {
+    margin-bottom: $spacing-md;
+
+    input {
+      width: 100%;
+      padding: 0.6rem $spacing-md;
+      border: 1.5px solid $color-border;
+      border-radius: $radius-md;
+      font-size: $font-size-base;
+      color: $color-dark;
+      background: $color-white;
+      transition: border-color 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: $color-primary;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+      }
+    }
+  }
+
+  .checkout-id-submit {
+    width: 100%;
+    padding: 0.65rem;
+    background: $color-primary;
+    color: $color-white;
+    border: none;
+    border-radius: $radius-md;
+    font-size: $font-size-base;
+    font-weight: $font-weight-bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover { background: color.adjust($color-primary, $lightness: -8%); }
+  }
+}
+
+// Right panel – WC login form overrides
+.checkout-id-panel .woocommerce-form-login {
+  .form-row { margin-bottom: $spacing-md; }
+
+  label {
+    display: block;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: $color-dark;
+    margin-bottom: $spacing-xs;
+  }
+
+  .woocommerce-Input {
+    width: 100%;
+    padding: 0.6rem $spacing-md;
+    border: 1.5px solid $color-border;
+    border-radius: $radius-md;
+    font-size: $font-size-base;
+    color: $color-dark;
+    background: $color-white;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: $color-primary;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+    }
+  }
+
+  .woocommerce-form__label-for-checkbox,
+  .woocommerce-form-login__rememberme { display: none; }
+
+  .woocommerce-LostPassword {
+    margin-top: $spacing-sm;
+    font-size: $font-size-sm;
+    text-align: right;
+
+    a { color: $color-muted; &:hover { color: $color-primary; } }
+  }
+
+  .woocommerce-button {
+    width: 100%;
+    padding: 0.65rem;
+    background: $color-primary;
+    color: $color-white;
+    border: none;
+    border-radius: $radius-md;
+    font-size: $font-size-base;
+    font-weight: $font-weight-bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin-top: $spacing-sm;
+
+    &:hover { background: color.adjust($color-primary, $lightness: -8%); }
+  }
+}
+
+// Password show/hide toggle (injected by inline JS)
+.checkout-id-pw-wrap {
+  position: relative;
+
+  input { padding-right: 2.5rem; }
+
+  .checkout-id-pw-toggle {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $color-muted;
+    padding: 0;
+    line-height: 1;
+
+    &:hover { color: $color-dark; }
+
+    .eye-hide { display: none; }
+
+    &.pw-visible {
+      .eye-show { display: none; }
+      .eye-hide { display: block; }
+    }
+  }
+}
+
+// Google section
+.checkout-id-google {
+  border-top: 1px solid $color-border;
+  padding: $spacing-lg;
+  text-align: center;
+  background: $color-white;
+}
+
+.checkout-id-google__label {
+  font-size: $font-size-sm;
+  color: $color-secondary;
+  margin-bottom: $spacing-md;
+}
+
+.checkout-id-google__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: 0.6rem $spacing-lg;
+  border: 1.5px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-white;
+  color: $color-dark;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  svg { flex: 0 0 auto; }
+
+  &:hover {
+    border-color: #4285F4;
+    box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2);
+    color: $color-dark;
+    text-decoration: none;
+  }
+}
+
+// Mobile
+@include respond-to(md) {
+  .checkout-id-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-id-panel:first-child {
+    border-right: none;
+    border-bottom: 1px solid $color-border;
+  }
+
+  .checkout-id-wrap {
+    padding: $spacing-lg $spacing-md;
+  }
+}
+
+// ── Neutraliza conflito Bootstrap col-1/col-2 vs WooCommerce col-1/col-2 ─────
+// Bootstrap trata .col-1 como 8.33% de grid; WooCommerce usa como "coluna 1/2"
+.woocommerce-checkout {
+  .col2-set {
+    width: 48%;
+    float: left;
+    margin-right: 4%;
+
+    .col-1,
+    .col-2 {
+      width: auto;
+      float: none;
+      flex: none;
+      max-width: none;
+      padding: 0;
+    }
+
+    .form-row-first {
+      width: 47%;
+      float: left;
+      margin-right: 6%;
+    }
+
+    .form-row-last {
+      width: 47%;
+      float: right;
+      margin-right: 0;
+    }
+  }
+
+  // ── Revisão do pedido (coluna direita) ─────────────────────────────────────
+  #order_review_heading,
+  #order_review {
+    float: right;
+    width: 44%;
+  }
+
+  // ── Limpa floats ───────────────────────────────────────────────────────────
+  &::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+
+  // ── Campos de formulário ───────────────────────────────────────────────────
+  .form-row {
+    padding: 0;
+    margin-bottom: $spacing-md;
+
+    label {
+      display: block;
+      font-size: $font-size-sm;
+      font-weight: 600;
+      color: $color-dark;
+      margin-bottom: $spacing-xs;
+    }
+
+    input.input-text,
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.6rem $spacing-md;
+      border: 1.5px solid $color-border;
+      border-radius: $radius-md;
+      font-size: $font-size-base;
+      color: $color-dark;
+      background: $color-white;
+      transition: border-color 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: $color-primary;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+      }
+    }
+  }
+
+  // ── Tabela de resumo do pedido ─────────────────────────────────────────────
+  .woocommerce-checkout-review-order-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: $spacing-md;
+
+    th, td {
+      padding: $spacing-sm;
+      border-bottom: 1px solid $color-border;
+      font-size: $font-size-sm;
+    }
+
+    tfoot tr:last-child td,
+    tfoot tr:last-child th {
+      font-weight: $font-weight-bold;
+      font-size: $font-size-base;
+    }
+  }
+
+  // ── Métodos de pagamento ────────────────────────────────────────────────────
+  #payment {
+    background: $color-light;
+    border-radius: $radius-md;
+    padding: $spacing-md;
+
+    .payment_methods {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 $spacing-md;
+
+      li {
+        padding: $spacing-sm 0;
+        border-bottom: 1px solid $color-border;
+
+        &:last-child { border-bottom: none; }
+
+        label {
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .payment_box {
+          margin-top: $spacing-sm;
+          font-size: $font-size-sm;
+          color: $color-secondary;
+        }
+      }
+    }
+
+    .checkout-privacy-notice {
+      font-size: 0.75rem;
+      color: $color-muted;
+      margin-top: $spacing-sm;
+      text-align: center;
+
+      a { color: $color-muted; text-decoration: underline; }
+    }
+
+    .place-order {
+      text-align: center;
+
+      #place_order {
+        width: 100%;
+        padding: 0.8rem;
+        background: $color-success;
+        color: $color-white;
+        border: none;
+        border-radius: $radius-md;
+        font-size: $font-size-base;
+        font-weight: $font-weight-bold;
+        cursor: pointer;
+        transition: background 0.2s ease;
+
+        &:hover { background: #146c43; }
+      }
+    }
+  }
+
+  // ── Mobile ─────────────────────────────────────────────────────────────────
+  @include respond-to(md) {
+    .col2-set,
+    #order_review_heading,
+    #order_review {
+      width: 100%;
+      float: none;
+      margin-right: 0;
+    }
+
+    .col2-set .form-row-first,
+    .col2-set .form-row-last {
+      width: 100%;
+      float: none;
+      margin-right: 0;
+    }
+  }
+}
+
+// ── Thank you / Order confirmation ────────────────────────────────────────────
+.thankyou-wrap {
+  margin: $spacing-xl 0;
+}
+
+.woocommerce-order-details,
+.woocommerce-customer-details {
+  margin-top: $spacing-xl;
+}
+
+.thankyou-card {
+  background: $color-white;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+
+  &--failed {
+    text-align: center;
+    padding: $spacing-xl;
+
+    .thankyou-icon { background: rgba($color-danger, 0.08); color: $color-danger; }
+    .thankyou-title { color: $color-danger; }
+  }
+}
+
+.thankyou-hero {
+  background: $color-dark;
+  color: $color-white;
+  text-align: center;
+  padding: $spacing-xl $spacing-lg $spacing-lg;
+}
+
+.thankyou-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: $color-white;
+  margin-bottom: $spacing-md;
+
+  svg { width: 32px; height: 32px; }
+}
+
+.thankyou-title {
+  font-family: $font-family-display;
+  font-size: 2.2rem;
+  color: $color-white;
+  margin: 0 0 $spacing-sm;
+}
+
+.thankyou-subtitle {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: $font-size-base;
+  margin: 0 0 $spacing-md;
+}
+
+.thankyou-order-num {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: $font-size-sm;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 4px 14px;
+  border-radius: 62px;
+}
+
+.thankyou-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  border-bottom: 1px solid $color-border;
+
+  &-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: $spacing-lg;
+    border-right: 1px solid $color-border;
+
+    &:last-child { border-right: none; }
+  }
+
+  &-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $color-muted;
+  }
+
+  &-value {
+    font-size: $font-size-base;
+    color: $color-dark;
+    font-weight: 600;
+  }
+}
+
+.thankyou-items {
+  padding: $spacing-lg;
+  border-bottom: 1px solid $color-border;
+
+  &-title {
+    font-size: $font-size-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $color-muted;
+    font-weight: 600;
+    margin: 0 0 $spacing-md;
+  }
+}
+
+.thankyou-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-sm 0;
+  border-bottom: 1px solid $color-border;
+
+  &:last-child { border-bottom: none; }
+
+  &-img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    border-radius: $radius-sm;
+    background: $color-light;
+    padding: 4px;
+    flex-shrink: 0;
+  }
+
+  &-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &-name {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $color-dark;
+  }
+
+  &-qty {
+    font-size: $font-size-sm;
+    color: $color-muted;
+  }
+
+  &-total {
+    font-weight: 700;
+    color: $color-dark;
+    white-space: nowrap;
+  }
+}
+
+.thankyou-actions {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  flex-wrap: wrap;
+
+  @include respond-to(sm) { flex-direction: column; }
+}
+
+.thankyou-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 2rem;
+  border-radius: 62px;
+  font-size: $font-size-base;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+  flex: 1;
+
+  &:hover { opacity: 0.85; }
+
+  &--primary {
+    background: $color-dark;
+    color: $color-white !important;
+  }
+
+  &--secondary {
+    background: $color-light;
+    color: $color-dark !important;
+    border: 1px solid $color-border;
+  }
+}
+
+// ── Thankyou accordion ────────────────────────────────────────────────────────
+.thankyou-accordion {
+  margin-top: $spacing-lg;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.thankyou-panel {
+  border-bottom: 1px solid $color-border;
+
+  &:last-child { border-bottom: none; }
+}
+
+.thankyou-panel__summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $color-dark;
+  cursor: pointer;
+  background: $color-white;
+  user-select: none;
+  transition: background 0.15s ease;
+
+  &::-webkit-details-marker { display: none; }
+
+  &::after {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover { background: $color-light; }
+}
+
+.thankyou-panel[open] > .thankyou-panel__summary::after {
+  transform: rotate(180deg);
+}
+
+.thankyou-panel__body {
+  padding: $spacing-md $spacing-lg;
+  border-top: 1px solid $color-border;
+  background: $color-white;
+
+  address {
+    font-style: normal;
+    line-height: 1.7;
+    color: $color-dark;
+  }
+
+  .thankyou-panel__phone {
+    margin: $spacing-xs 0 0;
+    font-size: $font-size-sm;
+    color: $color-secondary;
+  }
+
+  .woocommerce-order-details,
+  .woocommerce-customer-details {
+    margin-top: 0;
+  }
+
+  .woocommerce-order-details__title {
+    display: none;
+  }
+
+  .woocommerce-table--order-details {
+    width: 100%;
+    margin-bottom: 0;
+
+    th, td {
+      padding: $spacing-sm;
+      font-size: $font-size-sm;
+      border-bottom: 1px solid $color-border;
+    }
+
+    tfoot tr:last-child th,
+    tfoot tr:last-child td {
+      font-weight: $font-weight-bold;
+      font-size: $font-size-base;
+      border-bottom: none;
+    }
+  }
+}

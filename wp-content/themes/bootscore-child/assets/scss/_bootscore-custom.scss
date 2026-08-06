@@ -762,8 +762,8 @@ body.nav-overlay-open {
 
   svg {
     display: block;
-    width: 32px;
-    height: 32px;
+    width: 22px;
+    height: 22px;
     stroke: currentColor;
     transition: color 0.2s ease, stroke 0.2s ease;
   }
@@ -826,14 +826,9 @@ body.nav-overlay-open {
   transition: background-color 0.2s ease;
 }
 
-.headshop-user-btn svg {
-  width: 22px;
-  height: 22px;
-}
-
 .headshop-cart__icon {
-  width: 28px !important;
-  height: 28px !important;
+  width: 22px !important;
+  height: 22px !important;
 }
 
 .headshop-action-btn:hover .headshop-search-icon {
@@ -860,8 +855,8 @@ body.nav-overlay-open {
   }
 
   .headshop-cart__icon {
-    width: 24px !important;
-    height: 24px !important;
+    width: 22px !important;
+    height: 22px !important;
   }
 
   .headshop-header .headshop-logo {
@@ -1083,8 +1078,8 @@ body.nav-overlay-open {
 
   &__icon {
     display: block;
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
     object-fit: contain;
   }
 
@@ -2869,12 +2864,198 @@ html {
 }
 
 /* =====================================================================
+   THANK YOU PAGE — remove leftover Font Awesome glyph
+   Parent theme (bootscore/_wc-thank-you.scss) sets
+   `.woocommerce ul.order_details::before { content: "\f058"; }` (a
+   Font Awesome check-circle codepoint) but never applies a
+   font-family/positioning to render it as an icon — the alert-icon
+   system elsewhere in the theme uses SVG mask-images instead, and this
+   rule was never migrated. Left as-is it renders as a raw missing-glyph
+   character next to the order summary. No accompanying box/positioning
+   styles exist to restore it as an icon, so removing it entirely.
+   ===================================================================== */
+.woocommerce ul.order_details::before {
+  content: none !important;
+}
+
+/* =====================================================================
    CHECKOUT — CEP autocomplete loading state
    ===================================================================== */
 #billing_postcode.headshop-cep-loading,
-#shipping_postcode.headshop-cep-loading {
+#shipping_postcode.headshop-cep-loading,
+#calc_shipping_postcode.headshop-cep-loading {
   background-image: none !important;
   opacity: 0.6;
+}
+
+/* =====================================================================
+   CHECKOUT — hide the country field. We only ship within Brazil
+   (woocommerce_specific_allowed_countries/ship_to_countries already
+   restrict selection to BR), so the field always resolves to the single
+   available option. Stays in the DOM so its value still submits with
+   the checkout form.
+   ===================================================================== */
+#billing_country_field,
+#shipping_country_field {
+  display: none !important;
+}
+
+/* =====================================================================
+   CART — shipping calculator: always-visible CEP field + icon button.
+   Country/state/city stay in the form (so their values still submit
+   with the calculator's AJAX request) but are hidden from view; the
+   CEP autocomplete (custom.js) fills them in from ViaCEP before submit.
+   ===================================================================== */
+.woocommerce-shipping-calculator {
+  // No need for the expand/collapse toggle — the form is always shown.
+  .shipping-calculator-button {
+    display: none !important;
+  }
+
+  #calc_shipping_country_field,
+  #calc_shipping_state_field,
+  #calc_shipping_city_field {
+    display: none !important;
+  }
+
+  // Plain flexbox on the two <p> rows themselves (no display:contents —
+  // that has cross-browser layout/click bugs on form controls that were
+  // pushing the button onto its own line). The postcode <p> is a flex
+  // column internally (label stacked over input); the button <p> is the
+  // other row item, bottom-aligned to the input via align-items: flex-end.
+  .shipping-calculator-form {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-end;
+    column-gap: 10px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+  }
+
+  #calc_shipping_postcode_field {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+  }
+
+  // The other visible row is the <p> wrapping the submit button.
+  #calc_shipping_postcode_field ~ p {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  label[for="calc_shipping_postcode"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: $text-body;
+    margin: 0 0 6px;
+  }
+
+  #calc_shipping_postcode {
+    // min-width: 0 lets the input shrink below its default intrinsic
+    // width instead of overflowing/forcing the button to wrap.
+    min-width: 0;
+    width: 100%;
+    height: 46px;
+    margin: 0;
+    padding: 0 14px;
+    border: 1px solid rgba($text-body, 0.15);
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+
+  button[name="calc_shipping"] {
+    position: relative;
+    flex: 0 0 46px;
+    width: 46px !important;
+    height: 46px;
+    padding: 0;
+    color: transparent !important;
+    font-size: 0 !important;
+    background-color: $btn-primary-bg !important;
+    border-color: $btn-primary-bg !important;
+    border-radius: 8px;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 18px;
+      height: 18px;
+      background-color: #fff;
+      mask: url('../img/search.png') no-repeat center / contain;
+      -webkit-mask: url('../img/search.png') no-repeat center / contain;
+    }
+
+    &:hover {
+      background-color: $btn-primary-hover !important;
+      border-color: $btn-primary-hover !important;
+    }
+  }
+
+  // Info icon injected next to the label (custom.js) — hover or
+  // click/tap (via :focus, since the icon is tabindex="0") reveals
+  // the tooltip explaining what the field is for.
+  .headshop-info-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: rgba($text-body, 0.18);
+    color: $text-body;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: help;
+
+    &__tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: 220px;
+      padding: 8px 10px;
+      background: $deep-mocha;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 400;
+      line-height: 1.4;
+      text-align: left;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 20;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-top-color: $deep-mocha;
+      }
+    }
+
+    &:hover, &:focus {
+      .headshop-info-icon__tooltip {
+        display: block;
+      }
+    }
+  }
 }
 
 /* =====================================================================

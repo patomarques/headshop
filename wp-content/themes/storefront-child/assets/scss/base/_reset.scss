@@ -1,0 +1,63 @@
+@use '../abstracts/variables' as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  text-decoration: none !important;
+  outline: none;
+
+  &:hover {
+    text-decoration: none !important;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    text-decoration: none !important;
+  }
+}
+
+ul, ol {
+  padding-left: $spacing-lg;
+}
+
+.col-full {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: calc(var(--bs-gutter-x, 1.5rem) * .5);
+  padding-left: calc(var(--bs-gutter-x, 1.5rem) * .5);
+
+  @media (min-width: 576px)  { max-width: 540px; }
+  @media (min-width: 768px)  { max-width: 720px; }
+  @media (min-width: 992px)  { max-width: 960px; }
+  @media (min-width: 1200px) { max-width: 1140px; }
+  @media (min-width: 1400px) { max-width: 1320px; }
+}
+
+.site-content {
+  padding-top: var(--header-h, 112px);
+}
+
+// Override Storefront's sidebar layout — this theme has no sidebars
+.right-sidebar .content-area,
+.left-sidebar .content-area,
+.content-area {
+  width: 100%;
+  float: none;
+  margin-right: 0;
+}
+
+.widget-area {
+  display: none;
+}
