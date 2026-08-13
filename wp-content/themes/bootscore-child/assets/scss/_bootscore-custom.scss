@@ -2928,6 +2928,12 @@ html {
     flex-wrap: nowrap !important;
     align-items: flex-end;
     column-gap: 10px;
+    // Explicit 100% instead of relying on width:auto to fill the
+    // parent — this flex container was measuring ~66% of its parent's
+    // width (289px of 435px) for reasons that didn't trace back to any
+    // matched CSS rule, float, or containment; forcing it sidesteps
+    // whatever browser sizing quirk was causing the shrink.
+    width: 100% !important;
     margin: 0;
     padding: 0;
     border: none;
@@ -2948,14 +2954,20 @@ html {
     margin: 0;
   }
 
+  // Visually hidden — the "?" info icon moved to the "Forma de Entrega"
+  // row label (see custom.js) and the input now carries its own
+  // placeholder="CEP" instead of a separate visible label. Kept in the
+  // DOM (not removed) so screen readers still announce the field.
   label[for="calc_shipping_postcode"] {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: $text-body;
-    margin: 0 0 6px;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   #calc_shipping_postcode {
@@ -3001,60 +3013,454 @@ html {
     }
   }
 
-  // Info icon injected next to the label (custom.js) — hover or
-  // click/tap (via :focus, since the icon is tabindex="0") reveals
-  // the tooltip explaining what the field is for.
-  .headshop-info-icon {
-    position: relative;
+}
+
+/* =====================================================================
+   CART — info icon (used next to "Forma de Entrega", injected via
+   custom.js). Not scoped to .woocommerce-shipping-calculator since its
+   home — the shipping row's <th> — is a sibling cell outside that form.
+   Hover (desktop) or tap/click (icon is tabindex="0") reveals a tooltip.
+   ===================================================================== */
+.headshop-info-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: rgba($text-body, 0.18);
+  color: $text-body;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+
+  &__tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: 220px;
+    padding: 8px 10px;
+    background: $deep-mocha;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: left;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 20;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: $deep-mocha;
+    }
+  }
+
+  &:hover, &:focus {
+    .headshop-info-icon__tooltip {
+      display: block;
+    }
+  }
+}
+
+// The "Forma de Entrega" <th> now carries the info icon inline after
+// its text. WooCommerce's smallscreen.css (loaded only ≤768px, via its
+// own <link media>) hides every <th> inside shop_table_responsive
+// tables on mobile and shows a CSS-generated td::before label instead
+// — but pseudo-elements can't hold a real injected icon, so force the
+// real <th> visible there and suppress the now-redundant generated
+// label. Scoped to the same breakpoint: on desktop the <th> was never
+// hidden to begin with, and display:flex here broke the table's normal
+// column sizing (text wrapped one syllable per line).
+@media (max-width: 768px) {
+  .woocommerce table.shop_table_responsive tr.shipping th,
+  .woocommerce-page table.shop_table_responsive tr.shipping th {
+    display: flex !important;
+    align-items: center;
+    // Escaping table layout via display:flex leaves the box's own
+    // width to a shrink-to-fit calculation instead of filling the row
+    // — pin it explicitly or "Forma de Entrega" wraps mid-word.
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .woocommerce table.shop_table_responsive tr.shipping td::before,
+  .woocommerce-page table.shop_table_responsive tr.shipping td::before {
+    display: none !important;
+  }
+
+  // The generic shop_table_responsive rule right-aligns td content
+  // (meant for single price values). That also right-aligns the
+  // shipping method radios/labels here, cramming them into the right
+  // edge instead of filling the row — reset to a normal full-width,
+  // left-aligned block so the options (and the CEP calculator below
+  // them) read edge-to-edge like the rest of the mobile cart.
+  .woocommerce table.shop_table_responsive tr.shipping td,
+  .woocommerce-page table.shop_table_responsive tr.shipping td {
+    width: 100% !important;
+    text-align: left !important;
+  }
+
+  .woocommerce table.shop_table_responsive tr.shipping .woocommerce-shipping-calculator,
+  .woocommerce-page table.shop_table_responsive tr.shipping .woocommerce-shipping-calculator {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  // "Total do carrinho" box — drop the divider line WC draws above
+  // every cell (border-top on th/td) between Subtotal / Forma de
+  // Entrega / Total. The box's own outer border stays.
+  .cart_totals table.shop_table_responsive th,
+  .cart_totals table.shop_table_responsive td {
+    border-top: none !important;
+  }
+}
+
+/* =====================================================================
+   CART — "Finalizar compra" button in the design system's green,
+   not Bootstrap's default blue (.checkout-button uses var(--bs-primary)
+   unmodified in the parent theme).
+   ===================================================================== */
+.checkout-button {
+  background-color: $btn-primary-bg !important;
+  border-color: $btn-primary-bg !important;
+
+  &:hover {
+    background-color: $btn-primary-hover !important;
+    border-color: $btn-primary-hover !important;
+  }
+}
+
+/* =====================================================================
+   MOBILE UX — larger touch targets for quantity steppers & remove icon
+   The +/- buttons measured ~31-35x38px and the cart remove icon 24x24px
+   — both below the 44x44px minimum recommended tap target, causing
+   mis-taps (especially risky on the destructive remove icon).
+   ===================================================================== */
+@media (max-width: 768px) {
+  .quantity .input-group {
+    width: auto !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .quantity .input-group-text {
+    min-width: 44px;
+    min-height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 16px;
-    height: 16px;
+    font-size: 1.1rem;
     flex-shrink: 0;
-    border-radius: 50%;
-    background: rgba($text-body, 0.18);
-    color: $text-body;
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1;
-    cursor: help;
+  }
 
-    &__tooltip {
-      display: none;
-      position: absolute;
-      bottom: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%);
-      width: max-content;
-      max-width: 220px;
-      padding: 8px 10px;
-      background: $deep-mocha;
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: 400;
-      line-height: 1.4;
-      text-align: left;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 20;
+  .quantity .form-control {
+    min-height: 44px;
+    width: 48px !important;
+    flex-shrink: 0;
+  }
 
-      &::after {
-        content: '';
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        border: 5px solid transparent;
-        border-top-color: $deep-mocha;
-      }
+  .woocommerce-cart-form a.remove {
+    width: 44px !important;
+    height: 44px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    &::before {
+      position: static !important;
+      transform: none !important;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+/* =====================================================================
+   CART — desktop thumbnail size
+   Overrides WooCommerce's default 32px cart thumbnail (too small to
+   recognize the product at a glance). Scoped to desktop/tablet only —
+   the mobile card layout below sizes the thumbnail to 100% width
+   instead, and this selector's specificity would otherwise win there.
+   ===================================================================== */
+@media (min-width: 769px) {
+  .woocommerce-cart table.cart .product-thumbnail img {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+  }
+}
+
+/* =====================================================================
+   CART — mobile card layout + AJAX auto-update
+   WooCommerce's default small-screen CSS turns each cart row into a
+   stack of "Label: value" lines and hides the product thumbnail
+   entirely. Rebuilt as a compact card (image + name + price + qty +
+   subtotal) using CSS Grid directly on the existing <tr>/<td> markup —
+   no template override needed, cells are repositioned via grid-area
+   regardless of DOM order.
+   ===================================================================== */
+@media (max-width: 768px) {
+  // One shared bordered/rounded container for the whole item list —
+  // each item gets a divider line instead of its own separate card.
+  .woocommerce-cart-form__contents {
+    display: block !important;
+    background: #fff;
+    border: 1px solid rgba($color-dark, 0.12);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .woocommerce-cart-form__contents tbody {
+    display: block !important;
+  }
+
+  .woocommerce-cart-form__cart-item {
+    position: relative;
+    display: grid !important;
+    // Fixed-width image column + flexible content column, image
+    // spanning all 4 content rows — matches the reference: photo on
+    // the left, name/price/qty/total stacked beside it on the right.
+    grid-template-columns: 110px minmax(0, 1fr);
+    grid-template-areas:
+      "thumb name"
+      "thumb price"
+      "thumb qty"
+      "thumb subtotal";
+    column-gap: 14px;
+    row-gap: 6px;
+    align-items: start;
+    padding: 20px 16px !important;
+    background: #fff !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba($color-dark, 0.12) !important;
+
+    &:last-of-type {
+      border-bottom: 0 !important;
     }
 
-    &:hover, &:focus {
-      .headshop-info-icon__tooltip {
+    // Reset WooCommerce's default per-cell block/border/background
+    td {
+      display: block !important;
+      border: 0 !important;
+      background: transparent !important;
+      padding: 0 !important;
+      text-align: left !important;
+    }
+
+    // The card layout makes context clear without "Label:" prefixes
+    td::before {
+      display: none !important;
+    }
+
+    .product-thumbnail {
+      grid-area: thumb;
+      display: block !important;
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba($color-dark, 0.04);
+
+      // WooCommerce's own table.cart img rule (width: 32px, no media
+      // query) outranks this nested selector on specificity alone —
+      // needs !important to actually win on mobile.
+      img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
         display: block;
       }
     }
+
+    .product-name {
+      grid-area: name;
+      font-weight: 600;
+      font-size: 1.05rem;
+      line-height: 1.3;
+
+      a {
+        color: $text-body;
+        text-decoration: none;
+
+        &:hover {
+          color: $color-primary;
+        }
+      }
+    }
+
+    .product-price {
+      grid-area: price;
+      font-size: 0.9rem;
+      color: $text-muted;
+    }
+
+    .product-quantity {
+      grid-area: qty;
+      margin-top: 4px;
+
+      // Dark pill-shaped stepper, matching the reference: solid dark
+      // +/- buttons around a white number box, one shared rounded border.
+      .input-group {
+        width: auto !important;
+        border: 1px solid $deep-mocha;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .input-group-text {
+        background: $deep-mocha !important;
+        color: #fff !important;
+        border: 0 !important;
+      }
+
+      .form-control {
+        border: 0 !important;
+        background: #fff !important;
+        text-align: center;
+      }
+    }
+
+    .product-subtotal {
+      grid-area: subtotal;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: $text-body;
+      margin-top: 2px;
+    }
+
+    // Overlaid badge on the image's top-left corner instead of a grid
+    // cell of its own — matches the reference's small round X button.
+    .product-remove {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      z-index: 1;
+
+      a.remove {
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 50%;
+        background: rgba(#000, 0.55) !important;
+
+        &::before {
+          background-color: #fff !important;
+        }
+      }
+    }
+  }
+
+  // Alternating-row background no longer makes sense inside the shared
+  // list container
+  .woocommerce table.shop_table_responsive tr:nth-child(2n) td,
+  .woocommerce-page table.shop_table_responsive tr:nth-child(2n) td {
+    background-color: transparent !important;
+  }
+
+  .woocommerce-cart-form.headshop-cart-updating {
+    opacity: 0.5;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+}
+
+/* =====================================================================
+   CART — "Total do carrinho" full width on tablet
+   WooCommerce's own woocommerce-layout.css floats .cart_totals at 48%
+   width unconditionally (media="all", not scoped to desktop). Its
+   smallscreen.css resets that back to 100%/float:none, but only up to
+   768px — leaving a gap on tablet widths (769–1024px) where the totals
+   box renders cramped at roughly half the available width.
+   ===================================================================== */
+@media (max-width: 1024px) {
+  .cart-collaterals .cart_totals,
+  .woocommerce-page .cart-collaterals .cart_totals {
+    width: 100% !important;
+    float: none !important;
+  }
+}
+
+/* =====================================================================
+   CHECKOUT — stronger visual separation between Contato / Endereço /
+   Pagamento. The classic WooCommerce checkout renders these as one
+   continuous flow with no grouping — CSS-only card treatment on the
+   existing #customer_details / #order_review / #payment wrappers, no
+   template override and no risk to checkout validation/AJAX.
+   ===================================================================== */
+#customer_details,
+.woocommerce-checkout-review-order {
+  background: #fff;
+  border: 1px solid rgba($color-dark, 0.08);
+  border-radius: 12px;
+  padding: 20px 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+#customer_details h3,
+#order_review_heading,
+.headshop-payment-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+
+  // Icon element is injected via JS (custom.js) using the site's
+  // existing Font Awesome icon set — avoids the fragile "CSS content +
+  // mask-image with no matching icon" mistake fixed earlier on the
+  // thank-you page order_details rule.
+  i {
+    color: $color-primary;
+    font-size: 1.1rem;
+  }
+}
+
+#order_review_heading {
+  border: 0;
+  padding: 0;
+  margin: 0 0 1rem;
+  background: none;
+  box-shadow: none;
+}
+
+#payment {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid rgba($color-dark, 0.08);
+}
+
+.headshop-payment-heading {
+  color: $text-body;
+}
+
+/* =====================================================================
+   CHECKOUT — accepted card brand icons near the card number field
+   Injected via JS (custom.js) since the field is rendered by the
+   Asaas payment gateway (third-party plugin, not safe to template-
+   override). Simple neutral SVG marks, not official brand assets.
+   ===================================================================== */
+.headshop-card-brands {
+  display: flex;
+  gap: 6px;
+  margin: 6px 0 12px;
+
+  img {
+    height: 22px;
+    width: auto;
   }
 }
 
