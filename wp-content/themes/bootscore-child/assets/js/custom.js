@@ -500,6 +500,7 @@ jQuery(function () {
                 inputmode: 'numeric',
                 autocomplete: 'postal-code',
                 maxlength: 9,
+                placeholder: 'CEP',
             });
         });
 
@@ -533,13 +534,14 @@ jQuery(function () {
 
 
     /* =================================================================
-       CART — shipping calculator: info icon next to the CEP label.
-       Hover (desktop) or tap/click (the icon is focusable) reveals a
-       tooltip explaining what the field does, replacing the removed
-       "Enter your address to view shipping options." helper text.
+       CART — shipping calculator: info icon next to the "Forma de
+       Entrega" label (the shipping row's <th>, not the CEP field's own
+       label — that one is now visually hidden in favor of a placeholder,
+       see _bootscore-custom.scss). Hover (desktop) or tap/click (the
+       icon is focusable) reveals a tooltip explaining the field.
        ================================================================= */
-    jQuery(function () {
-        var $label = jQuery('label[for="calc_shipping_postcode"]');
+    function headshopAddCepInfoIcon() {
+        var $label = jQuery('tr.shipping th').first();
         if (!$label.length || $label.find('.headshop-info-icon').length) return;
 
         jQuery(
@@ -550,6 +552,130 @@ jQuery(function () {
                 '</span>' +
             '</span>'
         ).appendTo($label);
+    }
+
+    jQuery(function () {
+        headshopAddCepInfoIcon();
+    });
+
+
+    /* =================================================================
+       CART — AJAX auto-update on quantity change
+       The classic cart page normally needs a manual "Update cart" click
+       to recalculate after changing quantity. The +/- buttons already
+       dispatch a native 'change' on the qty input (see bootscore's
+       woocommerce.js), so a single delegated listener here covers both
+       typing and the +/- buttons. Delegated on document.body (not the
+       form) so it keeps working after the form is replaced below.
+       ================================================================= */
+    (function () {
+        var $form = jQuery('.woocommerce-cart-form');
+        if (!$form.length) return;
+
+        var updateTimer = null;
+
+        function hideManualUpdateButton() {
+            jQuery('.woocommerce-cart-form button[name="update_cart"]').hide();
+        }
+
+        function doCartUpdate() {
+            var $currentForm = jQuery('.woocommerce-cart-form');
+            if (!$currentForm.length) return;
+
+            var formData = new URLSearchParams(new FormData($currentForm[0]));
+            formData.set('update_cart', 'Update cart');
+
+            $currentForm.addClass('headshop-cart-updating');
+
+            fetch(window.location.href, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                body: formData.toString(),
+            })
+                .then(function (r) { return r.text(); })
+                .then(function (html) {
+                    var doc = new DOMParser().parseFromString(html, 'text/html');
+                    var newForm = doc.querySelector('.woocommerce-cart-form');
+                    var newCollaterals = doc.querySelector('.cart-collaterals');
+
+                    if (newForm) jQuery('.woocommerce-cart-form').replaceWith(newForm);
+                    if (newCollaterals) jQuery('.cart-collaterals').replaceWith(newCollaterals);
+
+                    hideManualUpdateButton();
+                    headshopAddCepInfoIcon();
+                    jQuery(document.body).trigger('wc_fragments_refreshed');
+                })
+                .catch(function () {})
+                .finally(function () {
+                    jQuery('.woocommerce-cart-form').removeClass('headshop-cart-updating');
+                });
+        }
+
+        jQuery(document.body).on('change', '.woocommerce-cart-form input.qty', function () {
+            clearTimeout(updateTimer);
+            updateTimer = setTimeout(doCartUpdate, 600);
+        });
+
+        hideManualUpdateButton();
+    })();
+
+
+    /* =================================================================
+       CHECKOUT — section icons (Dados de cobrança / Seu pedido / Pagamento)
+       Purely visual grouping to break up the long single-scroll form on
+       mobile. Icons come from the site's existing Font Awesome set
+       (already loaded, used elsewhere e.g. header nav) rather than a
+       CSS content/mask hack.
+       ================================================================= */
+    jQuery(function () {
+        var $billingHeading = jQuery('#customer_details h3').first();
+        if ($billingHeading.length && !$billingHeading.find('i').length) {
+            $billingHeading.prepend('<i class="fa-solid fa-address-card" aria-hidden="true"></i>');
+        }
+
+        var $orderHeading = jQuery('#order_review_heading');
+        if ($orderHeading.length && !$orderHeading.find('i').length) {
+            $orderHeading.prepend('<i class="fa-solid fa-receipt" aria-hidden="true"></i>');
+        }
+
+        var $payment = jQuery('#payment');
+        if ($payment.length && !jQuery('.headshop-payment-heading').length) {
+            jQuery(
+                '<p class="headshop-payment-heading">' +
+                    '<i class="fa-solid fa-credit-card" aria-hidden="true"></i> Pagamento' +
+                '</p>'
+            ).insertBefore($payment);
+        }
+    });
+
+
+    /* =================================================================
+       CHECKOUT — accepted card brand icons near the card number field
+       The field itself is rendered by the Asaas payment gateway (third-
+       party plugin) so it can't be safely template-overridden — inject
+       the icon row via JS instead. Re-runs on checkout AJAX updates
+       since WooCommerce can re-render the payment box.
+       ================================================================= */
+    function headshopAddCardBrandIcons() {
+        var $numberField = jQuery('#asaas-cc-number').closest('.form-row');
+        if (!$numberField.length || $numberField.next('.headshop-card-brands').length) return;
+
+        var base = headshopAjax && headshopAjax.themeUrl ? headshopAjax.themeUrl : '';
+        if (!base) return;
+
+        jQuery(
+            '<div class="headshop-card-brands">' +
+                '<img src="' + base + '/assets/img/card-visa.svg" alt="Visa" width="48" height="32" loading="lazy">' +
+                '<img src="' + base + '/assets/img/card-mastercard.svg" alt="Mastercard" width="48" height="32" loading="lazy">' +
+                '<img src="' + base + '/assets/img/card-elo.svg" alt="Elo" width="48" height="32" loading="lazy">' +
+            '</div>'
+        ).insertAfter($numberField);
+    }
+
+    jQuery(function () {
+        headshopAddCardBrandIcons();
+        jQuery(document.body).on('updated_checkout', headshopAddCardBrandIcons);
     });
 
 

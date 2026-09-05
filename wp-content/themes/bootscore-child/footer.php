@@ -12,9 +12,7 @@ defined('ABSPATH') || exit;
 <?php do_action('bootscore_before_footer'); ?>
 
 <footer id="footer" class="headshop-footer">
-  <div class="headshop-footer__top-rule"></div>
-
-  <div class="container" style="max-width:1400px;">
+  <div class="container px-4 px-md-5" style="max-width:1400px;">
     <div class="headshop-footer__main">
 
       <div class="headshop-footer__brand-col">
@@ -70,7 +68,7 @@ defined('ABSPATH') || exit;
         <a href="<?= esc_url(home_url('/')); ?>" class="headshop-footer__bar-link">Indicativa Headshop</a> &copy; <?= wp_date('Y'); ?>
       </span>
       <a href="https://webdev.recife.br/" class="footer-dev-link" target="_blank" rel="noopener"
-         data-bs-toggle="tooltip" data-bs-placement="top" title="Desenvolvido por Web Dev Studio">
+         data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Desenvolvido por<br>Web Dev Studio">
         <span aria-label="Desenvolvido por Web Dev Studio">&lt;/&gt;</span>
       </a>
     </div>

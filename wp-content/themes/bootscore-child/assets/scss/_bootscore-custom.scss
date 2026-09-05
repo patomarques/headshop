@@ -543,6 +543,13 @@
 
   &__search {
     margin-top: 2rem;
+    // Mesmo recuo horizontal do botão de fechar (__close: left: calc(1.5rem + 16px))
+    // para o input alinhar com ele e ter o mesmo espaçamento nos dois lados.
+    padding: 0 calc(1.5rem + 16px);
+
+    @media (min-width: 768px) {
+      padding: 0 calc(3rem + 16px);
+    }
   }
 
   &__search-wrap {
@@ -618,11 +625,10 @@ body.nav-overlay-open {
   &__row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
   }
 
   &__link {
-    flex: 1;
     display: block;
     padding: 14px 0;
     font-size: 1.5rem;
@@ -1639,9 +1645,9 @@ body.search-overlay-open {
    ===================================================================== */
 
 .headshop-footer {
-  background: $section-light-bg;
-  color: $color-dark;
-  font-size: 1rem;
+  background: $color-dark;
+  color: $section-light-bg;
+  font-size: 1.5rem;
   border-top: none;
 
   &__links-col {
@@ -1652,12 +1658,7 @@ body.search-overlay-open {
     color: inherit;
     text-decoration: none;
 
-    &:hover { color: $color-primary; }
-  }
-
-  &__top-rule {
-    height: 3px;
-    background: $color-dark;
+    &:hover { color: $sandy-brown; }
   }
 
   &__main {
@@ -1671,8 +1672,8 @@ body.search-overlay-open {
   &__brand-name {
     font-family: 'Syne', sans-serif;
     font-weight: 800;
-    font-size: 2rem;
-    color: $color-dark;
+    font-size: 1.75rem;
+    color: $sandy-brown;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     line-height: 1;
@@ -1680,11 +1681,11 @@ body.search-overlay-open {
   }
 
   &__brand-sub {
-    font-size: 1rem;
+    font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: $color-primary;
+    color: rgba($section-light-bg, 0.75);
     margin-bottom: 20px;
   }
 
@@ -1704,26 +1705,26 @@ body.search-overlay-open {
   }
 
   &__info-title {
-    font-size: 0.8rem;
+    font-size: 1.3rem;
     font-weight: 900;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #000;
+    color: $sandy-brown;
     opacity: 1;
     margin-bottom: 8px;
   }
 
   &__info-line {
     display: block;
-    font-size: 1rem;
-    color: $text-muted;
+    font-size: 1.5rem;
+    color: $section-light-bg;
     margin-bottom: 4px;
     line-height: 1.5;
 
     a {
       color: inherit;
 
-      &:hover { color: $color-primary; }
+      &:hover { color: $sandy-brown; }
     }
   }
 
@@ -1737,12 +1738,12 @@ body.search-overlay-open {
   }
 
   &__social-label {
-    font-size: 0.55rem;
+    font-size: 1.05rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: $color-dark;
-    opacity: 0.35;
+    color: $section-light-bg;
+    opacity: 0.5;
   }
 
   &__social-btns {
@@ -1762,13 +1763,11 @@ body.search-overlay-open {
       width: 28px;
       height: 28px;
       object-fit: contain;
-      filter: brightness(0);
-      opacity: 0.7;
-      transition: opacity 0.2s, transform 0.2s;
+      filter: brightness(0) invert(1);
+      transition: transform 0.2s;
     }
 
     &:hover img {
-      opacity: 1;
       transform: translateY(-2px);
     }
 
@@ -1779,7 +1778,8 @@ body.search-overlay-open {
   }
 
   &__bar {
-    background: $section-light-bg;
+    background: $color-dark;
+    border-top: 1px solid rgba($section-light-bg, 0.15);
     padding: 14px 0;
   }
 
@@ -1796,18 +1796,18 @@ body.search-overlay-open {
   }
 
   &__bar-text {
-    font-size: 0.9rem;
-    color: $color-dark;
+    font-size: 1rem;
+    color: rgba($section-light-bg, 0.8);
     letter-spacing: 0.04em;
     text-align: center;
   }
 
   &__bar-link {
-    font-size: 0.9rem;
-    color: $color-dark;
+    font-size: 1rem;
+    color: rgba($section-light-bg, 0.8);
     text-decoration: none !important;
 
-    &:hover { color: $color-primary; }
+    &:hover { color: $sandy-brown; }
   }
 }
 
@@ -1837,9 +1837,9 @@ body.search-overlay-open {
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: 1.5px solid #111;
+  border: 1.5px solid rgba($section-light-bg, 0.8);
   background: transparent;
-  color: #111 !important;
+  color: rgba($section-light-bg, 0.8) !important;
   text-decoration: none !important;
   transform: rotate(45deg);
   transition: border-color 0.2s ease, color 0.2s ease;
@@ -3130,18 +3130,102 @@ html {
 }
 
 /* =====================================================================
-   CART — "Finalizar compra" button in the design system's green,
-   not Bootstrap's default blue (.checkout-button uses var(--bs-primary)
-   unmodified in the parent theme).
+   Bootstrap color tokens — override do azul padrão pela paleta da loja
+   O Bootstrap deste tema vem pré-compilado no tema pai e carrega DEPOIS
+   do nosso CSS no cascade — !important é necessário em tudo abaixo,
+   não é estilo, é a única forma de vencer a ordem de carregamento.
+   Duas camadas: tokens de :root (o que o Bootstrap consome via var())
+   e classes específicas (o que o Bootstrap grava como cor fixa).
    ===================================================================== */
-.checkout-button {
-  background-color: $btn-primary-bg !important;
-  border-color: $btn-primary-bg !important;
+:root {
+  --bs-primary: #{$color-primary} !important;
+  --bs-primary-rgb: #{red($color-primary)}, #{green($color-primary)}, #{blue($color-primary)} !important;
+  --bs-secondary: #{$color-secondary} !important;
+  --bs-secondary-rgb: #{red($color-secondary)}, #{green($color-secondary)}, #{blue($color-secondary)} !important;
+  --bs-link-color: #{$link-color} !important;
+  --bs-link-hover-color: #{$link-hover-color} !important;
+  --bs-focus-ring-color: rgba(#{red($color-primary)}, #{green($color-primary)}, #{blue($color-primary)}, 0.25) !important;
+}
 
-  &:hover {
-    background-color: $btn-primary-hover !important;
-    border-color: $btn-primary-hover !important;
-  }
+.btn-primary,
+.btn-primary:disabled {
+  background-color: $color-primary !important;
+  border-color: $color-primary !important;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: $btn-primary-hover !important;
+  border-color: $btn-primary-hover !important;
+}
+
+.btn-secondary,
+.btn-secondary:disabled {
+  background-color: $color-secondary !important;
+  border-color: $color-secondary !important;
+}
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active {
+  background-color: $btn-secondary-hover !important;
+  border-color: $btn-secondary-hover !important;
+}
+
+.btn-outline-primary {
+  color: $color-primary !important;
+  border-color: $color-primary !important;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+  background-color: $color-primary !important;
+  border-color: $color-primary !important;
+  color: #fff !important;
+}
+
+.btn-outline-secondary {
+  color: $color-secondary !important;
+  border-color: $color-secondary !important;
+}
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus,
+.btn-outline-secondary:active {
+  background-color: $color-secondary !important;
+  border-color: $color-secondary !important;
+  color: #fff !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: $color-primary !important;
+  box-shadow: 0 0 0 .25rem rgba($color-primary, .25) !important;
+}
+
+.form-check-input:checked {
+  background-color: $color-primary !important;
+  border-color: $color-primary !important;
+}
+.form-check-input:focus {
+  border-color: $color-primary !important;
+  box-shadow: 0 0 0 .25rem rgba($color-primary, .25) !important;
+}
+
+/* =====================================================================
+   WooCommerce's own .button/.button.alt/.checkout-button/a.button-alt
+   family (not Bootstrap's .btn classes — used by "Add to cart" on the
+   product page, "Proceed to checkout" on the cart, etc.) reads the
+   resting-state color from var(--bs-primary), already fixed above, but
+   the parent theme bakes the :hover color as a literal compiled RGB
+   value (shade-color($primary, 10%) at build time) instead of a CSS
+   variable — needs its own override.
+   ===================================================================== */
+.woocommerce div.product form.cart .button:hover,
+.woocommerce-cart .wc-proceed-to-checkout a.checkout-button:hover,
+.woocommerce button.button.alt:hover,
+.woocommerce a.button:hover,
+.woocommerce a.button-alt:hover {
+  background-color: $btn-primary-hover !important;
+  border-color: $btn-primary-hover !important;
 }
 
 /* =====================================================================
@@ -3233,7 +3317,7 @@ html {
     // Fixed-width image column + flexible content column, image
     // spanning all 4 content rows — matches the reference: photo on
     // the left, name/price/qty/total stacked beside it on the right.
-    grid-template-columns: 110px minmax(0, 1fr);
+    grid-template-columns: 140px minmax(0, 1fr);
     grid-template-areas:
       "thumb name"
       "thumb price"
@@ -3312,12 +3396,12 @@ html {
       grid-area: qty;
       margin-top: 4px;
 
-      // Dark pill-shaped stepper, matching the reference: solid dark
-      // +/- buttons around a white number box, one shared rounded border.
+      // Square stepper: solid dark +/- buttons around a white number
+      // box, one shared border with slightly rounded corners.
       .input-group {
-        width: auto !important;
+        width: fit-content !important;
         border: 1px solid $deep-mocha;
-        border-radius: 999px;
+        border-radius: 6px;
         overflow: hidden;
       }
 
@@ -3325,12 +3409,21 @@ html {
         background: $deep-mocha !important;
         color: #fff !important;
         border: 0 !important;
+        width: 30px;
+        height: 30px;
+        min-width: 30px !important;
+        min-height: 30px !important;
+        font-size: 0.95rem;
       }
 
       .form-control {
         border: 0 !important;
         background: #fff !important;
         text-align: center;
+        flex: 0 0 26px !important;
+        width: 26px !important;
+        min-height: 30px !important;
+        padding: 0 !important;
       }
     }
 
@@ -3447,6 +3540,20 @@ html {
   color: $text-body;
 }
 
+// On mobile the order review's own item list (thumbnails, dividers)
+// already reads as a distinct block — the extra card border/shadow/
+// padding around it is redundant weight. #customer_details keeps its
+// card treatment; only .woocommerce-checkout-review-order is flattened.
+@media (max-width: 768px) {
+  .woocommerce-checkout-review-order {
+    background: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
 /* =====================================================================
    CHECKOUT — accepted card brand icons near the card number field
    Injected via JS (custom.js) since the field is rendered by the
@@ -3484,5 +3591,599 @@ html {
 
   &:hover {
     background-color: darken(#a46497, 8%);
+  }
+}
+
+/* =====================================================================
+   CHECKOUT — order review list on mobile
+   review-order.php has no thumbnail column (only product-name /
+   product-total) and isn't a .shop_table_responsive table, so it gets
+   none of the cart page's mobile handling. Rebuilt to match the cart:
+   a small square photo with a quantity badge, name + variation
+   stacked beside it, price on the right — plus a cleaner Subtotal /
+   Forma de Entrega / Total footer. The thumbnail itself is injected
+   server-side via the woocommerce_cart_item_name filter (functions.php).
+   ===================================================================== */
+@media (max-width: 768px) {
+  .woocommerce-checkout-review-order-table {
+    display: block !important;
+    border: 0 !important;
+    background: transparent !important;
+
+    thead {
+      display: none !important;
+    }
+
+    tbody,
+    tfoot {
+      display: block !important;
+    }
+
+    tbody tr {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: 12px;
+      align-items: start;
+      padding: 14px 0 !important;
+      border: 0 !important;
+      border-bottom: 1px solid rgba($color-dark, 0.1) !important;
+      background: transparent !important;
+
+      &:first-child {
+        padding-top: 0 !important;
+      }
+
+      &:last-child {
+        border-bottom: 0 !important;
+      }
+    }
+
+    tbody td {
+      display: block !important;
+      border: 0 !important;
+      background: transparent !important;
+      padding: 0 !important;
+    }
+
+    td.product-name {
+      // The tbody td rule above sets display:block !important — needs
+      // to be beaten the same way here.
+      display: grid !important;
+      grid-template-columns: 56px minmax(0, 1fr);
+      grid-template-areas:
+        "thumb name"
+        "thumb variation";
+      column-gap: 12px;
+      row-gap: 2px;
+      text-align: left !important;
+    }
+
+    // Unwraps so its own children (thumb + name) become direct grid
+    // items of td.product-name, positioned by their own grid-area.
+    .headshop-checkout-item {
+      display: contents;
+    }
+
+    .headshop-checkout-item__thumb {
+      grid-area: thumb;
+      position: relative;
+      width: 56px;
+      height: 56px;
+      background: rgba($color-dark, 0.04);
+      // No overflow:hidden here — it would clip the quantity badge,
+      // which sits partly outside this box by design (top:-6px/left:-6px).
+      // The image gets its own border-radius below instead.
+
+      img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        display: block;
+        border-radius: 8px;
+      }
+    }
+
+    .headshop-checkout-item__qty {
+      position: absolute;
+      top: -6px;
+      left: -6px;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: $deep-mocha;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      border-radius: 999px;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    }
+
+    .headshop-checkout-item__name {
+      grid-area: name;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    // Superseded by the quantity badge on the thumbnail above.
+    .product-quantity {
+      display: none !important;
+    }
+
+    dl.variation {
+      grid-area: variation;
+      margin: 0;
+      font-size: 0.8rem;
+      color: $text-muted;
+
+      // WooCommerce's own core CSS floats dt with clear:both (a classic
+      // float-label list) while dd stays in normal flow — that mismatch
+      // is what scrambled multi-attribute variations onto broken lines.
+      dt,
+      dd {
+        display: inline-block !important;
+        float: none !important;
+        clear: none !important;
+        margin: 0 4px 0 0 !important;
+        font-weight: 400;
+        white-space: nowrap;
+      }
+
+      dd p {
+        display: inline;
+        margin: 0;
+      }
+    }
+
+    td.product-total {
+      text-align: right !important;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    tfoot tr {
+      display: flex !important;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 10px 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+    }
+
+    tfoot th,
+    tfoot td {
+      display: block !important;
+      border: 0 !important;
+      background: transparent !important;
+      padding: 0 !important;
+      text-align: left !important;
+      font-weight: 400;
+    }
+
+    tfoot td {
+      text-align: right !important;
+    }
+
+    tfoot tr.order-total {
+      border-top: 1px solid rgba($color-dark, 0.15) !important;
+      margin-top: 4px;
+      padding-top: 14px !important;
+
+      th,
+      td {
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+/* =====================================================================
+   ORDER RECEIVED (thank you page) — tighter spacing and smaller section
+   titles. Unstyled by default: sections ran with generic h2 sizing
+   (up to 2rem) and the order-overview box had inconsistent gaps
+   between its items — the parent theme's mobile CSS only adds
+   margin-bottom to the order/date/email items, not total/payment
+   method (wc-thank-you.scss), so those two ran together.
+   ===================================================================== */
+.woocommerce-order {
+  padding: 20px 16px;
+  max-width: 640px;
+  margin: 0 auto;
+  font-size: 1rem;
+
+  .woocommerce-thankyou-order-received {
+    margin-bottom: 20px;
+  }
+
+  .woocommerce-order-details__title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-top: 32px;
+    margin-bottom: 16px;
+    padding-top: 20px;
+    border-top: 1px solid rgba($color-dark, 0.12);
+  }
+
+  section:first-of-type .woocommerce-order-details__title {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+}
+
+.woocommerce-order-overview {
+  li {
+    margin-bottom: 12px !important;
+    font-size: 0.9rem !important;
+
+    &:last-child {
+      margin-bottom: 0 !important;
+    }
+  }
+
+  li strong {
+    font-size: 1.2em !important;
+  }
+}
+
+.woocommerce-table--order-details {
+  display: block;
+  overflow-x: auto;
+  font-size: 1.05rem;
+
+  th,
+  td {
+    padding: 10px 12px !important;
+  }
+}
+
+/* =====================================================================
+   ORDER RECEIVED — "ticket" redesign (headshop-order-*)
+   Reaproveita o padrão "eyebrow" (uppercase, letter-spacing) já usado
+   no rodapé (.headshop-footer__info-title) e a fonte de destaque Syne
+   (.headshop-footer__brand-name) — sem carregar fonte nova.
+   ===================================================================== */
+// Fluid type scale ported from the mobile reference mockup
+// (pedido-recebido-indicativa-mobile.html) — clamp() keeps every size
+// comfortable from 320px up through the ticket's own max-width (640px,
+// see .woocommerce-order) instead of jumping at fixed breakpoints.
+.headshop-order {
+  .headshop-order-eyebrow {
+    display: block;
+    font-size: clamp(0.8rem, 3.4vw, 0.9rem);
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: $text-muted;
+  }
+}
+
+.headshop-order-hero {
+  text-align: center;
+  padding: 4px 0 clamp(1.25rem, 6vw, 1.75rem);
+
+  &__check {
+    width: clamp(2.875rem, 13vw, 3.25rem);
+    height: clamp(2.875rem, 13vw, 3.25rem);
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: $color-primary;
+    display: grid;
+    place-items: center;
+    animation: headshop-order-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+
+    svg {
+      width: 55%;
+      height: 55%;
+      stroke: #fff;
+      stroke-width: 3;
+      fill: none;
+    }
+  }
+
+  // Fully fluid — no breakpoint jumps, fits "CONFIRMADO" without
+  // breaking mid-word from 320px up.
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: clamp(1.375rem, 6.5vw, 1.75rem);
+    line-height: 1.15;
+  }
+
+  p {
+    color: $text-muted;
+    margin-top: 10px;
+    font-size: clamp(1.05rem, 4.5vw, 1.2rem);
+
+    strong {
+      color: $text-body;
+    }
+  }
+}
+
+@keyframes headshop-order-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .headshop-order-hero__check {
+    animation: none;
+  }
+}
+
+.headshop-order-ticket {
+  background: #fff;
+  border: 1px solid rgba($color-dark, 0.12);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba($color-dark, 0.05);
+
+  &__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 14px;
+    padding: clamp(0.875rem, 4.5vw, 1.125rem) clamp(0.875rem, 4.5vw, 1.25rem);
+    background: $section-light-bg;
+  }
+
+  &__num strong {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.5rem, 7vw, 1.875rem);
+    display: block;
+  }
+
+  // Grid em vez de flex+breakpoint: as duas colunas nunca se espremem
+  // uma na outra em telas estreitas, então não há wrap de palavra.
+  &__meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px clamp(0.875rem, 4.5vw, 1.25rem);
+    padding: clamp(0.875rem, 4.5vw, 1.125rem) clamp(0.875rem, 4.5vw, 1.25rem);
+    border-bottom: 1px dashed rgba($color-dark, 0.15);
+
+    @media (max-width: 355px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__val {
+    font-size: clamp(0.906rem, 3.9vw, 1rem);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  &__items {
+    padding: 6px clamp(0.875rem, 4.5vw, 1.25rem);
+  }
+
+  &__item {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px 16px;
+    padding: 14px 0;
+    font-size: clamp(0.906rem, 3.9vw, 1rem);
+
+    & + & {
+      border-top: 1px solid rgba($color-dark, 0.1);
+    }
+  }
+
+  &__qty {
+    color: $text-muted;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  // wc_display_item_meta() output (variação/tamanho em produtos
+  // variáveis) — só aparece quando o item tem meta, produtos simples
+  // não geram essa lista.
+  .wc-item-meta {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    font-size: 0.8rem;
+    color: $text-muted;
+  }
+
+  &__price {
+    font-size: clamp(0.906rem, 3.9vw, 1rem);
+    font-weight: 600;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  // "Entrega" — mesmo padrão eyebrow + valor usado em Data/Pagamento.
+  &__shipping {
+    padding: 14px clamp(0.875rem, 4.5vw, 1.25rem);
+    border-top: 1px dashed rgba($color-dark, 0.15);
+  }
+
+  &__totals {
+    border-top: 1px dashed rgba($color-dark, 0.15);
+    padding: clamp(0.75rem, 4vw, 1rem) clamp(0.875rem, 4.5vw, 1.25rem) clamp(1rem, 4.5vw, 1.25rem);
+    background: mix($section-light-bg, #fff, 35%);
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    color: $text-muted;
+    font-size: 0.8rem;
+
+    &--grand {
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 1px solid rgba($color-dark, 0.15);
+      color: $text-body;
+      align-items: baseline;
+    }
+  }
+
+  &__label {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: clamp(0.9rem, 3.8vw, 1rem);
+  }
+
+  &__amount {
+    font-size: clamp(1.1875rem, 5.5vw, 1.4375rem);
+    font-weight: 600;
+  }
+}
+
+.headshop-order-badge {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.656rem, 2.9vw, 0.719rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 7px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+
+  &.is-confirmed {
+    background: $color-primary;
+  }
+
+  &.is-pending {
+    background: mix(#000, $text-muted, 10%);
+  }
+
+  &.is-declined {
+    background: $color-danger;
+  }
+}
+
+.headshop-order-pickup,
+.headshop-order-delivery {
+  margin-top: 20px;
+  border-radius: 10px;
+  padding: clamp(1.125rem, 5.5vw, 1.5rem) clamp(0.875rem, 4.5vw, 1.25rem) clamp(0.875rem, 4.5vw, 1.25rem);
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: clamp(1.125rem, 5.2vw, 1.375rem);
+    letter-spacing: 0.02em;
+    margin: 6px 0 12px;
+  }
+
+  address {
+    font-style: normal;
+    font-size: clamp(1.05rem, 4.5vw, 1.2rem);
+    line-height: 1.55;
+  }
+}
+
+.headshop-order-pickup {
+  background: $color-dark;
+  color: $section-light-bg;
+
+  .headshop-order-eyebrow {
+    color: rgba($section-light-bg, 0.65);
+  }
+
+  &__hours {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba($section-light-bg, 0.18);
+    font-size: clamp(0.95rem, 4vw, 1.05rem);
+    line-height: 1.6;
+    color: rgba($section-light-bg, 0.85);
+
+    b {
+      color: $section-light-bg;
+      font-weight: 600;
+    }
+  }
+}
+
+.headshop-order-delivery {
+  background: $section-light-bg;
+  color: $text-body;
+}
+
+.headshop-order-btn-whats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 18px;
+  background: $color-primary;
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.875rem, 3.9vw, 0.9375rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 12px 18px;
+  border-radius: 999px;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: $btn-primary-hover;
+    color: #fff;
+  }
+}
+
+.headshop-order-back-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 24px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.84rem, 3.7vw, 0.906rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $color-primary;
+  text-decoration: none;
+  padding: 12px;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+.headshop-order-note {
+  margin-top: 28px;
+  text-align: center;
+  font-size: clamp(0.95rem, 4vw, 1.05rem);
+  color: $text-muted;
+
+  a {
+    color: $text-muted;
+    text-decoration: underline;
   }
 }
