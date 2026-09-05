@@ -1,0 +1,21 @@
+// Self-hosted fonts (Syne, Oswald) — avoids the round-trip to
+// fonts.googleapis.com/fonts.gstatic.com that caused a visible FOUT on
+// reload. Both files are variable fonts covering their full weight
+// range, so one file per family is enough (browser instantiates the
+// exact weight requested via font-weight).
+
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../fonts/oswald-variable-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 700 800;
+  font-display: swap;
+  src: url('../fonts/syne-variable-latin.woff2') format('woff2');
+}

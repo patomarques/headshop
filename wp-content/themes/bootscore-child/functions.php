@@ -24,10 +24,13 @@ if (!defined('BOOTSCORE_SCSS_DISABLE_COMPILER')) {
 }
 add_filter('bootscore/scss/disable_compiler', '__return_true');
 
-// Google Fonts preconnect hints
+// Self-hosted fonts (assets/fonts) — preload so the browser starts
+// fetching them before it even parses main.css, avoiding the FOUT that
+// happened when Syne/Oswald were pulled from Google Fonts on each load.
 add_action('wp_head', function () {
-    echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
-    echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
+    $fonts_uri = get_stylesheet_directory_uri() . '/assets/fonts';
+    echo '<link rel="preload" href="' . esc_url($fonts_uri . '/oswald-variable-latin.woff2') . '" as="font" type="font/woff2" crossorigin>' . "\n";
+    echo '<link rel="preload" href="' . esc_url($fonts_uri . '/syne-variable-latin.woff2') . '" as="font" type="font/woff2" crossorigin>' . "\n";
 }, 1);
 
 add_action('wp_enqueue_scripts', 'headshop_enqueue_assets');
@@ -35,18 +38,10 @@ function headshop_enqueue_assets() {
     // Parent style
     wp_enqueue_style('parent-style', get_template_directory_uri() . '/style.css');
 
-    // Google Fonts — Syne display + Oswald banner
-    wp_enqueue_style(
-        'headshop-google-fonts',
-        'https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Oswald:wght@400;600;700&display=swap',
-        array(),
-        null
-    );
-
-    // Compiled child main.css (Bootstrap + custom SCSS)
+    // Compiled child main.css (Bootstrap + custom SCSS + @font-face for Syne/Oswald)
     $css_path = get_stylesheet_directory() . '/assets/css/main.css';
     $css_ver  = file_exists($css_path) ? date('YmdHi', filemtime($css_path)) : null;
-    wp_enqueue_style('headshop-main', get_stylesheet_directory_uri() . '/assets/css/main.css', array('parent-style', 'headshop-google-fonts'), $css_ver);
+    wp_enqueue_style('headshop-main', get_stylesheet_directory_uri() . '/assets/css/main.css', array('parent-style'), $css_ver);
 
     // Dashicons (for cart icons)
     wp_enqueue_style('dashicons');
@@ -59,9 +54,10 @@ function headshop_enqueue_assets() {
     // Localize for AJAX
     if (class_exists('WooCommerce')) {
         wp_localize_script('headshop-custom', 'headshopAjax', array(
-            'url'   => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('headshop_cart'),
-            'debug' => (bool) (defined('WP_DEBUG') && WP_DEBUG),
+            'url'      => admin_url('admin-ajax.php'),
+            'nonce'    => wp_create_nonce('headshop_cart'),
+            'debug'    => (bool) (defined('WP_DEBUG') && WP_DEBUG),
+            'themeUrl' => get_stylesheet_directory_uri(),
         ));
     }
 }
@@ -116,6 +112,31 @@ add_filter('woocommerce_checkout_fields', function ($fields) {
 add_filter('woocommerce_shipping_package_name', function () {
     return __('Forma de Entrega', 'woocommerce');
 });
+
+// Checkout order review: prepend each line item's thumbnail (with a
+// quantity badge) to the product name. review-order.php has no image
+// column by default — only product-name/product-total — so the mobile
+// summary needs this to show a photo per item like the cart does.
+add_filter('woocommerce_cart_item_name', function ($name, $cart_item, $cart_item_key) {
+    if (!is_checkout()) {
+        return $name;
+    }
+
+    $product = $cart_item['data'];
+    if (!$product) {
+        return $name;
+    }
+
+    $thumbnail = $product->get_image('woocommerce_thumbnail');
+    $qty       = absint($cart_item['quantity']);
+
+    return sprintf(
+        '<span class="headshop-checkout-item"><span class="headshop-checkout-item__thumb">%s<span class="headshop-checkout-item__qty">%d</span></span><span class="headshop-checkout-item__name">%s</span></span>',
+        $thumbnail,
+        $qty,
+        $name
+    );
+}, 10, 3);
 
 // Force pt-BR for WooCommerce Cart/Checkout block strings (React/JS i18n).
 // These render client-side via wp.i18n, not PHP gettext, and the bundled
@@ -1186,7 +1207,7 @@ function headshop_sale_products() {
                   <h3 class="headshop-sale-products__name"><?= esc_html($name); ?></h3>
                   <div class="headshop-sale-products__price"><?= wp_kses_post($price_html); ?></div>
                   <a href="<?= esc_url($product->add_to_cart_url()); ?>"
-                     class="headshop-carousel__add-btn add_to_cart_button ajax_add_to_cart"
+                     class="headshop-carousel__add-btn"
                      data-product_id="<?= esc_attr($id); ?>"
                      data-quantity="1"
                      rel="nofollow">Adicionar</a>
@@ -1255,7 +1276,7 @@ function headshop_new_products() {
                   <h3 class="headshop-new-products__name"><?= esc_html($name); ?></h3>
                   <div class="headshop-new-products__price"><?= wp_kses_post($price_html); ?></div>
                   <a href="<?= esc_url($product->add_to_cart_url()); ?>"
-                     class="headshop-carousel__add-btn add_to_cart_button ajax_add_to_cart"
+                     class="headshop-carousel__add-btn"
                      data-product_id="<?= esc_attr($id); ?>"
                      data-quantity="1"
                      rel="nofollow">Adicionar</a>
@@ -1349,7 +1370,7 @@ function headshop_most_viewed_products() {
                   <h3 class="headshop-viewed-products__name"><?= esc_html($name); ?></h3>
                   <div class="headshop-viewed-products__price"><?= wp_kses_post($price_html); ?></div>
                   <a href="<?= esc_url($product->add_to_cart_url()); ?>"
-                     class="headshop-carousel__add-btn add_to_cart_button ajax_add_to_cart"
+                     class="headshop-carousel__add-btn"
                      data-product_id="<?= esc_attr($id); ?>"
                      data-quantity="1"
                      rel="nofollow">Adicionar</a>
@@ -1417,7 +1438,7 @@ function headshop_most_purchased_products() {
                   <h3 class="headshop-purchased-products__name"><?= esc_html($name); ?></h3>
                   <div class="headshop-purchased-products__price"><?= wp_kses_post($price_html); ?></div>
                   <a href="<?= esc_url($product->add_to_cart_url()); ?>"
-                     class="headshop-carousel__add-btn add_to_cart_button ajax_add_to_cart"
+                     class="headshop-carousel__add-btn"
                      data-product_id="<?= esc_attr($id); ?>"
                      data-quantity="1"
                      rel="nofollow">Adicionar</a>
@@ -1574,12 +1595,16 @@ function headshop_image_import_page() {
 
 
 /* =====================================================================
-   13. HIDE HOMEPAGE TITLE
+   13. HIDE PAGE TITLE ON HOMEPAGE & ORDER-RECEIVED
+   Order-received gets its own "Pedido confirmado" heading from the
+   headshop-order-hero section (checkout/thankyou.php override) — the
+   generic page title above it is redundant.
    ===================================================================== */
 
 add_filter('the_title', function ($title, $post_id) {
     if (is_admin()) return $title;
     if ((is_front_page() || is_home()) && in_the_loop()) return '';
+    if (function_exists('is_order_received_page') && is_order_received_page() && in_the_loop()) return '';
     return $title;
 }, 10, 2);
 
@@ -1724,3 +1749,56 @@ add_filter('woocommerce_asaas_payment_data', function ($payment_data, $wc_order,
     }
     return $payment_data;
 }, 5, 3);
+
+
+/* =====================================================================
+   16. CHECKOUT — REQUIRE LOGIN
+   Reduz risco de fraude: visitante anônimo que tentar acessar o
+   checkout é redirecionado para Minha Conta (login/cadastro) antes de
+   ver o formulário. Volta automática ao checkout é feita pelo campo
+   oculto "redirect" (ver função headshop_checkout_redirect_field
+   abaixo), lido nativamente por WC_Form_Handler::process_login() e
+   process_registration(). order-pay/order-received ficam de fora pois
+   já assumem que o pedido existe — não devem exigir novo login.
+   ===================================================================== */
+
+add_action('template_redirect', function () {
+    if (!function_exists('is_checkout') || !is_checkout() || is_user_logged_in()) {
+        return;
+    }
+    if (is_wc_endpoint_url('order-pay') || is_wc_endpoint_url('order-received')) {
+        return;
+    }
+
+    wc_add_notice(
+        __('Faça login ou crie sua conta para finalizar a compra com segurança.', 'headshop'),
+        'notice'
+    );
+
+    $redirect = add_query_arg(
+        'redirect_to',
+        rawurlencode(wc_get_checkout_url()),
+        wc_get_page_permalink('myaccount')
+    );
+
+    wp_safe_redirect($redirect);
+    exit;
+});
+
+// WooCommerce já injeta esse campo nativamente no formulário de login
+// (Automattic\WooCommerce\Blocks\BlockTypesController::redirect_to_field,
+// hook woocommerce_login_form_end) — só falta no de cadastro, cobrimos
+// apenas esse aqui para não duplicar o que o core já faz.
+add_action('woocommerce_register_form_start', function () {
+    if (empty($_GET['redirect_to'])) {
+        return;
+    }
+    $target = wp_validate_redirect(
+        esc_url_raw(wp_unslash($_GET['redirect_to'])),
+        ''
+    );
+    if (!$target) {
+        return;
+    }
+    printf('<input type="hidden" name="redirect" value="%s" />', esc_attr($target));
+});
