@@ -5,8 +5,8 @@
 /index.php
 /license.txt
 /readme.html
-xmlrpc.php
-.htaccess
+/xmlrpc.php
+/.htaccess
 
 # Uploads
 /wp-content/uploads/
